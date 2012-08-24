@@ -1,0 +1,82 @@
+2.0.0
+- Hupo
+	+ Feature: Harder, Better, Faster, Stronger
+	+ Feature: Now on GitHub!
+	+ Feature: Thumbnail View has evolved into Details View
+	+ Feature: Info View has evolved into Actions View
+	+ Feature: Filter, which allows you to highlight gallery links/tags based on regexps.
+	+ Feature: Gallery metadata fetching is now done on page links (/s/...) too
+	+ Feature: Gallery metadata caching with HTML5 Local / Session Storage
+	+ Feature: Integrated ExSauce (you should remove any separate installations)
+	+ Feature: URL parsing has been improved in both speed and accuracy
+	+ Feature: No more cooldown for gallery thumbnail fetching
+	+ Feature: Archiver link is instantly usable after fetching
+	+ Feature: Options dialog, stylistically compatible with vanilla 4chan, OneeChan and 4chan SS
+	+ Feature: Gallery metadata lookup via E-Hentai Public JSON API
+	+ Change: Automatic link formatting has been re-enabled
+	+ Change: "Intelligent Fetching" has been renamed to "Smart Links"
+	+ Change: Smart Links doesn't do color highlighting anymore (use the Filter instead)
+	+ Change: Some pointless user options were removed
+	+ Fix: The Button now accurately reflects the gallery URL according to your settings
+	+ Fix: Multiple links to the same gallery shouldn't cause any issues anymore
+	+ Fix: Inline quotes shouldn't cause any issues anymore either
+
+
+1.7.4
+- Hupo
+	+ Change: Disabled link preloading because of load limits imposed on .hathdl fetching
+
+1.7.3
+- Hupo
+	+ Feature: Now works in the Foolz archive
+
+1.7.2
+- Anonymous
+	+ Feature: Intelligent fetching (disabled by default)
+	+ Feature: Add to favorites (defaults to a pop-up, can be made automatic)
+	+ Fix: 4chan X inline quotes work properly again
+
+1.5.7
+- Hupo
+	+ Change: Torrent view now opens as a pop-up by default (customizable) 
+	+ Change: Archiver link now has strikethrough initially (since it requires fetching the thumbnail) 
+	+ Fix: Cursor icon changes to pointer on pop-up links 
+	+ Fix: Pop-up links can now be opened to new tabs
+
+1.5.5
+- Hupo
+	+ Feature: Plenty of new configuration options
+	+ Feature: File count and links bar in detail view
+	+ Fix: Working thumbnail (and archiver link) fetching in inline quotes
+	+ Change: Separate button for detail view removed, replaced by fetch button after fetching
+
+1.3.7
+- Hupo
+	+ Fix: Thumbnail hover no longer goes offscreen
+	+ Feature: Thumbnail hover reports on load failure
+	+ Change: Thumbnail loading improved to avoid loading the same image multiple times
+	
+1.3.5
+- Hupo
+	+ Change: Thumbnail fetching no longer on name expansion, now activates on gallery name hover
+	+ Change: Gallery name fetching defaults to g.e-hentai.org
+	+ Feature: Thumbnail fetching cooldown to prevent autoban
+	
+1.2.5
+- Hupo
+	+ Feature: Gallery thumbnail fetching along with the name
+	+ Feature: Customizable fetching options
+	+ Fix: Doesn't break 4chan X anymore
+	+ Change: File count removed from detailed view
+	
+1.1.0
+- Anonymous
+	+ Change: Gallery name is now fetched from H@H download info
+	+ Feature: Expandable details view with tags and file count
+	+ Feature: Automatic link processing
+	+ Fix: Accidental quote removal
+	
+1.0.0
+- Hupo
+	+ Feature: Manual gallery name fetching from gallery torrent page
+	+ Feature: Turn all exhentai/e-hentai gallery URLs to actual links
