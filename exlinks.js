@@ -83,7 +83,7 @@
 	};
 	conf = {};
 	img = {};
-	
+
 	/* 
 	A whole bunch of code lifted pretty much straight from 4chan X.
 	Stripped and extended to only contain the necessary functionality for ExLinks.
@@ -259,7 +259,11 @@
 	});
 	
 	UI = {
-		html: {},
+		html: {
+			details: function(data) { return '#DETAILS#'; },
+			actions: function(data) { return '#ACTIONS#'; },
+			options: function(data) { return '#OPTIONS#'; }
+		},
 		details: function(uid) {
 			var data, replace, frag, jtitle, date, tags;
 			
@@ -696,5 +700,5 @@
 	};	
 	
 	Main.init();
-
+// copy that
 }).call(this);
