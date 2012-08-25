@@ -1,13 +1,14 @@
-/*jshint eqnull:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, devel:true, maxerr:50 */
+﻿/*jshint eqnull:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, devel:true, maxerr:50 */
 (function() {
 	"use strict";
 	var fetch, defaults, conf, regex, img, d, t, $, $$,
 		UI, Cache, API, Database, Options, Sauce, Filter, Parser, Config, Main;
 	
+	img = {};
 	fetch = {
-		original: {site: "Original"},
-		geHentai: {site: "g.e-hentai.org"},
-		exHentai: {site: "exhentai.org"}
+		original: {value: "Original"},
+		geHentai: {value: "g.e-hentai.org"},
+		exHentai: {value: "exhentai.org"}
 	};	
 	defaults = { 
 		main: {
@@ -31,8 +32,8 @@
 			}
 		},
 		favorite: {
-			'Favorite Category': [UI.favorite, 0, 'The category to use.'],
-			'Favorite Comment': [UI.textbox, '', 'The comment to use.']
+			'Favorite Category': ['favorite', 0, 'The category to use.'],
+			'Favorite Comment':  ['textbox', '', 'The comment to use.']
 		},
 		domains: {
 				'Gallery Link':         ['domain', fetch.original, 'The domain used for the actual link. Overriden by Smart Links.'],
@@ -82,7 +83,6 @@
 		fjord: /(bestiality|incest|lolicon|shotacon|toddlercon)/
 	};
 	conf = {};
-	img = {};
 
 	/* 
 	A whole bunch of code lifted pretty much straight from 4chan X.
@@ -112,11 +112,8 @@
 		var key, val;
 		for (key in properties)
 		{
-			if( properties.hasOwnProperty(key) ) // speedup
-			{
-				val = properties[key];
-				object[key] = val;
-			}
+			val = properties[key];
+			object[key] = val;
 		}
 	};
 	$.extend($, {
@@ -265,51 +262,110 @@
 			options: function(data) { return '#OPTIONS#'; }
 		},
 		details: function(uid) {
-			var data, replace, frag, jtitle, date, tags;
+			var data, date, frag, jtitle, taglist;
 			
 			data = Database.get(uid);
-			replace = [
-				['#THUMB#',             data.thumb],
-				['#CATEGORY_IMAGE#',    img.categories[data.category]],
-				['#CATEGORY#',          data.category],
-				['#RATING_IMAGE#',      img.ratings[Math.round(data.rating*2)]],
-				['#RATING#',            data.rating],
-				['#VOTES#',             data.votes],
-				['#FILES#',             data.files],
-				['#SIZE#',              data.size],
-				['#TORRENTS#',          data.torrents],
-				['#TITLE#',             data.title],
-				['#JTITLE#',            jtitle],
-				['#USER#',              data.user],
-				['#DATE#',              date],
-				['#TAGS#',              tags]
-			];
+			date = new Date(data.date);
+			data.datetext = UI.date(date);
 			frag = d.createDocumentFragment();
-			frag.innerHTML = $.textreplace(UI.html.details, replace);
+			frag.innerHTML = UI.html.details(data);
 			
 			return frag;
 		},
-		actions: function(uid,eid) {
-		
+		actions: function(data,link) {
+			var uid, token, key, date, taglist, sites, tag, div, tagspace, frag;
+			uid = data.GID;
+			token = data.gKey;
+			key = data.aKey;
+			date = new Date(data.date);
+			taglist = [];
+			data.datetext = UI.date(date);
+			data.textcat = {
+				"doujinshi": "Doujinshi",
+				"manga": "Manga",
+				"artistcg": "Artist CG",
+				"gamecg": "Game CG",
+				"western": "Western",
+				"non-h": "Non-H",
+				"imageset": "Image Set",
+				"cosplay": "Cosplay",
+				"asianporn": "Asian Porn",
+				"misc": "Misc",
+				"private": "Private"
+			};
+			sites = [
+				Config.link(link.href,conf['Torrent Link']),
+				Config.link(link.href,conf['Hentai@Home Link']),
+				Config.link(link.href,conf['Archiver Link']),
+				Config.link(link.href,conf['Favorite Link']),
+				Config.link(link.href,conf['Uploader Link']),
+				Config.link(link.href,conf['Stats Link']),
+				Config.link(link.href,conf['Tag Links'])
+			];
+			for ( var i = 0; i < data.tags.length; i++ ) {
+				tag = $.el('a', {
+					innerHTML: data.tags[i],
+					className: "exlink extag",
+					href: 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+')
+				});
+				/*tag = d.createElement('a');
+				tag.innerHTML = data.tags[i];
+				tag.className = "exlink extag";
+				tag.href = 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+');*/
+				tag.setAttribute('style','display: inline-block !important; text-decoration: none !important; margin: 0px 2px !important;');
+				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
+				taglist.push(tag);
+			}
+			data.url = {
+				ge: "http://g.e-hentai.org/g/"+uid+"/"+token+"/",
+				ex: "http://exhentai.org/g/"+uid+"/"+token+"/",
+				bt: "http://"+sites[0]+"/gallerytorrents.php?gid="+uid+"&t="+token,
+				hh: "http://"+sites[1]+"/hathdler.php?gid="+uid+"&t="+token,
+				arc: "http://"+sites[2]+"/archiver.php?gid="+uid+"&or="+key,
+				fav: "http://"+sites[3]+"/gallerypopups.php?gid="+uid+"&t="+token+"&act=addfav",
+				user: "http://"+sites[4]+"/uploader/"+data.user.replace(/\ /g,'+'),
+				stats: "http://"+sites[5]+"/stats.php?gid="+uid+"&t="+token
+			};
+			frag = d.createDocumentFragment();
+			div = $.el('div', {
+				innerHTML: UI.html.actions(data),
+				className: 'exblock exactions uid-'+data.GID,
+				id: link.id.replace('exlink-gallery','exblock-actions')
+			});
+			div.setAttribute('style','display: none !important; max-width: 100%; width: auto; padding: 4px; margin: 3px 0; border-radius: 4px; background-color: rgba(0,0,0,0.05) !important;');
+			tagspace = $('.extags',div);
+			$.add(tagspace,taglist);
+			frag.appendChild(div);
+			return frag;
 		},
 		button: function(link,eid) {
 			var button;
 			button = $.el('a',{
-				id: 'exbutton-'+eid,
-				className: 'exlink exbutton_processlink',
-				innerHTML: UI.button.text(link.href),
-				href: link.href
+				id: eid.replace('gallery','button'),
+				className: 'exlink exbutton exfetch',
+				innerHTML: UI.button.text(link),
+				href: link
 			});
 			button.style.marginRight = '4px';
 			button.style.textDecoration = 'none';
 			button.setAttribute('target','_blank');
-			$.before(link,button);
+			return button;
 		},
 		options: function() {
 		
 		},
 		toggle: function(e) {
-		
+			var actions, style;
+			e.preventDefault();
+			actions = $.id(e.target.id.replace('exlink-button','exblock-actions'));
+			style = actions.getAttribute('style');
+			if(style.match('inline-block')) {
+				style = style.replace('inline-block','none');
+			} else
+			if(style.match('none')) {
+				style = style.replace('none','inline-block');
+			}
+			actions.setAttribute('style',style);
 		},
 		show: function(e) {
 		
@@ -320,10 +376,33 @@
 		move: function(e) {
 		
 		},
+		prevent: function(e) {
+			e.preventDefault();
+			return false;
+		},
+		date: function(d) {
+			var pad = function(n) {
+				return n<10 ? '0'+n : n;
+			};
+			return [
+				d.getUTCFullYear()+'-',
+				pad(d.getUTCMonth()+1)+'-',
+				pad(d.getUTCDate())+' ',
+				pad(d.getUTCHours())+':',
+				pad(d.getUTCMinutes())
+			].join('');
+		},
 		init: function() {
 			$.extend(UI.button, {
 				text: function(url) {
-				
+					if(url.match('exhentai.org')) {
+						return '[Ex]';
+					} else
+					if(url.match('g.e-hentai.org')) {
+						return '[EH]';
+					} else {
+						return false;
+					}
 				}
 			});
 		}
@@ -417,7 +496,7 @@
 				}
 			} else
 			if(type === 'i') {
-				// ExSauce stuff
+				// TODO: Exsauce stuff
 			}
 			Main.update();
 		},
@@ -435,6 +514,51 @@
 					API[type] = {};
 				}
 			});
+		}
+	};
+	Cache = {
+		init: function() {
+			if(conf['Disable Local Storage Cache']) {
+				Cache.type = sessionStorage;
+			} else {
+				Cache.type = localStorage;
+			}
+		},
+		get: function(uid) {
+			var key, json;
+			key = 'exlinks-gallery-'+uid;
+			json = Cache.type.getItem(key);
+			if(json) {
+				json = JSON.parse(json);
+				if ( Date.now() > json.added + json.TTL )
+				{
+					Cache.type.removeItem(key);
+					return false;
+				} else {
+					return json.data;
+				}
+			} else {
+				return false;
+			}
+		},
+		set: function(data) {
+			var key, TTL, date;
+		},
+		load: function() {
+			var key, data;
+			
+			for ( var i = 0; i < Cache.type.length; i++ )
+			{
+				key = Cache.type.key(i);
+				if( key.match('exlinks-gallery') )
+				{
+					data = Cache.get(key.match(/[0-9]+/));
+					if(data)
+					{
+						Database.set(data);
+					}
+				}
+			}
 		}
 	};
 	Database = {}; $.extend(Database, {
@@ -465,51 +589,8 @@
 			return Database.usage.data[uid]++;
 		},
 		init: function() {
-			if(conf['Disable Local Storage Cache']) {
-				Cache = sessionStorage;
-			} else {
-				Cache = localStorage;
-			}
 			$.extend(Database.usage, {
 				data: {}
-			});
-			$.extend(Cache, {
-				get: function(uid) {
-					var key, json;
-					key = 'exlinks-gallery-'+uid;
-					json = Cache.getItem(key);
-					if(json) {
-						json = JSON.parse(json);
-						if ( Date.now() > json.added + json.TTL )
-						{
-							Cache.removeItem(key);
-							return false;
-						} else {
-							return JSON.parse(json.data);
-						}
-					} else {
-						return false;
-					}
-				},
-				set: function(data) {
-					var key, TTL, date;
-				},
-				load: function() {
-					var key, data;
-					
-					for ( var i = 0; i < Cache.length; i++ )
-					{
-						key = Cache.key(i);
-						if( key.match('exlinks-gallery') )
-						{
-							data = Cache.get(key.match(/[0-9]+/));
-							if(data)
-							{
-								Database.set(data);
-							}
-						}
-					}
-				}
 			});
 			if(conf['Populate Database on Load']) {
 				Cache.load();
@@ -519,11 +600,17 @@
 	Parser = {
 		posts: 'blockquote',
 		links: '.exlink',
-		unprocessed: function(uid) {
-			return '.uid-'+uid+':not(.processed)';
+		unformatted: function(uid) {
+			var result = [], links = $$('a.uid-'+uid);
+			for ( var i = 0; i < links.length; i++ ) {
+				if(links[i].classList.contains('exprocessed')) {
+					result.push(links[i]);
+				}
+			}
+			return result;
 		},
 		linkify: function(post) {
-			var nodes, node, text, match, links, link,
+			var nodes, node, text, match,
 				linknode, sp, ml, tn, tl, tu;
 			nodes = $.tnodes(post);
 			for ( var i = 0; i < nodes.length; i++ )
@@ -542,7 +629,7 @@
 					tu = $.el('a', {
 						href: match[0],
 						innerHTML: match[0],
-						className: 'exlink gallerylink unprocessed'
+						className: 'exlink exgallery exunprocessed'
 					});
 					linknode.push(tn);
 					linknode.push(tu);
@@ -552,10 +639,36 @@
 				if(tl) { linknode.push(tl); }
 				if(linknode) { $.replace(node, linknode); }
 			}
-			links = $$('.gallerylink',post);
 		}
 	};
 	Config = {
+		link: function(url,opt) {
+			var site;
+			if(opt === fetch.original)
+			{
+				if(url.match('exhentai.org'))
+				{
+					site = 'exhentai.org';
+				}
+				else if(url.match('g.e-hentai.org'))
+				{
+					site = 'g.e-hentai.org';
+				} else {
+					site = false;
+				}
+			}
+			else if(opt === fetch.exHentai)
+			{
+				site = 'exhentai.org';
+			}
+			else if(opt === fetch.geHentai)
+			{
+				site = 'g.e-hentai.org';
+			} else {
+				site = 'exhentai.org';
+			}
+			return site;
+		},
 		site: function() {
 			var curSite, curDocType, curType;
 			curSite = document.URL;
@@ -584,8 +697,40 @@
 		}
 	};
 	Main = {
-		format: function() {
-		
+		format: function(queue) {
+			console.log(queue);
+			var uid, links, link, button, data, actions, titlelink, favlink;
+			for ( var i = 0; i < queue.length; i++ ) {
+				uid = queue[i];
+				data = Database.get(uid);
+				links = Parser.unformatted(uid);
+				for ( var k = 0; k < links.length; k++ ) {
+					link = links[k];
+					button = $.id(link.id.replace('gallery','button'));
+					link.innerHTML = data.title;
+					$.off(button,'click',Main.singlelink);
+					$.on(button,'click',UI.toggle);
+					$.on(link,'mouseover',UI.show);
+					$.on(link,'mouseout',UI.hide);
+					$.on(link,'mousemove',UI.move);
+					actions = UI.actions(data,link);
+					$.after(link,actions);
+					actions = $.id(link.id.replace('exlink-gallery','exblock-actions'));
+					/*
+					if(conf['Favorite Autosave']) {
+						favlink = $('a.exfavorite',actions);
+						$.on(favlink,'click',UI.favorite);
+					}
+					if(conf.Filter) {
+						// Filter.process(actions);
+					}*/
+					link.classList.remove('exprocessed');
+					link.classList.add('exformatted');
+					button.classList.remove('exfetch');
+					button.classList.add('extoggle');
+				}
+			}
+			Main.queue.clear();
 		},
 		queue: function() {
 			var arr = [], i = 0,
@@ -597,20 +742,57 @@
 		},
 		update: function() {
 			var queue = Main.queue();
-			if(API.queue('s')) {
+			/*if(API.queue('s')) {
 				API.request('s');
 			} else
 			if(API.queue('g')) {
 				API.request('g');
-			}
+			}*/
 			if(queue.length) {
 				Main.format(queue);
 				Main.queue.clear();
 			}
 		},
+		singlelink: function(e) {
+			var link;
+			link = $.id(e.target.id.replace('button','gallery'));
+			Main.single(link);
+			
+		},
+		single: function(link) {
+			var type, uid, token, page, check;
+			type = link.className.match(regex.type)[1];
+			uid = link.className.match(regex.uid)[1];
+			token = link.className.match(regex.token);
+			page = link.className.match(regex.page);
+			if(type === 's')
+			{
+				check = Database.get(uid);
+				if(check) {
+					type = 'g';
+					token = check.gKey;
+					link.classList.remove('type-s');
+					link.classList.remove('page-'+page[1]+'-'+page[2]);
+					link.classList.add('type-g');
+					link.classList.add('token-'+token);
+					Main.queue.add(uid);
+				} else {
+					API.queue.add('s',uid,page[1],page[2]);
+				}
+			}
+			if(type === 'g')
+			{
+				check = Database.get(uid);
+				if(check) {
+					Main.queue.add(uid);
+				} else {
+					API.queue.add('g',uid,token[1]);
+				}
+			}
+		},
 		process: function(el) {
-			var posts, post, links, link, images, image,
-				type, uid, check, match, token, page;
+			var posts, post, links, link, images, image, site,
+				type, gid, sid, uid, button, usage;
 			posts = $$(Parser.posts,el);
 			for ( var i = 0; i < posts.length; i++ )
 			{
@@ -622,47 +804,74 @@
 						Parser.linkify(post);
 						post.classList.add('exlinkified');
 					}
-					links = $$('.exlink',post);
+					links = $$('a.exlink',post);
 					for ( var j = 0; j < links.length; j++ )
 					{
 						link = links[j];
-						if(link.classList.contains('extoggle')) {
-							$.on(link,'click',UI.toggle);
+						if(link.classList.contains('exbutton')) {
+							if(link.classList.contains('extoggle')) {
+								$.on(link,'click',UI.toggle);
+							}
+							if(link.classList.contains('exfetch')) {
+								$.on(link,'click',Main.singlelink);
+							}
 						}
-						if(link.classList.contains('exfetch')) {
-							$.on(link,'click',UI.single);
-						}
-						if(link.classList.contains('processed')) {
-							$.on(link,'mouseover',UI.show);
-							$.on(link,'mouseout',UI.hide);
-							$.on(link,'mousemove',UI.move);
-						}
-						if(link.classList.contains('unprocessed')) {
-							type = link.className.match(regex.type);
-							uid = link.className.match(regex.uid);
-							token = link.className.match(regex.token);
-							page = link.className.match(regex.page);
-							if(type === 's')
-							{
-								check = Database.get(uid);
-								if(check) {
-									type = 'g';
-									token = check.gKey;
-									link.classList.remove('type-s');
+						if(link.classList.contains('exgallery')) {
+							if(link.classList.contains('exunprocessed')) {
+								site = conf['Gallery Link'];
+								/* if(site !== fetch.original) {
+									if(!link.href.match(site.value)) {
+										link.href = link.href.replace(regex.site,site.value);
+									}
+								}*/
+								type = link.href.match(regex.type)[1];
+								if(type === 's') {
+									sid = link.href.match(regex.sid);
+									link.classList.add('type-s');
+									link.classList.add('uid-'+sid[2]);
+									link.classList.add('page-'+sid[1]+'-'+sid[3]);
+									uid = sid[2];
+								} else
+								if(type === 'g') {
+									gid = link.href.match(regex.gid);
 									link.classList.add('type-g');
-									link.classList.add('token-'+token);
+									link.classList.add('uid-'+gid[1]);
+									link.classList.add('token-'+gid[2]);
+									uid = gid[1];
+								}
+								link.classList.remove('exunprocessed');
+								if(type) {
+									link.classList.add('exprocessed');
+									usage = Database.usage(uid);
+									link.id = 'exlink-gallery-uid-'+uid+'-'+usage;
+									button = UI.button(link.href,link.id);
+									$.before(link,button);
 								} else {
-									API.queue.add('s',uid,page[0],page[1]);
+									link.classList.remove('exgallery');
 								}
 							}
-							if(type === 'g')
-							{
-								
+							if(link.classList.contains('exprocessed')) {
+								/* if(conf['Automatic Processing']) {
+									Main.single(link);
+								} */
+								Main.single(link);
+							}
+							if(link.classList.contains('exformatted')) {
+								$.on(link,'mouseover',UI.show);
+								$.on(link,'mouseout',UI.hide);
+								$.on(link,'mousemove',UI.move);
 							}
 						}
+						if(link.classList.contains('exfavorite')) {
+							if(conf['Favorite Autosave']) {
+								$.on(link,'click',UI.favorite);
+							}
+						}
+						if(link.classList.contains('extitle')) {
+							$.on(link,'click',UI.prevent);
+						}
 					}
-				}
-				
+				}	
 			}
 			
 			Main.update();
@@ -683,6 +892,7 @@
 		},
 		init: function() {
 			Config.load();
+			Cache.init();
 			Database.init();
 			API.init();
 			UI.init();
@@ -700,5 +910,5 @@
 	};	
 	
 	Main.init();
-// copy that
+	
 }).call(this);

@@ -3,11 +3,9 @@
 fs       = require 'fs'
 {minify} = require 'html-minifier'
 ugly     = require 'uglify-js'
-finder   = require 'findit'
 
 VERSION   = '2.0.0'
 HEADER    = """
-
 // ==UserScript==
 // @name           4chan ExLinks
 // @namespace      hupotronic
@@ -18,10 +16,10 @@ HEADER    = """
 // @include        https://boards.4chan.org/*
 // @include        http://archive.foolz.us/*
 // @include        https://archive.foolz.us/*
-// @updateURL      http://userscripts.org/scripts/source/135734.user.js
+// @updateURL      https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
+// @downloadURL    https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @run-at         document-start
 // ==/UserScript==
-
 """
 
 INFILE    = 'exlinks.js'
@@ -32,9 +30,13 @@ OUTFILE   = 'ExLinks.user.js'
 LATEST    = 'latest.js'
 CHANGELOG = 'CHANGELOG'
 
-option '-o', '--output [PATH]', 'Specify output location.'
+option '-o', '--output [output]', 'Specify output location.'
+option '-u', '--uglify [uglify]', 'Minify with UglifyJS.'
+option '-b', '--browser [browser]', 'Specify path to browser userscript storage location for instant reloading.'
 
 task 'build', (options) ->
+	jsp = ugly.parser
+	pro = ugly.uglify
 	OUTPUT = options.output || OUTFILE
 	html = {}
 	store = (path) ->
@@ -55,12 +57,19 @@ task 'build', (options) ->
 	input = input.replace "\#OPTIONS\#", html.options
 	input = input.replace "img = {}", "img = #{images}"
 	input = input.replace /\/\*jshint.*\*\//, ''
-	input = HEADER+input
+	if options.uglify
+		{uglify} = options
+		uopts = uglify.split ','
+		ast = jsp.parse input
+		if uopts[0] == 'mangle'
+			ast = pro.ast_mangle(ast)
+		if uopts[1] == 'squeeze'
+			ast = pro.ast_squeeze(ast)
+		input = pro.gen_code(ast)
+	input = "\n"+HEADER+"\n"+input
 	fs.writeFileSync OUTPUT, input, 'utf8', (err) ->
 		throw err if err
 	log 'Build successful!'
-
-option '-o', '--output [PATH]', 'Specify output file.'
 
 task 'images', (options) ->
 	OUTPUT = options.output || IMAGEJSON
@@ -82,16 +91,21 @@ task 'images', (options) ->
 	fs.writeFileSync OUTPUT, JSON.stringify(images), 'utf8', (err) ->
 		throw err if err
 	log 'Image data rebuilt successfully!'
-	
-option '-b', '--browser [PATH]', 'Specify path to browser userscript storage location for instant reloading.'
 
 task 'dev', (options) ->
 	invoke 'build'
 	fs.watchFile INFILE, interval: 250, (curr, prev) ->
 		if curr.mtime > prev.mtime
 			invoke 'build'
-			if options.browser
-				log options.browser
+	fs.watchFile './elements/details.htm', interval: 250, (curr, prev) ->
+		if curr.mtime > prev.mtime
+			invoke 'build'
+	fs.watchFile './elements/actions.htm', interval: 250, (curr, prev) ->
+		if curr.mtime > prev.mtime
+			invoke 'build'
+	fs.watchFile './elements/options.htm', interval: 250, (curr, prev) ->
+		if curr.mtime > prev.mtime
+			invoke 'build'
 
 ###
 option '-v', '--version [VERSION]', 'Release a new version.'
