@@ -230,15 +230,15 @@
 			options: function(data) { return '#OPTIONS#'; }
 		},
 		details: function(uid) {
-			var data, date, div, frag, taglist, tagspace, tag;
+			var data, date, div, frag, taglist, tagspace, tag, content;
 			data = Database.get(uid);
-			if(data.jTitle) {
-				data.jtitle = '<br /><span style="opacity:0.5; font-size: 1.1em; text-shadow: 0.1em 0.1em 0.5em rgba(0,0,0,0.2) !important;">'+data.jTitle+'</span>';
+			if(data.title_jpn) {
+				data.jtitle = '<br /><span style="opacity:0.5; font-size: 1.1em; text-shadow: 0.1em 0.1em 0.5em rgba(0,0,0,0.2) !important;">'+data.title_jpn+'</span>';
 			} else {
 				data.jtitle = '';
 			}
 			data = Database.get(uid);
-			date = new Date(data.date);
+			date = new Date(parseInt(data.posted,10)*1000);
 			data.datetext = UI.date(date);
 			data.visible = data.expunged ? 'No' : 'Yes';
 			taglist = [];
@@ -252,8 +252,9 @@
 				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
+			content = UI.html.details(data)
 			div = $.el('div', {
-				innerHTML: UI.html.details(data),
+				innerHTML: content,
 				id: 'exblock-details-uid-'+uid,
 				className: 'exblock exdetails post reply'
 			});
@@ -265,26 +266,14 @@
 			d.body.appendChild(frag);
 		},
 		actions: function(data,link) {
-			var uid, token, key, date, taglist, sites, tag, div, tagspace, frag;
-			uid = data.GID;
-			token = data.gKey;
-			key = data.aKey;
+			var uid, token, key, date, taglist, user, sites, tag, div, tagspace, frag, content;
+			uid = data.gid;
+			token = data.token;
+			key = data.archiver_key;
 			date = new Date(data.date);
 			taglist = [];
+			data.size = Math.round((data.filesize/1024/1024)*100)/100;
 			data.datetext = UI.date(date);
-			data.textcat = {
-				"doujinshi": "Doujinshi",
-				"manga": "Manga",
-				"artistcg": "Artist CG",
-				"gamecg": "Game CG",
-				"western": "Western",
-				"non-h": "Non-H",
-				"imageset": "Image Set",
-				"cosplay": "Cosplay",
-				"asianporn": "Asian Porn",
-				"misc": "Misc",
-				"private": "Private"
-			};
 			sites = [
 				Config.link(link.href,conf['Torrent Link']),
 				Config.link(link.href,conf['Hentai@Home Link']),
@@ -304,6 +293,11 @@
 				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
+			if(data.uploader) {
+				user = data.uploader;
+			} else {
+				user = 'Unknown';
+			}
 			data.url = {
 				ge: "http://g.e-hentai.org/g/"+uid+"/"+token+"/",
 				ex: "http://exhentai.org/g/"+uid+"/"+token+"/",
@@ -311,13 +305,14 @@
 				hh: "http://"+sites[1]+"/hathdler.php?gid="+uid+"&t="+token,
 				arc: "http://"+sites[2]+"/archiver.php?gid="+uid+"&or="+key,
 				fav: "http://"+sites[3]+"/gallerypopups.php?gid="+uid+"&t="+token+"&act=addfav",
-				user: "http://"+sites[4]+"/uploader/"+data.user.replace(/\ /g,'+'),
+				user: "http://"+sites[4]+"/uploader/"+user.replace(/\ /g,'+'),
 				stats: "http://"+sites[5]+"/stats.php?gid="+uid+"&t="+token
 			};
 			frag = d.createDocumentFragment();
+			content = UI.html.actions(data);
 			div = $.el('div', {
-				innerHTML: UI.html.actions(data),
-				className: 'exblock exactions uid-'+data.GID,
+				innerHTML: content,
+				className: 'exblock exactions uid-'+uid,
 				id: link.id.replace('exlink-gallery','exblock-actions')
 			});
 			div.setAttribute('style','display: none !important; max-width: 100%; width: auto; padding: 4px; margin: 3px 0; border-radius: 4px; background-color: rgba(0,0,0,0.05) !important;');
@@ -431,7 +426,10 @@
 	};	
 	API = {
 		s: {},
+		so: {},
 		g: {},
+		go: {},
+		working: false,
 		queue: function(type) {
 			if(type === 's') {
 				for ( var k in API.g ) {
@@ -447,32 +445,40 @@
 			return 0;
 		},
 		request: function(type,hash) {
-			var xhr, request;
+			var xhr, request, limit = 0;
 			if(type === 's') {
 				request = {
-					"method": "PID",
-					"type": "token",
-					"IDs": []
+					"method": "gtoken",
+					"pagelist": []
 				};
 				for( var j in API.s ) {
-					request.IDs.push = [
-						parseInt(j,10),
-						API.s[j][0],
-						parseInt(API.s[j][1],10)
-					];
+					if(limit < 25) {
+						request.pagelist.push([
+							parseInt(j,10),
+							API.s[j][0],
+							parseInt(API.s[j][1],10)
+						]);
+						limit++;
+					} else {
+						API.queue.add('so',j,API.s[j][0],API.s[j][1]);
+					}
 				}
 			} else
 			if(type === 'g') {
 				request = {
-					"method": "GID",
-					"type": "meta",
-					"IDs": []
+					"method": "gdata",
+					"gidlist": []
 				};
 				for ( var k in API.g ) {
-					request.IDs.push = [
-						parseInt(k,10),
-						API.g[k]
-					];
+					if(limit < 25) {
+						request.gidlist.push([
+							parseInt(k,10),
+							API.g[k]
+						]);
+						limit++;
+					} else {
+						API.queue.add('go',k,API.g[k]);
+					}
 				}
 			}
 			if(type === 'i') {
@@ -487,35 +493,62 @@
 				};
 			}
 			if(request) {
-				xhr = new XMLHttpRequest();
-				xhr.open('POST', 'http://api.e-hentai.org');
-				xhr.setRequestHeader('Content-Type', 'application/json');
-				xhr.onreadystatechange = function() {
-					if(xhr.readyState === 4 && xhr.status === 200)
+				if(!API.working) {
+					API.working = true;
+					/*xhr = new XMLHttpRequest();
+					xhr.open('POST', 'http://api.e-hentai.org');
+					xhr.setRequestHeader('Content-Type', 'application/json');
+					xhr.onreadystatechange = function() {
+						if(xhr.readyState === 4 && xhr.status === 200)
+						{
+							console.log(xhr.responseText);
+							API.response(type,JSON.parse(xhr.responseText));
+						}
+					};
+					xhr.send(JSON.stringify(request));*/
+					console.log(JSON.stringify(request));
+					GM_xmlhttpRequest(
 					{
-						API.response(type,JSON.parse(xhr.responseText));
-					}
-				};
-				xhr.send(JSON.stringify(request));
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						data: JSON.stringify(request),
+						url: "http://g.e-hentai.org/api.php",
+						onload: function(x) {
+							console.log(JSON.parse(x.responseText));
+							API.response(type,JSON.parse(x.responseText));
+						}
+					});
+				}
 			}
 		},
 		response: function(type,json) {
 			var arr;
 			if(type === 's') {
-				arr = json.gToken;
+				arr = json.tokenlist;
 				for ( var i = 0; i < arr.length; i++ )
 				{
-					API.queue.add('g',arr[i].GID,arr[i].gKey);
+					API.queue.add('g',arr[i].gid,arr[i].token);
 				}
-				API.clear('s');
+				API.queue.clear('s');
+				if(Object.keys(API.so).length) {
+					API.s = API.so;
+					API.queue.clear('so');
+				}
+				API.working = false;
 			} else
 			if(type === 'g') {
-				arr = json.gMetaData;
+				arr = json.gmetadata;
 				for ( var j = 0; j < arr.length; j++ )
 				{
-					Database.set(arr[j].data);
-					Main.queue.add(arr[j].data.GID);
+					Database.set(arr[j]);
+					Main.queue.add(arr[j].gid);
 				}
+				API.queue.clear('g');
+				if(Object.keys(API.go).length) {
+					API.g = API.go;
+					API.queue.clear('go');
+				}
+				API.working = false;
 			} else
 			if(type === 'i') {
 				// TODO: Exsauce stuff
@@ -528,9 +561,15 @@
 				add: function(type,uid,token,page) {
 					if(type === 's') {
 						API.s[uid] = [token,page];
-					}
+					} else
+					if(type === 'so') {
+						API.so[uid] = [token,page];
+					} else
 					if(type === 'g') {
 						API.g[uid] = token;
+					} else
+					if(type === 'go') {
+						API.go[uid] = token;
 					}
 				},
 				clear: function(type) {
@@ -565,7 +604,21 @@
 			}
 		},
 		set: function(data) {
-			var key, TTL, date;
+			var key, TTL, limit, date, value;
+			key = 'exlinks-gallery-'+data.gid;
+			limit = Date.now() - (12 * t.HOUR);
+			date = new Date(parseInt(data.posted,10)*1000);
+			if (date > limit) {
+				TTL = date - limit;
+			} else {
+				TTL = 12 * t.HOUR;
+			}
+			value = {
+				"added": Date.now(),
+				"TTL": TTL,
+				"data": data
+			};
+			Cache.type.setItem(key,JSON.stringify(value));	
 		},
 		load: function() {
 			var key, data;
@@ -601,7 +654,7 @@
 			}
 		},
 		set: function(data) {
-			var uid = data.GID;
+			var uid = data.gid;
 			Database[uid] = data;
 			Cache.set(data);
 		},
@@ -734,7 +787,6 @@
 	};
 	Main = {
 		format: function(queue) {
-			console.log(queue);
 			var uid, links, link, button, data, actions;
 			for ( var i = 0; i < queue.length; i++ ) {
 				uid = queue[i];
@@ -778,13 +830,16 @@
 		},
 		update: function() {
 			var queue = Main.queue();
-			/*if(API.queue('s')) {
-				API.request('s');
-			} else
-			if(API.queue('g')) {
-				API.request('g');
-			}*/
+			if(!API.working) {
+				if(API.queue('s')) {
+					API.request('s');
+				} else
+				if(API.queue('g')) {
+					API.request('g');
+				}
+			}
 			if(queue.length) {
+				console.log(queue);
 				Main.format(queue);
 				Main.queue.clear();
 			}
@@ -870,7 +925,10 @@
 										link.href = link.href.replace(regex.site,site.value);
 									}
 								}*/
-								type = link.href.match(regex.type)[1];
+								type = link.href.match(regex.type);
+								if(type) {
+									type = type[1];
+								}
 								if(type === 's') {
 									sid = link.href.match(regex.sid);
 									link.classList.add('type-s');
@@ -934,6 +992,10 @@
 		ready: function() {
 			Config.site();
 			Main.process(d);
+			var oneechan = $.id('OneeChanLink'),
+				chanss = $.id('themeoptionsLink');
+			console.log('OneeChan: '+(oneechan ? 'Yes' : 'No'));
+			console.log('4chan SS: '+(chanss ? 'Yes' : 'No'));
 			$.on(d,'DOMNodeInserted',Main.dom);
 		},
 		init: function() {

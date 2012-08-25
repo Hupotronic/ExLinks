@@ -1,18 +1,18 @@
 ﻿<table style="display: inline-block; vertical-align: top; width:100%;">
 	<tr><td style="vertical-align: top;">
-		#{data.textcat[data.category]} | #{data.files} files | View on: 
+		#{data.category} | #{data.filecount} files | View on: 
 		<a href="#{data.url.ge}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px;">e-hentai</a> 
 		<a href="#{data.url.ex}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">exhentai</a> | 
 		Download via: 
-		<a href="#{data.url.bt}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px;">torrent[#{data.torrents}]</a> 
+		<a href="#{data.url.bt}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px;">torrent[#{data.torrentcount}]</a> 
 		<a href="#{data.url.hh}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px;">hentai@home</a> 
 		<a href="#{data.url.arc}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">archiver</a> | 
-		Uploader: <a href="#{data.url.user}" class="exlink exuploader uid-#{data.GID}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">#{data.user}</a> | 
+		Uploader: <a href="#{data.url.user}" class="exlink exuploader uid-#{data.gid}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">#{data.uploader}</a> | 
 		<a href="#{data.url.fav}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">Favorite</a> | 
 		<a href="#{data.url.stats}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">Stats</a> | 
-		<img src="#{img.ratings[Math.round(data.rating*2)]}" style="height:12px; opacity: 0.75; vertical-align: bottom; margin-bottom: 2px;" alt="#{data.rating}" title ="Average: #{data.rating} (#{data.votes} votes)" />
+		<img src="#{img.ratings[Math.round(parseInt(data.rating,10)*2)]}" style="height:12px; opacity: 0.75; vertical-align: bottom; margin-bottom: 2px;" alt="#{data.rating}" title ="Average: #{data.rating}" />
 	</td></tr>
 </table>
-<span class="extags uid-#{data.GID}" style="display: inline-block !important;">
+<span class="extags uid-#{data.gid}" style="display: inline-block !important;">
 	<b>Tags:</b>
 </span>
