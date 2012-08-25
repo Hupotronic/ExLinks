@@ -173,30 +173,6 @@
 			};
 			return $.on(d, 'DOMContentLoaded', cb);
 		},
-		dedup: function(array) {               /* remove duplicates from an array */
-			var out = [], obj = {};
-			for ( var i = 0; i < array.length; i++ )
-			{
-				obj[array[i]] = 0;
-			}
-			for ( var j in obj )
-			{
-				if( obj.hasOwnProperty(j) ) { out.push(j); }
-			}
-			return out;
-		},
-		dedupg: function(array) {              /* remove duplicates from a gallery array */
-			var out = [], obj = {};
-			for ( var i = 0; i < array.length; i++ )
-			{
-				obj[array[i]] = 0;
-			}
-			for ( var j in obj )
-			{
-				if( obj.hasOwnProperty(j) ) { out.push(j); }
-			}
-			return out;
-		},
 		id: function(id) {                     /* get element by id */
 			return d.getElementById(id);
 		},
@@ -216,11 +192,11 @@
 		},
 		tnodes: function(node) {               /* get textNodes of element */
 			var tn = [], ws = /^\s*$/, getTextNodes;
-			getTextNodes = function(node) {
+			getTextNodes = function(n) {
 				var cn;
-				for ( var i = 0; i < node.childNodes.length; i++ )
+				for ( var i = 0; i < n.childNodes.length; i++ )
 				{
-					cn = node.childNodes[i];
+					cn = n.childNodes[i];
 					if (cn.nodeType === 3)
 					{
 						if(!ws.test(cn.nodeValue))
@@ -254,14 +230,6 @@
 		},
 		replace: function(root, el) {          /* replace 'root' with 'el' */
 			return root.parentNode.replaceChild($.nodes(el), root);
-		},
-		textreplace: function(str, replace) {  /* run text replacement on string */
-			var text = str;
-			for ( var i = 0; i < replace.length; i++ )
-			{
-				text = text.replace(replace[i][0],replace[i][1]);
-			}
-			return text;
 		},
 		tn: function(s) {                      /* create textNode */
 			return d.createTextNode(s);
@@ -300,20 +268,44 @@
 	
 	UI = {
 		html: {
-			details: function(data) { return '<div class="exblock exdetails post reply uid-'+data.GID+'" id="exblock-details-uid-'+data.GID+'" style="font-size: 13px !important; opacity: 0.93; position: fixed; z-index: 1001; padding: 8px !important; border-radius: 8px !important; text-align: center; width: 60%; display: table !important"><div style="float: left; background-image: url('+data.thumb+'); margin-right: 8px; width: 140px; height: 200px; background-repeat: no-repeat; background-size: cover; background-position: 25% 0%">&nbsp;</div><div style="float: right; margin-left: 8px; font-size: 1.05em !important; line-height: 1.0em !important"><div style="box-shadow: 0.0em 0.0em 0.5em rgba(32,32,32,0.2); border-radius: 4px; -webkit-background-clip: padding-box; height: 24px; margin-bottom: 9px"><img src="'+img.categories[data.category]+'" alt="'+data.category+'"></div><div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0"><b>Rating:</b><br><img src="'+img.ratings[Math.round(data.rating*2)]+'" alt="'+data.rating+'"><br><span style="opacity: 0.65; font-size: 0.95em">('+data.votes+' votes)</span></div><div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0"><b>Files:</b><br>'+data.files+' images<br><span style="opacity: 0.65; font-size: 0.95em">('+data.size+' MB)</span></div><div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0"><b>Torrents:</b>'+data.torrents+'</div><div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); padding: 4px 0"><b>Visible:</b>'+data.expunged+'</div></div><a class="exlink extitle uid-'+data.GID+'" href="#exdetails-'+data.GID+'" style="cursor: default; font-size: 1.5em !important; font-weight: bold !important; text-shadow: 0.1em 0.1em 0.4em rgba(0,0,0,0.15) !important; text-decoration: none !important">'+data.title+'</a>'+data.jtitle+'<br><br><span style="font-size:1.0em !important">Uploaded by<b class="exlink exuploader uid-'+data.GID+'" style="font-size:1.0em!important">'+data.user+'</b>on<br><b style="font-size:1.0em!important">'+data.date+'</b></span><span class="extags uid-'+data.GID+'" style="font-size: 1.05em !important; display: inline !important"><b style="font-size:1.05em!important">Tags:</b>'+data.taglist+'</span><br style="clear: both"></div>'; },
+			details: function(data) { return '<div style="float: left; background-image: url('+data.thumb+'); margin-right: 8px; width: 140px; height: 200px; background-repeat: no-repeat; background-size: cover; background-position: 25% 0%">&nbsp;</div><div style="float: right; margin-left: 8px; font-size: 1.05em !important; line-height: 1.0em !important"><div style="box-shadow: 0.0em 0.0em 0.5em rgba(32,32,32,0.2); border-radius: 4px; -webkit-background-clip: padding-box; height: 24px; margin-bottom: 9px"><img src="'+img.categories[data.category]+'" alt="'+data.category+'"></div><div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0"><b>Rating:</b><br><img src="'+img.ratings[Math.round(data.rating*2)]+'" alt="'+data.rating+'"><br><span style="opacity: 0.65; font-size: 0.95em">('+data.votes+' votes)</span></div><div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0"><b>Files:</b><br>'+data.files+' images<br><span style="opacity: 0.65; font-size: 0.95em">('+data.size+' MB)</span></div><div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0"><b style="margin-right:4px">Torrents:</b>'+data.torrents+'</div><div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); padding: 4px 0"><b style="margin-right:4px">Visible:</b>'+data.visible+'</div></div><a class="exlink extitle uid-'+data.GID+'" href="#exdetails-'+data.GID+'" style="cursor: default; font-size: 1.5em !important; font-weight: bold !important; text-shadow: 0.1em 0.1em 0.4em rgba(0,0,0,0.15) !important; text-decoration: none !important">'+data.title+'</a>'+data.jtitle+'<br><br><span style="font-size:1.0em !important">Uploaded by<b class="exlink exuploader uid-'+data.GID+'" style="font-size:1.0em!important;margin:0 5px">'+data.user+'</b>on<b style="font-size:1.0em!important;margin: 0 5px">'+data.datetext+'</b></span><br><br><span class="extags uid-'+data.GID+'" style="font-size: 1.05em !important; display: inline !important"><b style="font-size:1.05em!important">Tags:</b></span><br style="clear: both">'; },
 			actions: function(data) { return '<table style="display: inline-block; vertical-align: top; width:100%"><tr><td style="vertical-align: top">'+data.textcat[data.category]+' | '+data.files+' files | View on:<a href="'+data.url.ge+'" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px">e-hentai</a><a href="'+data.url.ex+'" style="text-decoration: none !important; vertical-align: top; margin: 0 4px">exhentai</a>| Download via:<a href="'+data.url.bt+'" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px">torrent['+data.torrents+']</a><a href="'+data.url.hh+'" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px">hentai@home</a><a href="'+data.url.arc+'" style="text-decoration: none !important; vertical-align: top; margin: 0 4px">archiver</a>| Uploader:<a href="'+data.url.user+'" class="exlink exuploader uid-'+data.GID+'" style="text-decoration: none !important; vertical-align: top; margin: 0 4px">'+data.user+'</a>|<a href="'+data.url.fav+'" style="text-decoration: none !important; vertical-align: top; margin: 0 4px">Favorite</a>|<a href="'+data.url.stats+'" style="text-decoration: none !important; vertical-align: top; margin: 0 4px">Stats</a>|<img src="'+img.ratings[Math.round(data.rating*2)]+'" style="height:12px; opacity: 0.75; vertical-align: bottom; margin-bottom: 2px" alt="'+data.rating+'" title="Average: '+data.rating+' ('+data.votes+' votes)"></td></tr></table><span class="extags uid-'+data.GID+'" style="display: inline-block !important"><b>Tags:</b></span>'; },
 			options: function(data) { return '<div></div>'; }
 		},
 		details: function(uid) {
-			var data, date, frag, jtitle, taglist;
-			
+			var data, date, div, frag, taglist, tagspace, tag;
+			data = Database.get(uid);
+			if(data.jTitle) {
+				data.jtitle = '<br /><span style="opacity:0.5; font-size: 1.1em; text-shadow: 0.1em 0.1em 0.5em rgba(0,0,0,0.2) !important;">'+data.jTitle+'</span>';
+			} else {
+				data.jtitle = '';
+			}
 			data = Database.get(uid);
 			date = new Date(data.date);
 			data.datetext = UI.date(date);
+			data.visible = data.expunged ? 'No' : 'Yes';
+			taglist = [];
+			for ( var i = 0; i < data.tags.length; i++ ) {
+				tag = $.el('a', {
+					innerHTML: data.tags[i],
+					className: "exlink extag",
+					href: 'http://exhentai.org/tag/'+data.tags[i].replace(/\ /g,'+')
+				});
+				tag.setAttribute('style','margin:0 2px !important; text-decoration:none !important;display:inline-block !important;font-size:1.05em!important;');
+				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
+				taglist.push(tag);
+			}
+			div = $.el('div', {
+				innerHTML: UI.html.details(data),
+				id: 'exblock-details-uid-'+uid,
+				className: 'exblock exdetails post reply'
+			});
+			div.setAttribute('style','font-size: 13px !important; opacity: 0.93; position: fixed; z-index: 1001; padding: 8px !important; border-radius: 8px !important; text-align: center; width: 60%; display: table !important;');
+			tagspace = $('.extags',div);
+			$.add(tagspace,taglist);
 			frag = d.createDocumentFragment();
-			frag.innerHTML = UI.html.details(data);
-			
-			return frag;
+			frag.appendChild(div);
+			d.body.appendChild(frag);
 		},
 		actions: function(data,link) {
 			var uid, token, key, date, taglist, sites, tag, div, tagspace, frag;
@@ -351,10 +343,6 @@
 					className: "exlink extag",
 					href: 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+')
 				});
-				/*tag = d.createElement('a');
-				tag.innerHTML = data.tags[i];
-				tag.className = "exlink extag";
-				tag.href = 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+');*/
 				tag.setAttribute('style','display: inline-block !important; text-decoration: none !important; margin: 0px 2px !important;');
 				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
@@ -411,13 +399,47 @@
 			actions.setAttribute('style',style);
 		},
 		show: function(e) {
-		
+			var uid, details, style;
+			uid = e.target.className.match(regex.uid)[1];
+			details = $.id('exblock-details-uid-'+uid);
+			if(details) {
+				style = details.getAttribute('style');
+				style = style.replace('none','table');
+				details.setAttribute('style',style);
+			} else {
+				UI.details(uid);
+			}
 		},
 		hide: function(e) {
-		
+			var uid, details, style;
+			uid = e.target.className.match(regex.uid)[1];
+			details = $.id('exblock-details-uid-'+uid);
+			if(details) {
+				style = details.getAttribute('style');
+				style = style.replace('table','none');
+				details.setAttribute('style',style);
+			} else {
+				UI.details(uid);
+			}
 		},
 		move: function(e) {
-		
+			var uid, details;
+			uid = e.target.className.match(regex.uid)[1];
+			details = $.id('exblock-details-uid-'+uid);
+			if(details) {
+				if(details.offsetWidth + e.clientX+20 < window.innerWidth - 8)
+				{
+					details.style.left = (e.clientX+12) + 'px';
+				} else {
+					details.style.left = (window.innerWidth - details.offsetWidth - 16) + 'px';
+				}
+				if(details.offsetHeight + e.clientY+22 > window.innerHeight)
+				{
+					details.style.top = (e.clientY-details.offsetHeight-2) + 'px';
+				} else {
+					details.style.top = (e.clientY+22) + 'px';
+				}
+			}
 		},
 		prevent: function(e) {
 			e.preventDefault();
@@ -540,6 +562,7 @@
 			} else
 			if(type === 'i') {
 				// TODO: Exsauce stuff
+				console.log('Image response.');
 			}
 			Main.update();
 		},
@@ -642,6 +665,7 @@
 	});
 	Parser = {
 		posts: 'blockquote',
+		prelinks: 'a:not(.quotelink)',
 		links: '.exlink',
 		unformatted: function(uid) {
 			var result = [], links = $$('a.uid-'+uid);
@@ -653,34 +677,46 @@
 			return result;
 		},
 		linkify: function(post) {
-			var nodes, node, text, match,
+			var nodes, node, text, match, ws = /^\s*$/,
 				linknode, sp, ml, tn, tl, tu;
 			nodes = $.tnodes(post);
-			for ( var i = 0; i < nodes.length; i++ )
-			{
-				node = nodes[i];
-				text = node.textContent;
-				match = text.match(regex.url);
-				tl = null;
-				linknode = (match) ? [] : null;
-				while( match )
+			if(nodes) {
+				for ( var i = 0; i < nodes.length; i++ )
 				{
-					sp = text.search(regex.url);
-					ml = match[0].length-1;
-					tn = $.tn(text.substr(0,sp));
-					tl = text.substr(sp+ml+1,text.length);
-					tu = $.el('a', {
-						href: match[0],
-						innerHTML: match[0],
-						className: 'exlink exgallery exunprocessed'
-					});
-					linknode.push(tn);
-					linknode.push(tu);
-					text = tl;
+					node = nodes[i];
+					text = node.textContent;
 					match = text.match(regex.url);
+					tl = null;
+					linknode = (match) ? [] : null;
+					while( match )
+					{
+						sp = text.search(regex.url);
+						ml = match[0].length-1;
+						tn = $.tn(text.substr(0,sp));
+						tl = text.substr(sp+ml+1,text.length);
+						tu = $.el('a', {
+							href: match[0],
+							innerHTML: match[0],
+							className: 'exlink exgallery exunprocessed'
+						});
+						if(tn.length > 0) {
+							if(!ws.test(tn.nodeValue)) {
+								linknode.push(tn);
+							}
+						}
+						linknode.push(tu);
+						text = tl;
+						match = text.match(regex.url);
+					}
+					if(tl) {
+						if(tl.nodeType) {
+							linknode.push(tl);
+						}
+					}
+					if(linknode) {
+						$.replace(node, linknode);
+					}
 				}
-				if(tl) { linknode.push(tl); }
-				if(linknode) { $.replace(node, linknode); }
 			}
 		}
 	};
@@ -728,7 +764,7 @@
 				if(curType.match('<!DOCTYPE html>'))
 				{
 					Parser.posts = '.text';
-					Parser.links = 'a:not(.backlink)';
+					Parser.prelinks = 'a:not(.backlink)';
 				}
 			}
 		},
@@ -742,7 +778,7 @@
 	Main = {
 		format: function(queue) {
 			console.log(queue);
-			var uid, links, link, button, data, actions, titlelink, favlink;
+			var uid, links, link, button, data, actions;
 			for ( var i = 0; i < queue.length; i++ ) {
 				uid = queue[i];
 				data = Database.get(uid);
@@ -834,7 +870,7 @@
 			}
 		},
 		process: function(el) {
-			var posts, post, links, link, images, image, site,
+			var posts, post, prelinks, links, link, images, image, site,
 				type, gid, sid, uid, button, usage;
 			posts = $$(Parser.posts,el);
 			for ( var i = 0; i < posts.length; i++ )
@@ -844,6 +880,16 @@
 				{
 					if(!post.classList.contains('exlinkified'))
 					{
+						prelinks = $$(Parser.prelinks,post);
+						if(prelinks) {
+							for ( var k = 0; k < prelinks.length; k++ ) {
+								if(prelinks[k].href.match(regex.url)) {
+									prelinks[k].classList.add('exlink');
+									prelinks[k].classList.add('exgallery');
+									prelinks[k].classList.add('exunprocessed');
+								}
+							}
+						}
 						Parser.linkify(post);
 						post.classList.add('exlinkified');
 					}
