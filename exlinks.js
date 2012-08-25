@@ -252,7 +252,7 @@
 				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
-			content = UI.html.details(data)
+			content = UI.html.details(data);
 			div = $.el('div', {
 				innerHTML: content,
 				id: 'exblock-details-uid-'+uid,
