@@ -1,8 +1,8 @@
 ﻿/*jshint eqnull:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, devel:true, maxerr:50 */
 (function() {
 	"use strict";
-	var fetch, defaults, conf, regex, img, d, t, $, $$,
-		UI, Cache, API, Database, Options, Sauce, Filter, Parser, Config, Main;
+	var fetch, options, conf, tempconf, pageconf, regex, img, d, t, $, $$,
+		UI, Cache, API, Database, Sauce, Filter, Parser, Options, Config, Main;
 	
 	img = {};
 	fetch = {
@@ -10,41 +10,39 @@
 		geHentai: {value: "g.e-hentai.org"},
 		exHentai: {value: "exhentai.org"}
 	};	
-	defaults = { 
-		main: {
-			General: {
-				'Automatic Processing':        ['checkbox', true,  'Get data and format links automatically.'],
-				'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
-				'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
-				'ExSauce':                     ['checkbox', true,  'Add ExSauce lookup to images.'],
-				'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],
-				'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
-				'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.'],
-				'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']
-			},
-			Actions: {
-				'Show by Default':             ['checkbox', false, 'Show gallery actions by default.'],
-				'Hide in Quotes':              ['checkbox', true,  'Hide any open gallery actions in inline quotes.'],
-				'Torrent Popup':               ['checkbox', true,  'Use the default pop-up window for torrents.'],
-				'Archiver Popup':              ['checkbox', true,  'Use the default pop-up window for archiver.'],
-				'Favorite Popup':              ['checkbox', true,  'Use the default pop-up window for favorites.'],
-				'Favorite Autosave':           ['checkbox', false, 'Autosave to favorites. Overrides normal behavior.']
-			}
+	options = { 
+		general: {
+			'Automatic Processing':        ['checkbox', true,  'Get data and format links automatically.'],
+			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
+			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
+			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
+			'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.']
+			/*'ExSauce':                   ['checkbox', true,  'Add ExSauce lookup to images.'],
+			'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],
+			'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']*/
+		},
+		actions: {
+			/*'Show by Default':           ['checkbox', false, 'Show gallery actions by default.'],*/
+			'Hide in Quotes':              ['checkbox', true,  'Hide any open gallery actions in inline quotes.'],
+			'Torrent Popup':               ['checkbox', true,  'Use the default pop-up window for torrents.'],
+			'Archiver Popup':              ['checkbox', true,  'Use the default pop-up window for archiver.'],
+			'Favorite Popup':              ['checkbox', true,  'Use the default pop-up window for favorites.']
+			/*'Favorite Autosave':         ['checkbox', false, 'Autosave to favorites. Overrides normal behavior.']*/
 		},
 		favorite: {
-			'Favorite Category': ['favorite', 0, 'The category to use.'],
-			'Favorite Comment':  ['textbox', '', 'The comment to use.']
+			'Favorite Category':           ['favorite', 0, 'The category to use.'],
+			'Favorite Comment':            ['textbox', 'ExLinks is awesome', 'The comment to use.']
 		},
 		domains: {
-				'Gallery Link':         ['domain', fetch.original, 'The domain used for the actual link. Overriden by Smart Links.'],
-				'Torrent Link':         ['domain', fetch.original, 'The domain used for the torrent button in Actions.'],
-				'Hentai@Home Link':     ['domain', fetch.original, 'The domain used for the Hentai@Home button in Actions.'],
-				'Archiver Link':        ['domain', fetch.original, 'The domain used for the Archiver button in Actions.'],
-				'Uploader Link':        ['domain', fetch.original, 'The domain used for the Uploader button in Actions.'],
-				'Favorites Link':       ['domain', fetch.original, 'The domain used for the Favorite button in Actions.'],
-				'Stats Link':           ['domain', fetch.original, 'The domain used for the Stats button in Actions.'],
-				'Tag Links':            ['domain', fetch.original, 'The domain used for tag links in Actions.']
-		},
+			'Gallery Link':                ['domain', fetch.original, 'The domain used for the actual link. Overriden by Smart Links.'],
+			'Torrent Link':                ['domain', fetch.original, 'The domain used for the torrent link in Actions.'],
+			'Hentai@Home Link':            ['domain', fetch.original, 'The domain used for the Hentai@Home link in Actions.'],
+			'Archiver Link':               ['domain', fetch.original, 'The domain used for the Archiver link in Actions.'],
+			'Uploader Link':               ['domain', fetch.original, 'The domain used for the Uploader link in Actions.'],
+			'Favorite Link':               ['domain', fetch.original, 'The domain used for the Favorite link in Actions.'],
+			'Stats Link':                  ['domain', fetch.original, 'The domain used for the Stats link in Actions.'],
+			'Tag Links':                   ['domain', fetch.original, 'The domain used for tag links in Actions.']
+		}/*,
 		filter: {
 			'Name Filter': ['textarea', [
 				'# Highlight all doujinshi and manga galleries with (C82) in the name:',
@@ -64,12 +62,12 @@
 			].join('\n')]
 		},
 		sauce: {
-			'Site to Use':              ['saucedomain', fetch.exHentai, 'The domain to use for showing results. Filters out fjorded content if set to E-Hentai.'],
-			'Inline Sauce':             ['checkbox', true,  'Shows the results inlined rather than opening the site. Works with Smart Links.'],
-			'Search Expunged':          ['checkbox', false, 'Search expunged galleries as well.'],
-			'Use Custom Label':         ['checkbox', false,  'Use a custom label instead of the site name (e-hentai/exhentai).'],
-			'Custom Label Text':        ['textbox', 'exsauce']
-		}
+			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.'],
+			'Inline Sauce':                ['checkbox', true,  'Shows the results inlined rather than opening the site. Works with Smart Links.'],
+			'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
+			'Use Custom Label':            ['checkbox', false,  'Use a custom label instead of the site name (e-hentai/exhentai).'],
+			'Custom Label Text':           ['textbox', 'exsauce', 'The custom label.']
+		}*/
 	};	
 	regex = {
 		url: /(http:\/\/)?g?\.?e[\-x]hentai\.org\/[^\ \n]*/,
@@ -83,6 +81,8 @@
 		fjord: /(bestiality|incest|lolicon|shotacon|toddlercon)/
 	};
 	conf = {};
+	tempconf = {};
+	pageconf = {};
 
 	/* 
 	A whole bunch of code lifted pretty much straight from 4chan X.
@@ -117,6 +117,7 @@
 		}
 	};
 	$.extend($, {
+		/*engine: /WebKit|Presto|Gecko/.exec(navigator.userAgent)[0].toLowerCase(),*/
 		ready: function(fc) {                  /* run function 'fc' when document is ready */
 			var cb;
 			if (/interactive|complete/.test(d.readyState))
@@ -227,7 +228,7 @@
 		html: {
 			details: function(data) { return '#DETAILS#'; },
 			actions: function(data) { return '#ACTIONS#'; },
-			options: function(data) { return '#OPTIONS#'; }
+			options: function()     { return '#OPTIONS#'; }
 		},
 		details: function(uid) {
 			var data, date, div, frag, taglist, tagspace, tag, content;
@@ -266,7 +267,26 @@
 			d.body.appendChild(frag);
 		},
 		actions: function(data,link) {
-			var uid, token, key, date, taglist, user, sites, tag, div, tagspace, frag, content;
+			var uid, token, key, date, taglist, user, sites, tag, tagstring, button, div, tagspace, frag, content;
+			
+			if(conf['Smart Links'] === true) {
+				tagstring = data.tags.join(',');
+				if(tagstring.match(regex.fjord)) {
+					if(link.href.match('g.e-hentai.org')) {
+						link.href = link.href.replace('g.e-hentai.org','exhentai.org');
+						button = $.id(link.id.replace('gallery','button'));
+						button.href = link.href;
+						button.innerHTML = UI.button.text(link.href);
+					}
+				} else {
+					if(link.href.match('exhentai.org')) {
+						link.href = link.href.replace('exhentai.org','g.e-hentai.org');
+						button = $.id(link.id.replace('gallery','button'));
+						button.href = link.href;
+						button.innerHTML = UI.button.text(link.href);
+					}
+				}
+			}
 			uid = data.gid;
 			token = data.token;
 			key = data.archiver_key;
@@ -321,21 +341,18 @@
 			frag.appendChild(div);
 			return frag;
 		},
-		button: function(link,eid) {
+		button: function(url,eid) {
 			var button;
 			button = $.el('a',{
 				id: eid.replace('gallery','button'),
 				className: 'exlink exbutton exfetch',
-				innerHTML: UI.button.text(link),
-				href: link
+				innerHTML: UI.button.text(url),
+				href: url
 			});
 			button.style.marginRight = '4px';
 			button.style.textDecoration = 'none';
 			button.setAttribute('target','_blank');
 			return button;
-		},
-		options: function() {
-		
 		},
 		toggle: function(e) {
 			var actions, style;
@@ -387,15 +404,31 @@
 				}
 				if(details.offsetHeight + e.clientY+22 > window.innerHeight)
 				{
-					details.style.top = (e.clientY-details.offsetHeight-2) + 'px';
+					details.style.top = (e.clientY-details.offsetHeight-8) + 'px';
 				} else {
 					details.style.top = (e.clientY+22) + 'px';
 				}
 			}
 		},
-		prevent: function(e) {
+		popup: function(e) {
 			e.preventDefault();
-			return false;
+			var w = 400, h = 400, type, link = e.target;
+			type = link.href.match(/gallerytorrents|gallerypopups|archiver/)[0];
+			if(type === "gallerytorrents") {
+				w = 610;
+				h = 590;
+			} else
+			if(type === "gallerypopups") {
+				w = 675;
+				h = 415;
+			} else
+			if(type === "archiver") {
+				w = 350;
+				h = 320;
+			}
+			if(type) {
+				window.open(link.href,"_pu"+(Math.random()+"").replace(/0\./,""),"toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width="+w+",height="+h+",left="+((screen.width-w)/2)+",top="+((screen.height-h)/2));
+			}
 		},
 		date: function(d) {
 			var pad = function(n) {
@@ -429,6 +462,7 @@
 		so: {},
 		g: {},
 		go: {},
+		cooldown: 0,
 		working: false,
 		queue: function(type) {
 			if(type === 's') {
@@ -481,43 +515,31 @@
 					}
 				}
 			}
-			if(type === 'i') {
-				request = {
-					"method": "SHA1",
-					"type": "meta",
-					"fileopts": {
-						"fs_covers": 0,
-						"fs_exp": (conf['Search Expunged'] ? 1 : 0)
-					},
-					"filehash": hash
-				};
-			}
 			if(request) {
-				if(!API.working) {
+				if(!API.working && Date.now() > API.cooldown) {
 					API.working = true;
-					/*xhr = new XMLHttpRequest();
-					xhr.open('POST', 'http://api.e-hentai.org');
+					API.cooldown = Date.now();
+					/*var debug_time = Date.now();
+					console.log('API Request');
+					console.log(request);*/
+					xhr = new XMLHttpRequest();
+					xhr.open('POST', 'http://g.e-hentai.org/api.php');
 					xhr.setRequestHeader('Content-Type', 'application/json');
 					xhr.onreadystatechange = function() {
 						if(xhr.readyState === 4 && xhr.status === 200)
 						{
-							console.log(xhr.responseText);
-							API.response(type,JSON.parse(xhr.responseText));
+							/*debug_time = Date.now() - debug_time;
+							console.log('API Response, Time: '+debug_time+'ms');*/
+							if(xhr.responseText.substr(0,1) === "{") {
+								/*console.log(JSON.parse(xhr.responseText));*/
+								API.response(type,JSON.parse(xhr.responseText));
+							} else {
+								/*console.log('API request error. Waiting five seconds before trying again.');*/
+								API.cooldown = Date.now() + (5 * t.SECOND);
+							}
 						}
 					};
-					xhr.send(JSON.stringify(request));*/
-					console.log(JSON.stringify(request));
-					GM_xmlhttpRequest(
-					{
-						method: "POST",
-						headers: { "Content-Type": "application/json" },
-						data: JSON.stringify(request),
-						url: "http://g.e-hentai.org/api.php",
-						onload: function(x) {
-							console.log(JSON.parse(x.responseText));
-							API.response(type,JSON.parse(x.responseText));
-						}
-					});
+					xhr.send(JSON.stringify(request));
 				}
 			}
 		},
@@ -549,10 +571,6 @@
 					API.queue.clear('go');
 				}
 				API.working = false;
-			} else
-			if(type === 'i') {
-				// TODO: Exsauce stuff
-				console.log('Image response.');
 			}
 			Main.update();
 		},
@@ -580,7 +598,7 @@
 	};
 	Cache = {
 		init: function() {
-			if(conf['Disable Local Storage Cache']) {
+			if(conf['Disable Local Storage Cache'] === true) {
 				Cache.type = sessionStorage;
 			} else {
 				Cache.type = localStorage;
@@ -588,7 +606,7 @@
 		},
 		get: function(uid) {
 			var key, json;
-			key = 'exlinks-gallery-'+uid;
+			key = Main.namespace+'gallery-'+uid;
 			json = Cache.type.getItem(key);
 			if(json) {
 				json = JSON.parse(json);
@@ -605,7 +623,7 @@
 		},
 		set: function(data) {
 			var key, TTL, limit, date, value;
-			key = 'exlinks-gallery-'+data.gid;
+			key = Main.namespace+'gallery-'+data.gid;
 			limit = Date.now() - (12 * t.HOUR);
 			date = new Date(parseInt(data.posted,10)*1000);
 			if (date > limit) {
@@ -626,7 +644,7 @@
 			for ( var i = 0; i < Cache.type.length; i++ )
 			{
 				key = Cache.type.key(i);
-				if( key.match('exlinks-gallery') )
+				if( key.match(Main.namespace+'gallery') )
 				{
 					data = Cache.get(key.match(/[0-9]+/));
 					if(data)
@@ -668,13 +686,13 @@
 			$.extend(Database.usage, {
 				data: {}
 			});
-			if(conf['Populate Database on Load']) {
+			if(conf['Populate Database on Load'] === true) {
 				Cache.load();
 			}
 		}
 	});
 	Parser = {
-		posts: 'blockquote',
+		postbody: 'blockquote',
 		prelinks: 'a:not(.quotelink)',
 		links: '.exlink',
 		unformatted: function(uid) {
@@ -704,11 +722,17 @@
 						ml = match[0].length-1;
 						tn = $.tn(text.substr(0,sp));
 						tl = text.substr(sp+ml+1,text.length);
-						tu = $.el('a', {
-							href: match[0],
-							innerHTML: match[0],
-							className: 'exlink exgallery exunprocessed'
-						});
+						tu = $.el('a');
+						tu.className = 'exlink exgallery exunprocessed';
+						if(!match[0].match('http://')) {
+							tu.href = 'http://'+match[0];
+							tu.innerHTML = 'http://'+match[0];
+						} else {
+							tu.href = match[0];
+							tu.innerHTML = match[0];
+						}
+						tu.setAttribute('target','_blank');
+						tu.style.textDecoration = 'none';
 						if(tn.length > 0) {
 							if(!ws.test(tn.nodeValue)) {
 								linknode.push(tn);
@@ -719,8 +743,8 @@
 						match = text.match(regex.url);
 					}
 					if(tl) {
-						if(tl.nodeType) {
-							linknode.push(tl);
+						if(tl.length) {
+							linknode.push($.tn(tl));
 						}
 					}
 					if(linknode) {
@@ -730,10 +754,141 @@
 			}
 		}
 	};
+	Options = {
+		save: function(e) {
+			e.preventDefault();
+			Config.save();
+			$.rm($.id('exlinks-overlay'));	
+			d.body.style.overflow = 'visible';
+		},
+		close: function(e) {
+			e.preventDefault();
+			tempconf = JSON.parse(JSON.stringify(pageconf));
+			$.rm($.id('exlinks-overlay'));	
+			d.body.style.overflow = 'visible';
+		},
+		toggle: function(e) {
+			var option, type, domain, value;
+			domain = {
+				"1": fetch.original,
+				"2": fetch.geHentai,
+				"3": fetch.exHentai
+			};
+			option = e.target;
+			type = option.getAttribute('type');
+			if(type==='checkbox') {
+				value = option.checked ? true : false;
+				tempconf[option.name] = value;
+			} else
+			if(type==='domain') {
+				tempconf[option.name] = domain[option.value];
+			}
+		},
+		open: function() {
+			var gen, overlay, frag;
+			pageconf = JSON.parse(JSON.stringify(tempconf));
+			overlay = $.el('div');
+			overlay.setAttribute('style','position: fixed; width: 100%; height: 100%; top: 0; left: 0; text-align: center; background: rgba(0,0,0,0.5); z-index: 1000;');
+			overlay.id = 'exlinks-overlay';
+			overlay.innerHTML = UI.html.options();
+			frag = d.createDocumentFragment();
+			frag.appendChild(overlay);
+			$.add(d.body,frag);
+			$.on($.id('exlinks-options-save'),'click',Options.save);
+			$.on($.id('exlinks-options-cancel'),'click',Options.close);
+			$.on(overlay,'click',Options.close);
+			$.on($.id('exlinks-options'),'click',function(e){e.stopPropagation();});
+			d.body.style.overflow = 'hidden';
+			gen = function(target,obj) {
+				var desc, tr, type, value, sel, zebra = true;
+				for ( var i in obj ) {
+				desc = obj[i][2];
+				type = obj[i][0];
+				value = tempconf[i];
+				tr = $.el('tr');
+				if(type === 'checkbox') {
+					if(value) {
+						sel = ' checked';
+					} else {
+						sel = '';
+					}
+					tr.innerHTML = [
+						'<td style="padding:3px;">',
+						'<input type="'+type+'" style="float:right;margin-right:2px;" type="checkbox" id="'+i+'" name="'+i+'"'+sel+' />',
+						'<label for="'+i+'"><b>'+i+':</b> '+desc+'</label>',
+						'</td>'
+					].join('');
+					$.on($('input',tr),'change',Options.toggle);
+				} else
+				if(type === 'domain') {
+					tr.innerHTML = [
+					'<td style="padding:3px;">',
+					'<select name="'+i+'" type="'+type+'" style="font-size:0.92em!important;float:right;width:18%;">',
+						'<option value="1"'+(value.value==='Original'?' selected':'')+'>Original</option>',
+						'<option value="2"'+(value.value==='g.e-hentai.org'?' selected':'')+'>g.e-hentai.org</option>',
+						'<option value="3"'+(value.value==='exhentai.org'?' selected':'')+'>exhentai.org</option></select>',
+					'<b>'+i+':</b> '+desc+'</td>'
+					].join('');
+					$.on($('select',tr),'change',Options.toggle);
+				}
+				tr.setAttribute('style','background-color: rgba(0,0,0,'+(zebra ? '0.05' : '0.025')+');');
+				zebra = zebra ? false : true;
+				$.add(target,tr);
+				}
+			};
+			gen($.id('exlinks-options-general'),options.general);
+			gen($.id('exlinks-options-actions'),options.actions);
+			gen($.id('exlinks-options-domains'),options.domains);
+		},
+		init: function() {
+		var oneechan = $.id('OneeChanLink'),
+			chanss = $.id('themeoptionsLink'),
+			conflink, conflink2, arrtop, arrbot;
+			conflink = $.el('a', { title: 'ExLinks Options', className: 'exlinksOptionsLink' });
+			$.on(conflink,'click',Options.open);
+			if(Config.mode === '4chan') {
+				if(oneechan) {
+					conflink.setAttribute('style','position: fixed; background: url('+img.options+'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;');
+					$.on(conflink,'mouseover',function(e){e.target.style.opacity = 1.0;});
+					$.on(conflink,'mouseout',function(e){e.target.style.opacity = 0.65;});
+					$.add(d.body,conflink);
+				} else
+				if(chanss) {
+					conflink.innerHTML = 'Ex';
+					conflink.setAttribute('style','background-image: url('+img.options+'); padding-top: 15px !important; opacity: 0.75;');
+					$.on(conflink,'mouseover',function(e){e.target.style.opacity = 1.0;});
+					$.on(conflink,'mouseout',function(e){e.target.style.opacity = 0.65;});
+					$.add($.id('navtopr'),conflink);
+				} else {
+					conflink.innerHTML = 'ExLinks Options';
+					conflink.setAttribute('style','cursor: pointer');
+					conflink2 = conflink.cloneNode(true);
+					$.on(conflink2,'click',Options.open);
+					arrtop = [$.tn('['),conflink,$.tn('] ')];
+					arrbot = [$.tn('['),conflink2,$.tn('] ')];
+					$.prepend($.id('navtopr'),arrtop);
+					$.prepend($.id('navbotr'),arrbot);
+				}
+			} else
+			if(Config.mode === 'foolz-fuuka') {
+				conflink.innerHTML = 'exlinks options';
+				conflink.setAttribute('style','cursor: pointer; text-decoration: underline;');
+				arrtop = [$.tn(' [ '),conflink,$.tn(' ] ')];
+				$.add($('div'),arrtop);
+			} else
+			if(Config.mode === 'foolz-default') {
+				conflink.innerHTML = 'ExLinks Options';
+				conflink.setAttribute('style','cursor: pointer;');
+				arrtop = [$.tn(' [ '),conflink,$.tn(' ] ')];
+				$.add($('.letters'),arrtop);
+			}
+		}
+	};
 	Config = {
+		mode: '4chan',
 		link: function(url,opt) {
 			var site;
-			if(opt === fetch.original)
+			if(opt.value === "Original")
 			{
 				if(url.match('exhentai.org'))
 				{
@@ -746,11 +901,11 @@
 					site = false;
 				}
 			}
-			else if(opt === fetch.exHentai)
+			else if(opt.value === "exhentai.org")
 			{
 				site = 'exhentai.org';
 			}
-			else if(opt === fetch.geHentai)
+			else if(opt.value === "g.e-hentai.org")
 			{
 				site = 'g.e-hentai.org';
 			} else {
@@ -773,42 +928,76 @@
 			{
 				if(curType.match('<!DOCTYPE html>'))
 				{
-					Parser.posts = '.text';
-					Parser.prelinks = 'a:not(.backlink)';
+					Config.mode = 'foolz-default';
+					Parser.postbody = '.text';
+					Parser.prelinks = 'a:not(.backlink)';	
+				} else {
+					Config.mode = 'foolz-fuuka';
 				}
 			}
 		},
 		save: function() {
-		
+			for ( var i in options ) {
+				for ( var k in options[i] ) {
+					localStorage.setItem(Main.namespace+'user-'+k,JSON.stringify(tempconf[k]));
+				}
+			}
 		},
-		load: function() {
-			
+		init: function() {
+			var temp, option;
+			for ( var i in options ) {
+				for ( var k in options[i] ) {
+					temp = localStorage.getItem(Main.namespace+'user-'+k);
+					if(temp) {
+						temp = JSON.parse(temp);
+						conf[k] = temp;
+					} else {
+						option = JSON.stringify(options[i][k][1]);
+						conf[k] = JSON.parse(option);
+						localStorage.setItem(Main.namespace+'user-'+k,option);		
+					}
+				}
+			}
+			tempconf = JSON.parse(JSON.stringify(conf));
 		}
 	};
 	Main = {
+		namespace: 'exlinks-',
+		version: '2.0.0',
 		format: function(queue) {
+			/*var debug_time = Date.now(), debug_links = 0;*/
 			var uid, links, link, button, data, actions;
 			for ( var i = 0; i < queue.length; i++ ) {
 				uid = queue[i];
 				data = Database.get(uid);
 				links = Parser.unformatted(uid);
+				/*debug_links += links.length;*/
 				for ( var k = 0; k < links.length; k++ ) {
 					link = links[k];
 					button = $.id(link.id.replace('gallery','button'));
 					link.innerHTML = data.title;
 					$.off(button,'click',Main.singlelink);
-					$.on(button,'click',UI.toggle);
-					$.on(link,'mouseover',UI.show);
-					$.on(link,'mouseout',UI.hide);
-					$.on(link,'mousemove',UI.move);
+					if(conf['Gallery Details'] === true) {
+						$.on(link,'mouseover',UI.show);
+						$.on(link,'mouseout',UI.hide);
+						$.on(link,'mousemove',UI.move);
+					}
+					if(conf['Gallery Actions'] === true) {
+						$.on(button,'click',UI.toggle);
+					}
 					actions = UI.actions(data,link);
 					$.after(link,actions);
 					actions = $.id(link.id.replace('exlink-gallery','exblock-actions'));
-					/*
-					if(conf['Favorite Autosave']) {
-						favlink = $('a.exfavorite',actions);
-						$.on(favlink,'click',UI.favorite);
+					if(conf['Torrent Popup'] === true) {
+						$.on($('a.extorrent',actions),'click',UI.popup);
 					}
+					if(conf['Archiver Popup'] === true) {
+						$.on($('a.exarchiver',actions),'click',UI.popup);
+					}
+					if(conf['Favorite Popup'] === true) {
+						$.on($('a.exfavorite',actions),'click',UI.popup);
+					}
+					/*
 					if(conf.Filter) {
 						// Filter.process(actions);
 					}*/
@@ -819,6 +1008,8 @@
 				}
 			}
 			Main.queue.clear();
+			/*debug_time = Date.now() - debug_time;
+			console.log('ExLinks 2.0.0 - Formatted '+debug_links+' links. Time: '+debug_time+'ms');*/
 		},
 		queue: function() {
 			var arr = [], i = 0,
@@ -839,15 +1030,16 @@
 				}
 			}
 			if(queue.length) {
-				console.log(queue);
 				Main.format(queue);
 				Main.queue.clear();
 			}
 		},
 		singlelink: function(e) {
+			e.preventDefault();
 			var link;
 			link = $.id(e.target.id.replace('button','gallery'));
 			Main.single(link);
+			Main.update();
 			
 		},
 		single: function(link) {
@@ -881,17 +1073,31 @@
 				}
 			}
 		},
-		process: function(el) {
-			var posts, post, prelinks, links, link, images, image, site,
+		process: function(posts) {
+			var post, actions, style, prelinks, links, link, site,
 				type, gid, sid, uid, button, usage;
-			posts = $$(Parser.posts,el);
+				
+			/*var debug_time = Date.now(), debug_posts_total = 0, debug_posts = 0, debug_linkified = 0, debug_processed = 0;
+			debug_posts_total = posts.length;*/
 			for ( var i = 0; i < posts.length; i++ )
 			{
 				post = posts[i];
 				if(post.innerHTML.match(regex.url))
 				{
+					/*debug_posts++;*/
+					if(conf['Hide in Quotes']) {
+						actions = $$('.exactions',post);
+						for ( var h = 0; h < actions.length; h++ ) {
+							style = actions[h].getAttribute('style');
+							if(style.match('inline-block')) {
+								style = style.replace('inline-block','none');
+							}
+							actions[h].setAttribute('style',style);
+						}
+					}
 					if(!post.classList.contains('exlinkified'))
 					{
+						/*debug_linkified++;*/
 						prelinks = $$(Parser.prelinks,post);
 						if(prelinks) {
 							for ( var k = 0; k < prelinks.length; k++ ) {
@@ -899,6 +1105,8 @@
 									prelinks[k].classList.add('exlink');
 									prelinks[k].classList.add('exgallery');
 									prelinks[k].classList.add('exunprocessed');
+									prelinks[k].style.textDecoration = 'none';
+									prelinks[k].setAttribute('target','_blank');
 								}
 							}
 						}
@@ -911,20 +1119,39 @@
 						link = links[j];
 						if(link.classList.contains('exbutton')) {
 							if(link.classList.contains('extoggle')) {
-								$.on(link,'click',UI.toggle);
+								if(conf['Gallery Actions'] === true) {
+									$.on(link,'click',UI.toggle);
+								}
 							}
 							if(link.classList.contains('exfetch')) {
 								$.on(link,'click',Main.singlelink);
 							}
 						}
+						if(link.classList.contains('exactions')) {
+							if(link.classList.contains('extorrent')) {
+								if(conf['Torrent Popup'] === true) {
+									$.on(link,'click',UI.popup);
+								}
+							}
+							if(link.classList.contains('exarchiver')) {
+								if(conf['Archiver Popup'] === true) {
+									$.on(link,'click',UI.popup);
+								}
+							}
+							if(link.classList.contains('extorrent')) {
+								if(conf['Favorite Popup'] === true) {
+									$.on(link,'click',UI.popup);
+								}
+							}
+						}
 						if(link.classList.contains('exgallery')) {
 							if(link.classList.contains('exunprocessed')) {
 								site = conf['Gallery Link'];
-								/* if(site !== fetch.original) {
+								if(site.value !== "Original") {
 									if(!link.href.match(site.value)) {
 										link.href = link.href.replace(regex.site,site.value);
 									}
-								}*/
+								}
 								type = link.href.match(regex.type);
 								if(type) {
 									type = type[1];
@@ -949,21 +1176,24 @@
 									usage = Database.usage(uid);
 									link.id = 'exlink-gallery-uid-'+uid+'-'+usage;
 									button = UI.button(link.href,link.id);
+									$.on(button,'click',Main.singlelink);
 									$.before(link,button);
 								} else {
 									link.classList.remove('exgallery');
 								}
 							}
 							if(link.classList.contains('exprocessed')) {
-								/* if(conf['Automatic Processing']) {
+								if(conf['Automatic Processing'] === true) {
 									Main.single(link);
-								} */
-								Main.single(link);
+									/*debug_processed++;*/
+								}
 							}
 							if(link.classList.contains('exformatted')) {
-								$.on(link,'mouseover',UI.show);
-								$.on(link,'mouseout',UI.hide);
-								$.on(link,'mousemove',UI.move);
+								if(conf['Gallery Details'] === true) {
+									$.on(link,'mouseover',UI.show);
+									$.on(link,'mouseout',UI.hide);
+									$.on(link,'mousemove',UI.move);
+								}
 							}
 						}
 						if(link.classList.contains('exfavorite')) {
@@ -971,35 +1201,56 @@
 								$.on(link,'click',UI.favorite);
 							}
 						}
-						if(link.classList.contains('extitle')) {
-							$.on(link,'click',UI.prevent);
-						}
 					}
 				}	
+				
 			}
-			
+			/*debug_time = Date.now() - debug_time;
+			console.log('ExLinks 2.0.0 - Total posts: '+debug_posts_total+' Linkified: '+debug_linkified+' Processed: '+debug_posts+' Links: '+debug_processed+' Time: '+debug_time+'ms');*/
 			Main.update();
 		},
-		dom: function(e) {
-			if(e.target.nodeName === 'DIV')
-			{
-				if(!e.target.classList.contains('exblock'))
-				{
-					Main.process(e.target);
+		observer: function(m) {
+			var nodes, node, nodelist = [];
+			m.forEach(function(e) {
+				if(e.addedNodes) {
+					nodes = e.addedNodes;
+					for ( var i = 0; i < nodes.length; i++) {
+						node = nodes[i];
+						if(node.nodeName === 'DIV') {
+							if(node.classList.contains('postContainer')) {
+								nodelist.push($(Parser.postbody,node));
+							} else
+							if(node.classList.contains('inline')) {
+								nodelist.push($(Parser.postbody,node));
+							}
+						} else
+						if(node.nodeName === 'ARTICLE') {
+							if(node.classList.contains('post')) {
+								nodelist.push($(Parser.postbody,node));
+							}
+						}
+					}
 				}
-			}	
+			});
+			if(nodelist.length) {
+				Main.process(nodelist);
+			}
 		},
 		ready: function() {
 			Config.site();
-			Main.process(d);
-			var oneechan = $.id('OneeChanLink'),
-				chanss = $.id('themeoptionsLink');
-			console.log('OneeChan: '+(oneechan ? 'Yes' : 'No'));
-			console.log('4chan SS: '+(chanss ? 'Yes' : 'No'));
-			$.on(d,'DOMNodeInserted',Main.dom);
+			Options.init();
+			var nodelist = $$(Parser.postbody),
+				MutationObserver, updater,
+				updater_config = { childList: true, subtree: true };
+			Main.process(nodelist);
+			MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.OMutationObserver;
+			if(MutationObserver) {
+				updater = new MutationObserver(Main.observer);
+			}
+			updater.observe(d.body, updater_config);
 		},
 		init: function() {
-			Config.load();
+			Config.init();
 			Cache.init();
 			Database.init();
 			API.init();

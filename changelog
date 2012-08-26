@@ -1,13 +1,13 @@
+master
+
 2.0.0
 - Hupo
 	+ Feature: Harder, Better, Faster, Stronger
 	+ Feature: Now on GitHub!
 	+ Feature: Thumbnail View has evolved into Details View
 	+ Feature: Info View has evolved into Actions View
-	+ Feature: Filter, which allows you to highlight gallery links/tags based on regexps.
 	+ Feature: Gallery metadata fetching is now done on page links (/s/...) too
 	+ Feature: Gallery metadata caching with HTML5 Local / Session Storage
-	+ Feature: Integrated ExSauce (you should remove any separate installations)
 	+ Feature: URL parsing has been improved in both speed and accuracy
 	+ Feature: No more cooldown for gallery thumbnail fetching
 	+ Feature: Archiver link is instantly usable after fetching
@@ -15,12 +15,10 @@
 	+ Feature: Gallery metadata lookup via E-Hentai Public JSON API
 	+ Change: Automatic link formatting has been re-enabled
 	+ Change: "Intelligent Fetching" has been renamed to "Smart Links"
-	+ Change: Smart Links doesn't do color highlighting anymore (use the Filter instead)
+	+ Change: Smart Links doesn't do color highlighting anymore (but The Button reflects the link destination)
 	+ Change: Some pointless user options were removed
-	+ Fix: The Button now accurately reflects the gallery URL according to your settings
-	+ Fix: Multiple links to the same gallery shouldn't cause any issues anymore
-	+ Fix: Inline quotes shouldn't cause any issues anymore either
-
+	+ Change: Favorite autosave has been removed temporarily
+	+ Fix: Pretty much anything that didn't work right in earlier versions
 
 1.7.4
 - Hupo

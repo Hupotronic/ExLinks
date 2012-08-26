@@ -7,11 +7,11 @@ ugly     = require 'uglify-js'
 VERSION   = '2.0.0'
 HEADER    = """
 // ==UserScript==
-// @name           4chan ExLinks
+// @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
 // @version        #{VERSION}
-// @description    Makes exhentai/e-hentai links more useful.
+// @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
 // @include        http://archive.foolz.us/*
@@ -22,17 +22,18 @@ HEADER    = """
 // ==/UserScript==
 """
 
+CAKEFILE  = 'Cakefile'
 INFILE    = 'exlinks.js'
 ELEMENTS  = './elements'
 IMAGES    = './images'
 IMAGEJSON = 'images.json'
 OUTFILE   = 'ExLinks.user.js'
 LATEST    = 'latest.js'
-CHANGELOG = 'CHANGELOG'
+CHANGELOG = 'changelog'
 
 option '-o', '--output [output]', 'Specify output location.'
-option '-u', '--uglify [uglify]', 'Minify with UglifyJS.'
-option '-b', '--browser [browser]', 'Specify path to browser userscript storage location for instant reloading.'
+option '-u', '--uglify [uglify]', 'Minify with UglifyJS. Options: "mangle,squeeze"'
+option '-v', '--version [version]', 'Release version.'
 
 task 'build', (options) ->
 	jsp = ugly.parser
@@ -107,17 +108,17 @@ task 'dev', (options) ->
 		if curr.mtime > prev.mtime
 			invoke 'build'
 
-###
-option '-v', '--version [VERSION]', 'Release a new version.'
-
 task 'release', (options) ->
-  {version} = options
-  return log 'ERROR! No version provided.' unless version
-  data = fs.readFileSync SCRIPT, 'utf8'
-  fs.writeFileSync SCRIPT, data.replace /(\/\s@version\s+|VERSION\s+=\s\")[\d\.]+/g, "$1#{version}", 'utf8', (err) ->
-  throw err if err
-  data = fs.readFileSync CHANGELOG, 'utf8'
-  fs.writeFileSync CHANGELOG, data.replace 'master', "master\n\n#{version}", 'utf8', (err) ->
-  throw err if err
-  exec "cake build && git commit -am 'Release #{version}'"
-###
+	{version} = options
+	unless version
+		console.warn 'Version argument not specified. Exiting.'
+		return
+	regexp = RegExp VERSION, 'g'
+	for file in [CAKEFILE, INFILE, OUTFILE]
+		data = fs.readFileSync file, 'utf8'
+		fs.writeFileSync file, data.replace regexp, version
+		data = fs.readFileSync CHANGELOG, 'utf8'
+		fs.writeFileSync CHANGELOG, data.replace 'master', "master\n\n#{version}"
+		exec "git commit -am 'Release #{version}.'"
+		exec "git tag -a #{version} -m '#{version}'"
+		exec "git tag -af stable -m '#{version}'"
