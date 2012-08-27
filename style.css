@@ -1,0 +1,66 @@
+#exlinks-options {
+	display: block !important;
+	font-family: sans-serif;
+	position: fixed;
+	width: 60%;
+	height: 60%;
+	top: 20%;
+	left: 20%;
+	padding: 8px !important;
+	padding-top: 2px !important;
+	border-radius: 6px !important;
+	z-index: 1001 !important;
+	text-align: left !important;
+	background-color: #FF00FF !important;
+}
+
+.exlinks-options-button {
+	margin: 4px 2px;
+	display: inline-block !important; 
+	padding: 4px; 
+	background: rgba(0,0,0,0.05); 
+	border-radius: 3px
+}
+
+#exlinks-options-title {
+	font-size: 2.0em !important;
+	font-weight: bold !important;
+	text-decoration: none !important;
+}
+#exlinks-options-version {
+	margin: 0 4px;
+	opacity: 0.9;
+	vertical-align: 75%; 
+	text-decoration: none !important;
+}
+
+#exlinks-options-content {
+	overflow-y: scroll !important;
+	padding: 4px !important;
+	text-align: left;
+	height: 90%;
+	margin-top: 4px;
+}
+
+.exlinks-options-subtitle {
+	font-size: 1.5em !important;
+	font-weight: bold;
+	font-family: sans-serif;
+}
+
+.exlinks-options-notice {
+	float: right;
+	padding-top: 7px; 
+	margin-right: 4px;
+	opacity: 0.6;
+}
+
+.exlinks-options-table {
+	width: 100%; 
+	border: 1px solid rgba(0,0,0,0.2);
+	border-radius: 4px;
+	margin: 4px 0;
+}
+
+.exlinks-options-table tr:even { background-color: rgba(0,0,0,0.05); }
+.exlinks-options-table tr:odd { background-color: rgba(0,0,0,0.025); }
