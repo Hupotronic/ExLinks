@@ -15,12 +15,9 @@
 			'Automatic Processing':        ['checkbox', true,  'Get data and format links automatically.'],
 			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
 			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
-			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
-			'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.'],
-			'Debug Mode':                  ['checkbox', false, 'Enable debugger and logging to browser console.']
+			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.']
 			/*'ExSauce':                   ['checkbox', true,  'Add ExSauce lookup to images.'],
-			'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],
-			'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']*/
+			'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
 		},
 		actions: {
 			'Show by Default':             ['checkbox', false, 'Show gallery actions by default.'],
@@ -43,6 +40,11 @@
 			'Favorite Link':               ['domain', fetch.original, 'The domain used for the Favorite link in Actions.'],
 			'Stats Link':                  ['domain', fetch.original, 'The domain used for the Stats link in Actions.'],
 			'Tag Links':                   ['domain', fetch.original, 'The domain used for tag links in Actions.']
+		},
+		debug: {
+			'Debug Mode':                  ['checkbox', false, 'Enable debugger and logging to browser console.'],
+			'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.'],
+			'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']
 		}/*,
 		filter: {
 			'Name Filter': ['textarea', [
@@ -71,7 +73,7 @@
 		}*/
 	};	
 	regex = {
-		url: /(http:\/\/|http\:\/\/forums)?g?\.?e[\-x]hentai\.org\/[^\ \n]*/,
+		url: /(http:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n]*/,
 		site: /(g\.e\-hentai\.org|exhentai\.org)/,
 		type: /t?y?p?e?[\/|\-]([gs])[\/|\ ]/,
 		uid: /uid\-([0-9]+)/,
@@ -79,7 +81,7 @@
 		page: /page\-([0-9a-z]+)\-([0-9]+)/,
 		gid: /\/g\/([0-9]+)\/([0-9a-z]+)/,
 		sid: /\/s\/([0-9a-z]+)\/([0-9]+)\-([0-9]+)/,
-		fjord: /(bestiality|incest|lolicon|shotacon|toddlercon)/
+		fjord: /(bestiality|incest|lolicon|shotacon|toddlercon|abortion)/
 	};
 	conf = {};
 	tempconf = {};
@@ -300,7 +302,6 @@
 			} else {
 				data.jtitle = '';
 			}
-			data = Database.get(uid);
 			date = new Date(parseInt(data.posted,10)*1000);
 			data.datetext = UI.date(date);
 			data.visible = data.expunged ? 'No' : 'Yes';
@@ -718,8 +719,28 @@
 		}
 	};
 	Database = {}; $.extend(Database, {
-		get: function(uid) {
+		check: function(uid) {
 			var data;
+			if(Database[uid]) {
+				return Database[uid].token;
+			} else {
+				data = Cache.get(uid);
+				if(data) {
+					Database.set(data);
+					return data.token;
+				} else {
+					return false;
+				}
+			}
+		},
+		get: function(uid/*,debug*/) {
+			var data;
+			/* Use this if you want to break database gets randomly for debugging */
+			/*if(debug === true) {
+				if(Math.random() > 0.8) {
+					return false;
+				}
+			}*/
 			if(Database[uid])
 			{
 				return Database[uid];
@@ -898,6 +919,7 @@
 			gen($.id('exlinks-options-general'),options.general);
 			gen($.id('exlinks-options-actions'),options.actions);
 			gen($.id('exlinks-options-domains'),options.domains);
+			gen($.id('exlinks-options-debug'),options.debug);
 		},
 		init: function() {
 		var oneechan = $.id('OneeChanLink'),
@@ -1023,52 +1045,96 @@
 	Main = {
 		namespace: 'exlinks-',
 		version: '2.0.3',
+		check: function(uid) {
+			var check, links, link, type, token, page;
+			check = Database.check(uid);
+			if(!check) {
+				links = Parser.unformatted(uid);
+				for ( var i = 0, ii = links.length; i < ii; i++ ) {
+					link = links[i];
+					type = link.className.match(regex.type)[1];
+					if(type === 's') {
+						page = link.className.match(regex.page);
+					} else
+					if(type === 'g') {
+						token = link.className.match(regex.token);
+						break;
+					}
+				}
+				if(type === 's') {
+					API.queue.add('s',uid,page[1],page[2]);
+					return [uid,type];
+				} else
+				if(type === 'g') {
+					API.queue.add('g',uid,token[1]);
+					return [uid,type];
+				}
+			} else {
+				Main.queue.add(uid);
+				return [uid,'f'];
+			}
+		},
 		format: function(queue) {
 			Debug.timer.start('format');
-			var uid, links, link, button, data, actions;
+			Debug.value.set('failed',0);
+			
+			var uid, links, link, button, data, actions, failed = {}, failure, failtype=[];
 			for ( var i = 0, ii = queue.length; i < ii; i++ ) {
 				uid = queue[i];
 				data = Database.get(uid);
 				links = Parser.unformatted(uid);
-				Debug.value.add('formatlinks');
-				for ( var k = 0, kk = links.length; k < kk; k++ ) {
-					link = links[k];
-					button = $.id(link.id.replace('gallery','button'));
-					link.innerHTML = data.title;
-					$.off(button,'click',Main.singlelink);
-					if(conf['Gallery Details'] === true) {
-						$.on(link,'mouseover',UI.show);
-						$.on(link,'mouseout',UI.hide);
-						$.on(link,'mousemove',UI.move);
+				if(data) {
+					Debug.value.add('formatlinks');
+					for ( var k = 0, kk = links.length; k < kk; k++ ) {
+						link = links[k];
+						button = $.id(link.id.replace('gallery','button'));
+						link.innerHTML = data.title;
+						$.off(button,'click',Main.singlelink);
+						if(conf['Gallery Details'] === true) {
+							$.on(link,'mouseover',UI.show);
+							$.on(link,'mouseout',UI.hide);
+							$.on(link,'mousemove',UI.move);
+						}
+						if(conf['Gallery Actions'] === true) {
+							$.on(button,'click',UI.toggle);
+						}
+						actions = UI.actions(data,link);
+						$.after(link,actions);
+						actions = $.id(link.id.replace('exlink-gallery','exblock-actions'));
+						if(conf['Torrent Popup'] === true) {
+							$.on($('a.extorrent',actions),'click',UI.popup);
+						}
+						if(conf['Archiver Popup'] === true) {
+							$.on($('a.exarchiver',actions),'click',UI.popup);
+						}
+						if(conf['Favorite Popup'] === true) {
+							$.on($('a.exfavorite',actions),'click',UI.popup);
+						}
+						/*
+						if(conf.Filter) {
+							// Filter.process(actions);
+						}*/
+						link.classList.remove('exprocessed');
+						link.classList.add('exformatted');
+						button.classList.remove('exfetch');
+						button.classList.add('extoggle');
 					}
-					if(conf['Gallery Actions'] === true) {
-						$.on(button,'click',UI.toggle);
-					}
-					actions = UI.actions(data,link);
-					$.after(link,actions);
-					actions = $.id(link.id.replace('exlink-gallery','exblock-actions'));
-					if(conf['Torrent Popup'] === true) {
-						$.on($('a.extorrent',actions),'click',UI.popup);
-					}
-					if(conf['Archiver Popup'] === true) {
-						$.on($('a.exarchiver',actions),'click',UI.popup);
-					}
-					if(conf['Favorite Popup'] === true) {
-						$.on($('a.exfavorite',actions),'click',UI.popup);
-					}
-					/*
-					if(conf.Filter) {
-						// Filter.process(actions);
-					}*/
-					link.classList.remove('exprocessed');
-					link.classList.add('exformatted');
-					button.classList.remove('exfetch');
-					button.classList.add('extoggle');
+				} else {
+					Debug.value.add('failed');
+					failed[uid] = true;
 				}
 			}
 			Main.queue.clear();
-
-			Debug.log('Formatted '+Debug.value.get('formatlinks')+' links. Time: '+Debug.timer.stop('format'));
+			Debug.log('Formatted IDs: '+Debug.value.get('formatlinks')+' OK, '+Debug.value.get('failed')+' FAIL. Time: '+Debug.timer.stop('format'));
+			if(Object.keys(failed).length) {
+				for ( var j in failed ) {
+					failure = Main.check(parseInt(j,10));
+					failtype.push(failure[0]);
+					failtype.push(failure[1]);
+				}
+				Debug.log([failtype]);
+				Main.update();
+			}
 		},
 		queue: function() {
 			var arr = [], i = 0,
@@ -1109,10 +1175,10 @@
 			page = link.className.match(regex.page);
 			if(type === 's')
 			{
-				check = Database.get(uid);
+				check = Database.check(uid);
 				if(check) {
 					type = 'g';
-					token = check.gKey;
+					token = check;
 					link.classList.remove('type-s');
 					link.classList.remove('page-'+page[1]+'-'+page[2]);
 					link.classList.add('type-g');
@@ -1124,7 +1190,7 @@
 			}
 			if(type === 'g')
 			{
-				check = Database.get(uid);
+				check = Database.check(uid);
 				if(check) {
 					Main.queue.add(uid);
 				} else {

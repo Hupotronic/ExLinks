@@ -1,5 +1,12 @@
 master
-
+- Hupo
+	+ Add: Failure detection during link formatting (should hopefully fix any issues with links sometimes not getting formatted)
+	+ Add: Smart Links updated to recognize galleries tagged with "abortion"
+	+ Add: New debugging option to load all cached metadata to current database on site load
+	+ Change: Debugging settings moved to the bottom of options
+	+ Change: "Disable Local Storage Cache" moved to debugging options
+	+ Fix: Link parsing updated again to not break on management URLs
+	
 2.0.3
 - Hupo
 	+ Feature: Debug Mode, which logs some statistics to your browser console if enabled

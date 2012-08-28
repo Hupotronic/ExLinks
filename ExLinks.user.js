@@ -30,12 +30,9 @@
 			'Automatic Processing':        ['checkbox', true,  'Get data and format links automatically.'],
 			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
 			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
-			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
-			'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.'],
-			'Debug Mode':                  ['checkbox', false, 'Enable debugger and logging to browser console.']
+			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.']
 			/*'ExSauce':                   ['checkbox', true,  'Add ExSauce lookup to images.'],
-			'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],
-			'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']*/
+			'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
 		},
 		actions: {
 			'Show by Default':             ['checkbox', false, 'Show gallery actions by default.'],
@@ -58,6 +55,11 @@
 			'Favorite Link':               ['domain', fetch.original, 'The domain used for the Favorite link in Actions.'],
 			'Stats Link':                  ['domain', fetch.original, 'The domain used for the Stats link in Actions.'],
 			'Tag Links':                   ['domain', fetch.original, 'The domain used for tag links in Actions.']
+		},
+		debug: {
+			'Debug Mode':                  ['checkbox', false, 'Enable debugger and logging to browser console.'],
+			'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.'],
+			'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']
 		}/*,
 		filter: {
 			'Name Filter': ['textarea', [
@@ -86,7 +88,7 @@
 		}*/
 	};	
 	regex = {
-		url: /(http:\/\/|http\:\/\/forums)?g?\.?e[\-x]hentai\.org\/[^\ \n]*/,
+		url: /(http:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n]*/,
 		site: /(g\.e\-hentai\.org|exhentai\.org)/,
 		type: /t?y?p?e?[\/|\-]([gs])[\/|\ ]/,
 		uid: /uid\-([0-9]+)/,
@@ -94,7 +96,7 @@
 		page: /page\-([0-9a-z]+)\-([0-9]+)/,
 		gid: /\/g\/([0-9]+)\/([0-9a-z]+)/,
 		sid: /\/s\/([0-9a-z]+)\/([0-9]+)\-([0-9]+)/,
-		fjord: /(bestiality|incest|lolicon|shotacon|toddlercon)/
+		fjord: /(bestiality|incest|lolicon|shotacon|toddlercon|abortion)/
 	};
 	conf = {};
 	tempconf = {};
@@ -168,7 +170,7 @@
 			var tn = [], ws = /^\s*$/, getTextNodes;
 			getTextNodes = function(n) {
 				var cn;
-				for ( var i = 0; i < n.childNodes.length; i++ )
+				for ( var i = 0, ii = n.childNodes.length; i < ii; i++ )
 				{
 					cn = n.childNodes[i];
 					if (cn.nodeType === 3)
@@ -295,7 +297,7 @@
 				} else {
 					log = [arr];
 				}
-				for ( var i = 0; i < log.length; i++ ) {
+				for ( var i = 0, ii = log.length; i < ii; i++ ) {
 					console.log('ExLinks '+Main.version+':',log[i]);
 				}
 			}
@@ -305,7 +307,7 @@
 		html: {
 			details: function(data) { return '<div class="exthumbnail" style="background-image:url('+data.thumb+')">&nbsp;</div><div class="exsidepanel"><div class="excategory"><img src="'+img.categories[data.category]+'" alt="'+data.category+'"></div><div class="exsidebarbox"><b>Rating:</b><br><img src="'+img.ratings[Math.round(parseInt(data.rating,10)*2)]+'" alt="'+data.rating+'"><br><span style="opacity: 0.65; font-size: 0.95em">(Avg. '+data.rating+')</span></div><div class="exsidebarbox"><b>Files:</b><br>'+data.filecount+' images<br><span style="opacity: 0.65; font-size: 0.95em">('+data.size+' MB)</span></div><div class="exsidebarbox"><b style="margin-right:4px">Torrents:</b>'+data.torrentcount+'</div><div class="exsidebarbox" style="margin-bottom: 0px"><b style="margin-right:4px">Visible:</b>'+data.visible+'</div></div><a class="exlink extitle uid-'+data.gid+'" href="#exdetails-'+data.gid+'">'+data.title+'</a>'+data.jtitle+'<br><br><span style="font-size:1.0em !important">Uploaded by<b class="exlink exuploader uid-'+data.gid+'" style="font-size:1.0em!important;margin:0 5px">'+data.uploader+'</b>on<b style="font-size:1.0em!important;margin: 0 5px">'+data.datetext+'</b></span><br><br><span class="extags uid-'+data.gid+'" style="font-size: 1.05em !important; display: inline !important"><b style="font-size:1.05em!important;margin-right:2px!important">Tags:</b></span><br style="clear: both">'; },
 			actions: function(data) { return '<table class="exactions-table" style="display: inline-block; vertical-align: top; width:100%"><tr><td style="vertical-align: top">'+data.category+' | '+data.filecount+' files | View on:<a href="'+data.url.ge+'" class="exaction" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px">e-hentai</a><a href="'+data.url.ex+'" class="exaction" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px">exhentai</a>| Download via:<a href="'+data.url.bt+'" class="exlink exaction extorrent" target="_blank" style="margin-right: 0px">torrent['+data.torrentcount+']</a><a href="'+data.url.hh+'" class="exaction" target="_blank" style="margin-right: 0px">hentai@home</a><a href="'+data.url.arc+'" class="exlink exaction exarchiver" target="_blank">archiver</a>| Uploader:<a href="'+data.url.user+'" target="_blank" class="exlink exaction exuploader uid-'+data.gid+'">'+data.uploader+'</a>|<a href="'+data.url.fav+'" class="exlink exaction exfavorite" target="_blank">Favorite</a>|<a href="'+data.url.stats+'" class="exaction" target="_blank">Stats</a></td></tr></table><span class="extags uid-'+data.gid+'" style="display: inline-block !important"><b style="margin-right:2px!important">Tags:</b></span>'; },
-			options: function()     { return '<div id="exlinks-options" class="post reply"><div id="exlinks-options-nav" style="text-align:left"><div style="float: right"><div class="exlinks-options-button"><a id="exlinks-options-changelog" href="https://raw.github.com/hupotronic/ExLinks/master/changelog">Changelog</a></div><div class="exlinks-options-button"><a id="exlinks-options-issues" href="https://github.com/Hupotronic/ExLinks/issues">Issues</a></div><div class="exlinks-options-button"><a id="exlinks-options-save" href="">Save Settings</a></div><div class="exlinks-options-button"><a id="exlinks-options-cancel" href="">Cancel</a></div></div><a class="exlinks-options-title" href="http://hupotronic.github.com/ExLinks/">ExLinks</a><span class="exlinks-options-version">'+Main.version+'</span></div><div id="exlinks-options-content"><span class="exlinks-options-subtitle">General Settings</span><span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: You must reload the page after saving for any changes to take effect.</span><br><table id="exlinks-options-general" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Gallery Actions</span><br><table id="exlinks-options-actions" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Domain Settings</span><table id="exlinks-options-domains" class="exlinks-options-table"></table></div></div>'; }
+			options: function()     { return '<div id="exlinks-options" class="post reply"><div id="exlinks-options-nav" style="text-align:left"><div style="float: right"><div class="exlinks-options-button"><a id="exlinks-options-changelog" href="https://raw.github.com/hupotronic/ExLinks/master/changelog">Changelog</a></div><div class="exlinks-options-button"><a id="exlinks-options-issues" href="https://github.com/Hupotronic/ExLinks/issues">Issues</a></div><div class="exlinks-options-button"><a id="exlinks-options-save" href="">Save Settings</a></div><div class="exlinks-options-button"><a id="exlinks-options-cancel" href="">Cancel</a></div></div><a class="exlinks-options-title" href="http://hupotronic.github.com/ExLinks/">ExLinks</a><span class="exlinks-options-version">'+Main.version+'</span></div><div id="exlinks-options-content"><span class="exlinks-options-subtitle">General Settings</span><span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: You must reload the page after saving for any changes to take effect.</span><br><table id="exlinks-options-general" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Gallery Actions</span><br><table id="exlinks-options-actions" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Domain Settings</span><table id="exlinks-options-domains" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Debugger Settings</span><table id="exlinks-options-debug" class="exlinks-options-table"></table></div></div>'; }
 		},
 		details: function(uid) {
 			var data, date, div, frag, taglist, tagspace, tag, content;
@@ -315,18 +317,17 @@
 			} else {
 				data.jtitle = '';
 			}
-			data = Database.get(uid);
 			date = new Date(parseInt(data.posted,10)*1000);
 			data.datetext = UI.date(date);
 			data.visible = data.expunged ? 'No' : 'Yes';
 			taglist = [];
-			for ( var i = 0; i < data.tags.length; i++ ) {
+			for ( var i = 0, ii = data.tags.length; i < ii; i++ ) {
 				tag = $.el('a', {
 					innerHTML: data.tags[i],
 					className: "exlink extag",
 					href: 'http://exhentai.org/tag/'+data.tags[i].replace(/\ /g,'+')
 				});
-				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
+				if( i < ii-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
 			content = UI.html.details(data);
@@ -379,13 +380,13 @@
 				Config.link(link.href,conf['Stats Link']),
 				Config.link(link.href,conf['Tag Links'])
 			];
-			for ( var i = 0; i < data.tags.length; i++ ) {
+			for ( var i = 0, ii = data.tags.length; i < ii; i++ ) {
 				tag = $.el('a', {
 					innerHTML: data.tags[i],
 					className: "exlink extag",
 					href: 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+')
 				});
-				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
+				if( i < ii-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
 			if(data.uploader) {
@@ -624,7 +625,7 @@
 			var arr;
 			if(type === 's') {
 				arr = json.tokenlist;
-				for ( var i = 0; i < arr.length; i++ )
+				for ( var i = 0, ii = arr.length; i < ii; i++ )
 				{
 					API.queue.add('g',arr[i].gid,arr[i].token);
 				}
@@ -637,7 +638,7 @@
 			} else
 			if(type === 'g') {
 				arr = json.gmetadata;
-				for ( var j = 0; j < arr.length; j++ )
+				for ( var j = 0, jj = arr.length; j < jj; j++ )
 				{
 					Database.set(arr[j]);
 					Main.queue.add(arr[j].gid);
@@ -718,7 +719,7 @@
 		load: function() {
 			var key, data;
 			
-			for ( var i = 0; i < Cache.type.length; i++ )
+			for ( var i = 0, ii = Cache.type.length; i < ii; i++ )
 			{
 				key = Cache.type.key(i);
 				if( key.match(Main.namespace+'gallery') )
@@ -733,8 +734,28 @@
 		}
 	};
 	Database = {}; $.extend(Database, {
-		get: function(uid) {
+		check: function(uid) {
 			var data;
+			if(Database[uid]) {
+				return Database[uid].token;
+			} else {
+				data = Cache.get(uid);
+				if(data) {
+					Database.set(data);
+					return data.token;
+				} else {
+					return false;
+				}
+			}
+		},
+		get: function(uid,debug) {
+			var data;
+			/* Use this if you want to break database gets randomly for debugging */
+			if(debug === true) {
+				if(Math.random() > 0.8) {
+					return false;
+				}
+			}
 			if(Database[uid])
 			{
 				return Database[uid];
@@ -774,7 +795,7 @@
 		links: '.exlink',
 		unformatted: function(uid) {
 			var result = [], links = $$('a.uid-'+uid);
-			for ( var i = 0; i < links.length; i++ ) {
+			for ( var i = 0, ii = links.length; i < ii; i++ ) {
 				if(links[i].classList.contains('exprocessed')) {
 					result.push(links[i]);
 				}
@@ -786,7 +807,7 @@
 				linknode, sp, ml, tn, tl, tu;
 			nodes = $.tnodes(post);
 			if(nodes) {
-				for ( var i = 0; i < nodes.length; i++ )
+				for ( var i = 0, ii = nodes.length; i < ii; i++ )
 				{
 					node = nodes[i];
 					text = node.textContent;
@@ -913,6 +934,7 @@
 			gen($.id('exlinks-options-general'),options.general);
 			gen($.id('exlinks-options-actions'),options.actions);
 			gen($.id('exlinks-options-domains'),options.domains);
+			gen($.id('exlinks-options-debug'),options.debug);
 		},
 		init: function() {
 		var oneechan = $.id('OneeChanLink'),
@@ -1038,52 +1060,96 @@
 	Main = {
 		namespace: 'exlinks-',
 		version: '2.0.3',
+		check: function(uid) {
+			var check, links, link, type, token, page;
+			check = Database.check(uid);
+			if(!check) {
+				links = Parser.unformatted(uid);
+				for ( var i = 0, ii = links.length; i < ii; i++ ) {
+					link = links[i];
+					type = link.className.match(regex.type)[1];
+					if(type === 's') {
+						page = link.className.match(regex.page);
+					} else
+					if(type === 'g') {
+						token = link.className.match(regex.token);
+						break;
+					}
+				}
+				if(type === 's') {
+					API.queue.add('s',uid,page[1],page[2]);
+					return [uid,type];
+				} else
+				if(type === 'g') {
+					API.queue.add('g',uid,token[1]);
+					return [uid,type];
+				}
+			} else {
+				Main.queue.add(uid);
+				return [uid,'f'];
+			}
+		},
 		format: function(queue) {
 			Debug.timer.start('format');
-			var uid, links, link, button, data, actions;
-			for ( var i = 0; i < queue.length; i++ ) {
+			Debug.value.set('failed',0);
+			
+			var uid, links, link, button, data, actions, failed = {}, failure, failtype=[];
+			for ( var i = 0, ii = queue.length; i < ii; i++ ) {
 				uid = queue[i];
 				data = Database.get(uid);
 				links = Parser.unformatted(uid);
-				Debug.value.add('formatlinks');
-				for ( var k = 0; k < links.length; k++ ) {
-					link = links[k];
-					button = $.id(link.id.replace('gallery','button'));
-					link.innerHTML = data.title;
-					$.off(button,'click',Main.singlelink);
-					if(conf['Gallery Details'] === true) {
-						$.on(link,'mouseover',UI.show);
-						$.on(link,'mouseout',UI.hide);
-						$.on(link,'mousemove',UI.move);
+				if(data) {
+					Debug.value.add('formatlinks');
+					for ( var k = 0, kk = links.length; k < kk; k++ ) {
+						link = links[k];
+						button = $.id(link.id.replace('gallery','button'));
+						link.innerHTML = data.title;
+						$.off(button,'click',Main.singlelink);
+						if(conf['Gallery Details'] === true) {
+							$.on(link,'mouseover',UI.show);
+							$.on(link,'mouseout',UI.hide);
+							$.on(link,'mousemove',UI.move);
+						}
+						if(conf['Gallery Actions'] === true) {
+							$.on(button,'click',UI.toggle);
+						}
+						actions = UI.actions(data,link);
+						$.after(link,actions);
+						actions = $.id(link.id.replace('exlink-gallery','exblock-actions'));
+						if(conf['Torrent Popup'] === true) {
+							$.on($('a.extorrent',actions),'click',UI.popup);
+						}
+						if(conf['Archiver Popup'] === true) {
+							$.on($('a.exarchiver',actions),'click',UI.popup);
+						}
+						if(conf['Favorite Popup'] === true) {
+							$.on($('a.exfavorite',actions),'click',UI.popup);
+						}
+						/*
+						if(conf.Filter) {
+							// Filter.process(actions);
+						}*/
+						link.classList.remove('exprocessed');
+						link.classList.add('exformatted');
+						button.classList.remove('exfetch');
+						button.classList.add('extoggle');
 					}
-					if(conf['Gallery Actions'] === true) {
-						$.on(button,'click',UI.toggle);
-					}
-					actions = UI.actions(data,link);
-					$.after(link,actions);
-					actions = $.id(link.id.replace('exlink-gallery','exblock-actions'));
-					if(conf['Torrent Popup'] === true) {
-						$.on($('a.extorrent',actions),'click',UI.popup);
-					}
-					if(conf['Archiver Popup'] === true) {
-						$.on($('a.exarchiver',actions),'click',UI.popup);
-					}
-					if(conf['Favorite Popup'] === true) {
-						$.on($('a.exfavorite',actions),'click',UI.popup);
-					}
-					/*
-					if(conf.Filter) {
-						// Filter.process(actions);
-					}*/
-					link.classList.remove('exprocessed');
-					link.classList.add('exformatted');
-					button.classList.remove('exfetch');
-					button.classList.add('extoggle');
+				} else {
+					Debug.value.add('failed');
+					failed[uid] = true;
 				}
 			}
 			Main.queue.clear();
-
-			Debug.log('Formatted '+Debug.value.get('formatlinks')+' links. Time: '+Debug.timer.stop('format'));
+			Debug.log('Formatted IDs: '+Debug.value.get('formatlinks')+' OK, '+Debug.value.get('failed')+' FAIL. Time: '+Debug.timer.stop('format'));
+			if(Object.keys(failed).length) {
+				for ( var j in failed ) {
+					failure = Main.check(parseInt(j,10));
+					failtype.push(failure[0]);
+					failtype.push(failure[1]);
+				}
+				Debug.log([failtype]);
+				Main.update();
+			}
 		},
 		queue: function() {
 			var arr = [], i = 0,
@@ -1124,10 +1190,10 @@
 			page = link.className.match(regex.page);
 			if(type === 's')
 			{
-				check = Database.get(uid);
+				check = Database.check(uid);
 				if(check) {
 					type = 'g';
-					token = check.gKey;
+					token = check;
 					link.classList.remove('type-s');
 					link.classList.remove('page-'+page[1]+'-'+page[2]);
 					link.classList.add('type-g');
@@ -1139,7 +1205,7 @@
 			}
 			if(type === 'g')
 			{
-				check = Database.get(uid);
+				check = Database.check(uid);
 				if(check) {
 					Main.queue.add(uid);
 				} else {
@@ -1154,7 +1220,7 @@
 			Debug.timer.start('process');
 			Debug.value.set('post_total',posts.length);
 			
-			for ( var i = 0; i < posts.length; i++ )
+			for ( var i = 0, ii = posts.length; i < ii; i++ )
 			{
 				post = posts[i];
 				if(post.innerHTML.match(regex.url))
@@ -1163,7 +1229,7 @@
 					
 					if(conf['Hide in Quotes']) {
 						actions = $$('.exactions',post);
-						for ( var h = 0; h < actions.length; h++ ) {
+						for ( var h = 0, hh = actions.length; h < hh; h++ ) {
 							style = actions[h].getAttribute('style');
 							if(style.match('inline-block')) {
 								style = style.replace('inline-block','none');
@@ -1177,7 +1243,7 @@
 						
 						prelinks = $$(Parser.prelinks,post);
 						if(prelinks) {
-							for ( var k = 0; k < prelinks.length; k++ ) {
+							for ( var k = 0, kk = prelinks.length; k < kk; k++ ) {
 								if(prelinks[k].href.match(regex.url)) {
 									prelinks[k].classList.add('exlink');
 									prelinks[k].classList.add('exgallery');
@@ -1191,7 +1257,7 @@
 						post.classList.add('exlinkified');
 					}
 					links = $$('a.exlink',post);
-					for ( var j = 0; j < links.length; j++ )
+					for ( var j = 0, jj = links.length; j < jj; j++ )
 					{
 						link = links[j];
 						if(link.classList.contains('exbutton')) {
@@ -1310,7 +1376,7 @@
 			m.forEach(function(e) {
 				if(e.addedNodes) {
 					nodes = e.addedNodes;
-					for ( var i = 0; i < nodes.length; i++) {
+					for ( var i = 0, ii = nodes.length; i < ii; i++) {
 						node = nodes[i];
 						if(node.nodeName === 'DIV') {
 							if(node.classList.contains('postContainer')) {
@@ -1342,7 +1408,7 @@
 				The reason for this is that no matter how you add the style to the head, it adds about ~165ms of overhead,
 				at least on my computer. This method, however, has practically no extra overhead based on debug timing.
 			*/
-			css = 'data:text/css;base64,LmV4YWN0aW9ucyB7IG1heC13aWR0aDogMTAwJTsgd2lkdGg6IGF1dG87IHBhZGRpbmc6IDRweDsgbWFyZ2luOiAzcHggMDsgYm9yZGVyLXJhZGl1czogNHB4OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMDUpICFpbXBvcnRhbnQ7IH0gLmV4YWN0aW9ucy10YWJsZSB7IGRpc3BsYXk6IGlubGluZS1ibG9jazsgdmVydGljYWwtYWxpZ246IHRvcDsgd2lkdGg6MTAwJTsgfSAuZXhhY3Rpb24geyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgdmVydGljYWwtYWxpZ246IHRvcDsgbWFyZ2luOiAwIDRweDsgfSAuZXh0YWcgeyBkaXNwbGF5OiBpbmxpbmUtYmxvY2sgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IG1hcmdpbjogMHB4IDJweCAhaW1wb3J0YW50OyB9IC5leGRldGFpbHMgeyBmb250LXNpemU6IDEzcHggIWltcG9ydGFudDsgb3BhY2l0eTogMC45MzsgcG9zaXRpb246IGZpeGVkICFpbXBvcnRhbnQ7IHotaW5kZXg6IDk5OSAhaW1wb3J0YW50OyBwYWRkaW5nOiA4cHggIWltcG9ydGFudDsgYm9yZGVyLXJhZGl1czogOHB4ICFpbXBvcnRhbnQ7IHRleHQtYWxpZ246IGNlbnRlciAhaW1wb3J0YW50OyB3aWR0aDogNjAlICFpbXBvcnRhbnQ7IH0gLmV4c2lkZXBhbmVsIHsgZmxvYXQ6IHJpZ2h0OyBtYXJnaW4tbGVmdDogOHB4OyBmb250LXNpemU6IDE0cHggIWltcG9ydGFudDsgbGluZS1oZWlnaHQ6IDEuMGVtICFpbXBvcnRhbnQ7IH0gLmV4Y2F0ZWdvcnkgeyBib3gtc2hhZG93OiAwLjBlbSAwLjBlbSAwLjVlbSByZ2JhKDMyLDMyLDMyLDAuMik7IGJvcmRlci1yYWRpdXM6IDRweDsgLXdlYmtpdC1iYWNrZ3JvdW5kLWNsaXA6IHBhZGRpbmctYm94OyBoZWlnaHQ6IDI0cHg7IG1hcmdpbi1ib3R0b206IDlweDsgfSAuZXhzaWRlYmFyYm94IHsgd2lkdGg6IDY0cHg7IGZvbnQtc2l6ZTogMC44ZW07IGJhY2tncm91bmQtY29sb3I6IHJnYmEoMCwwLDAsMC4yKTsgYm9yZGVyLXJhZGl1czogNHB4OyAtd2Via2l0LWJhY2tncm91bmQtY2xpcDogcGFkZGluZy1ib3g7IGJveC1zaGFkb3c6IDAuMGVtIDAuMGVtIDAuNWVtIHJnYmEoMCwwLDAsMC4yKTsgbWFyZ2luLWJvdHRvbTogOXB4OyBwYWRkaW5nOiA0cHggMDsgfSAuZXh0aXRsZSB7IGZvbnQtc2l6ZTogMS41ZW0gIWltcG9ydGFudDsgZm9udC13ZWlnaHQ6IGJvbGQgIWltcG9ydGFudDsgdGV4dC1zaGFkb3c6IDAuMWVtIDAuMWVtIDAuNGVtIHJnYmEoMCwwLDAsMC4xNSkgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IH0gLmV4anB0aXRsZSB7IG9wYWNpdHk6MC41OyBmb250LXNpemU6IDEuMWVtOyB0ZXh0LXNoYWRvdzogMC4xZW0gMC4xZW0gMC41ZW0gcmdiYSgwLDAsMCwwLjIpICFpbXBvcnRhbnQ7IH0gLmV4ZGV0YWlscyAuZXh0YWcgeyBmb250LXNpemU6IDEuMDVlbSAhaW1wb3J0YW50OyB9IC5leHRodW1ibmFpbCB7IGZsb2F0OiBsZWZ0OyBiYWNrZ3JvdW5kLWltYWdlOiB1cmwoI3tkYXRhLnRodW1ifSk7IG1hcmdpbi1yaWdodDogOHB4OyB3aWR0aDogMTQwcHg7IGhlaWdodDogMjAwcHg7IGJhY2tncm91bmQtcmVwZWF0OiBuby1yZXBlYXQ7IGJhY2tncm91bmQtc2l6ZTogY292ZXI7IGJhY2tncm91bmQtcG9zaXRpb246IDI1JSAwJTsgfSAjZXhsaW5rcy1vdmVybGF5IHsgcG9zaXRpb246IGZpeGVkOyB3aWR0aDogMTAwJTsgaGVpZ2h0OiAxMDAlOyB0b3A6IDA7IGxlZnQ6IDA7IHRleHQtYWxpZ246IGNlbnRlcjsgYmFja2dyb3VuZDogcmdiYSgwLDAsMCwwLjUpOyB6LWluZGV4OiAxMDAwOyB9ICNleGxpbmtzLW9wdGlvbnMgeyBkaXNwbGF5OiBibG9jayAhaW1wb3J0YW50OyBmb250LWZhbWlseTogc2Fucy1zZXJpZjsgcG9zaXRpb246IGZpeGVkICFpbXBvcnRhbnQ7IHdpZHRoOiA2MCUgIWltcG9ydGFudDsgaGVpZ2h0OiA2MCUgIWltcG9ydGFudDsgdG9wOiAxNiUgIWltcG9ydGFudDsgbGVmdDogMjAlICFpbXBvcnRhbnQ7IHBhZGRpbmc6IDhweCAhaW1wb3J0YW50OyBwYWRkaW5nLXRvcDogMnB4ICFpbXBvcnRhbnQ7IGJvcmRlci1yYWRpdXM6IDZweCAhaW1wb3J0YW50OyB6LWluZGV4OiAxMDAxICFpbXBvcnRhbnQ7IHRleHQtYWxpZ246IGxlZnQgIWltcG9ydGFudDsgcGFkZGluZy1ib3R0b206IDY0cHggIWltcG9ydGFudDsgfSAuZXhsaW5rcy1vcHRpb25zLWJ1dHRvbiB7IG1hcmdpbjogNHB4IDJweDsgZGlzcGxheTogaW5saW5lLWJsb2NrICFpbXBvcnRhbnQ7IHBhZGRpbmc6IDRweDsgYmFja2dyb3VuZDogcmdiYSgwLDAsMCwwLjA1KTsgYm9yZGVyLXJhZGl1czogM3B4OyB9IC5leGxpbmtzLW9wdGlvbnMtdGl0bGUgeyBmb250LXNpemU6IDIuMGVtICFpbXBvcnRhbnQ7IGZvbnQtd2VpZ2h0OiBib2xkICFpbXBvcnRhbnQ7IHRleHQtZGVjb3JhdGlvbjogbm9uZSAhaW1wb3J0YW50OyB9IC5leGxpbmtzLW9wdGlvbnMtdmVyc2lvbiB7IG1hcmdpbjogMCA0cHg7IG9wYWNpdHk6IDAuOTsgdmVydGljYWwtYWxpZ246IDc1JTsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IH0gI2V4bGlua3Mtb3B0aW9ucy1jb250ZW50IHsgb3ZlcmZsb3cteTogc2Nyb2xsICFpbXBvcnRhbnQ7IHBhZGRpbmc6IDRweCAhaW1wb3J0YW50OyB0ZXh0LWFsaWduOiBsZWZ0OyBoZWlnaHQ6IDEwMCU7IG1hcmdpbi10b3A6IDE2cHggIWltcG9ydGFudDsgfSAuZXhsaW5rcy1vcHRpb25zLXN1YnRpdGxlIHsgZm9udC1zaXplOiAxLjVlbSAhaW1wb3J0YW50OyBmb250LXdlaWdodDogYm9sZDsgZm9udC1mYW1pbHk6IHNhbnMtc2VyaWY7IH0gLmV4bGlua3Mtb3B0aW9ucy1ub3RpY2UgeyBmbG9hdDogcmlnaHQ7IHBhZGRpbmctdG9wOiA3cHg7IG1hcmdpbi1yaWdodDogNHB4OyBvcGFjaXR5OiAwLjY7IH0gLmV4bGlua3Mtb3B0aW9ucy10YWJsZSB7IHdpZHRoOiAxMDAlOyBib3JkZXI6IDFweCBzb2xpZCByZ2JhKDAsMCwwLDAuMik7IGJvcmRlci1yYWRpdXM6IDRweDsgbWFyZ2luOiA0cHggMDsgfSAuZXhsaW5rcy1vcHRpb25zLXRhYmxlIHRyOm50aC1jaGlsZChldmVuKSB7IGJhY2tncm91bmQtY29sb3I6IHJnYmEoMCwwLDAsMC4wNSk7IH0gLmV4bGlua3Mtb3B0aW9ucy10YWJsZSB0cjpudGgtY2hpbGQob2RkKSB7IGJhY2tncm91bmQtY29sb3I6IHJnYmEoMCwwLDAsMC4wMjUpOyB9';
+			css = 'data:text/css;base64,LmV4YWN0aW9ucyB7IG1heC13aWR0aDogMTAwJTsgd2lkdGg6IGF1dG87IHBhZGRpbmc6IDRweDsgbWFyZ2luOiAzcHggMDsgYm9yZGVyLXJhZGl1czogNHB4OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMDUpICFpbXBvcnRhbnQ7IH0gLmV4YWN0aW9ucy10YWJsZSB7IGRpc3BsYXk6IGlubGluZS1ibG9jazsgdmVydGljYWwtYWxpZ246IHRvcDsgd2lkdGg6MTAwJTsgfSAuZXhhY3Rpb24geyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgdmVydGljYWwtYWxpZ246IHRvcDsgbWFyZ2luOiAwIDRweDsgfSAuZXh0YWcgeyBkaXNwbGF5OiBpbmxpbmUtYmxvY2sgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IG1hcmdpbjogMHB4IDJweCAhaW1wb3J0YW50OyB9IC5leGRldGFpbHMgeyBmb250LXNpemU6IDEzcHggIWltcG9ydGFudDsgb3BhY2l0eTogMC45MzsgcG9zaXRpb246IGZpeGVkICFpbXBvcnRhbnQ7IHotaW5kZXg6IDk5OSAhaW1wb3J0YW50OyBwYWRkaW5nOiA4cHggIWltcG9ydGFudDsgYm9yZGVyLXJhZGl1czogOHB4ICFpbXBvcnRhbnQ7IHRleHQtYWxpZ246IGNlbnRlciAhaW1wb3J0YW50OyB3aWR0aDogNjAlICFpbXBvcnRhbnQ7IH0gLmV4c2lkZXBhbmVsIHsgZmxvYXQ6IHJpZ2h0OyBtYXJnaW4tbGVmdDogOHB4OyBmb250LXNpemU6IDE0cHggIWltcG9ydGFudDsgbGluZS1oZWlnaHQ6IDEuMGVtICFpbXBvcnRhbnQ7IH0gLmV4Y2F0ZWdvcnkgeyBib3gtc2hhZG93OiAwLjBlbSAwLjBlbSAwLjVlbSByZ2JhKDMyLDMyLDMyLDAuMik7IGJvcmRlci1yYWRpdXM6IDRweDsgYmFja2dyb3VuZC1jbGlwOiBwYWRkaW5nLWJveDsgaGVpZ2h0OiAyNHB4OyBtYXJnaW4tYm90dG9tOiA5cHg7IH0gLmV4c2lkZWJhcmJveCB7IHdpZHRoOiA2NHB4OyBmb250LXNpemU6IDAuOGVtOyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMik7IGJvcmRlci1yYWRpdXM6IDRweDsgYmFja2dyb3VuZC1jbGlwOiBwYWRkaW5nLWJveDsgYm94LXNoYWRvdzogMC4wZW0gMC4wZW0gMC41ZW0gcmdiYSgwLDAsMCwwLjIpOyBtYXJnaW4tYm90dG9tOiA5cHg7IHBhZGRpbmc6IDRweCAwOyB9IC5leHRpdGxlIHsgZm9udC1zaXplOiAxLjVlbSAhaW1wb3J0YW50OyBmb250LXdlaWdodDogYm9sZCAhaW1wb3J0YW50OyB0ZXh0LXNoYWRvdzogMC4xZW0gMC4xZW0gMC40ZW0gcmdiYSgwLDAsMCwwLjE1KSAhaW1wb3J0YW50OyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgfSAuZXhqcHRpdGxlIHsgb3BhY2l0eTowLjU7IGZvbnQtc2l6ZTogMS4xZW07IHRleHQtc2hhZG93OiAwLjFlbSAwLjFlbSAwLjVlbSByZ2JhKDAsMCwwLDAuMikgIWltcG9ydGFudDsgfSAuZXhkZXRhaWxzIC5leHRhZyB7IGZvbnQtc2l6ZTogMS4wNWVtICFpbXBvcnRhbnQ7IH0gLmV4dGh1bWJuYWlsIHsgZmxvYXQ6IGxlZnQ7IGJhY2tncm91bmQtaW1hZ2U6IHVybCgje2RhdGEudGh1bWJ9KTsgbWFyZ2luLXJpZ2h0OiA4cHg7IHdpZHRoOiAxNDBweDsgaGVpZ2h0OiAyMDBweDsgYmFja2dyb3VuZC1yZXBlYXQ6IG5vLXJlcGVhdDsgYmFja2dyb3VuZC1zaXplOiBjb3ZlcjsgYmFja2dyb3VuZC1wb3NpdGlvbjogMjUlIDAlOyB9ICNleGxpbmtzLW92ZXJsYXkgeyBwb3NpdGlvbjogZml4ZWQ7IHdpZHRoOiAxMDAlOyBoZWlnaHQ6IDEwMCU7IHRvcDogMDsgbGVmdDogMDsgdGV4dC1hbGlnbjogY2VudGVyOyBiYWNrZ3JvdW5kOiByZ2JhKDAsMCwwLDAuNSk7IHotaW5kZXg6IDEwMDA7IH0gI2V4bGlua3Mtb3B0aW9ucyB7IGRpc3BsYXk6IGJsb2NrICFpbXBvcnRhbnQ7IGZvbnQtZmFtaWx5OiBzYW5zLXNlcmlmOyBwb3NpdGlvbjogZml4ZWQgIWltcG9ydGFudDsgd2lkdGg6IDYwJSAhaW1wb3J0YW50OyBoZWlnaHQ6IDYwJSAhaW1wb3J0YW50OyB0b3A6IDE2JSAhaW1wb3J0YW50OyBsZWZ0OiAyMCUgIWltcG9ydGFudDsgcGFkZGluZzogOHB4ICFpbXBvcnRhbnQ7IHBhZGRpbmctdG9wOiAycHggIWltcG9ydGFudDsgYm9yZGVyLXJhZGl1czogNnB4ICFpbXBvcnRhbnQ7IHotaW5kZXg6IDEwMDEgIWltcG9ydGFudDsgdGV4dC1hbGlnbjogbGVmdCAhaW1wb3J0YW50OyBwYWRkaW5nLWJvdHRvbTogNjRweCAhaW1wb3J0YW50OyB9IC5leGxpbmtzLW9wdGlvbnMtYnV0dG9uIHsgbWFyZ2luOiA0cHggMnB4OyBkaXNwbGF5OiBpbmxpbmUtYmxvY2sgIWltcG9ydGFudDsgcGFkZGluZzogNHB4OyBiYWNrZ3JvdW5kOiByZ2JhKDAsMCwwLDAuMDUpOyBib3JkZXItcmFkaXVzOiAzcHg7IH0gLmV4bGlua3Mtb3B0aW9ucy10aXRsZSB7IGZvbnQtc2l6ZTogMi4wZW0gIWltcG9ydGFudDsgZm9udC13ZWlnaHQ6IGJvbGQgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IH0gLmV4bGlua3Mtb3B0aW9ucy12ZXJzaW9uIHsgbWFyZ2luOiAwIDRweDsgb3BhY2l0eTogMC45OyB2ZXJ0aWNhbC1hbGlnbjogNzUlOyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgfSAjZXhsaW5rcy1vcHRpb25zLWNvbnRlbnQgeyBvdmVyZmxvdy15OiBzY3JvbGwgIWltcG9ydGFudDsgcGFkZGluZzogNHB4ICFpbXBvcnRhbnQ7IHRleHQtYWxpZ246IGxlZnQ7IGhlaWdodDogMTAwJTsgbWFyZ2luLXRvcDogMTZweCAhaW1wb3J0YW50OyB9IC5leGxpbmtzLW9wdGlvbnMtc3VidGl0bGUgeyBmb250LXNpemU6IDEuNWVtICFpbXBvcnRhbnQ7IGZvbnQtd2VpZ2h0OiBib2xkOyBmb250LWZhbWlseTogc2Fucy1zZXJpZjsgfSAuZXhsaW5rcy1vcHRpb25zLW5vdGljZSB7IGZsb2F0OiByaWdodDsgcGFkZGluZy10b3A6IDdweDsgbWFyZ2luLXJpZ2h0OiA0cHg7IG9wYWNpdHk6IDAuNjsgfSAuZXhsaW5rcy1vcHRpb25zLXRhYmxlIHsgd2lkdGg6IDEwMCU7IGJvcmRlcjogMXB4IHNvbGlkIHJnYmEoMCwwLDAsMC4yKTsgYm9yZGVyLXJhZGl1czogNHB4OyBtYXJnaW46IDRweCAwOyB9IC5leGxpbmtzLW9wdGlvbnMtdGFibGUgdHI6bnRoLWNoaWxkKGV2ZW4pIHsgYmFja2dyb3VuZC1jb2xvcjogcmdiYSgwLDAsMCwwLjA1KTsgfSAuZXhsaW5rcy1vcHRpb25zLXRhYmxlIHRyOm50aC1jaGlsZChvZGQpIHsgYmFja2dyb3VuZC1jb2xvcjogcmdiYSgwLDAsMCwwLjAyNSk7IH0=';
 			style = $.el('link', {
 				rel: "stylesheet",
 				type: "text/css",
