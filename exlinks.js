@@ -153,7 +153,7 @@
 			var tn = [], ws = /^\s*$/, getTextNodes;
 			getTextNodes = function(n) {
 				var cn;
-				for ( var i = 0; i < n.childNodes.length; i++ )
+				for ( var i = 0, ii = n.childNodes.length; i < ii; i++ )
 				{
 					cn = n.childNodes[i];
 					if (cn.nodeType === 3)
@@ -280,7 +280,7 @@
 				} else {
 					log = [arr];
 				}
-				for ( var i = 0; i < log.length; i++ ) {
+				for ( var i = 0, ii = log.length; i < ii; i++ ) {
 					console.log('ExLinks '+Main.version+':',log[i]);
 				}
 			}
@@ -305,13 +305,13 @@
 			data.datetext = UI.date(date);
 			data.visible = data.expunged ? 'No' : 'Yes';
 			taglist = [];
-			for ( var i = 0; i < data.tags.length; i++ ) {
+			for ( var i = 0, ii = data.tags.length; i < ii; i++ ) {
 				tag = $.el('a', {
 					innerHTML: data.tags[i],
 					className: "exlink extag",
 					href: 'http://exhentai.org/tag/'+data.tags[i].replace(/\ /g,'+')
 				});
-				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
+				if( i < ii-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
 			content = UI.html.details(data);
@@ -364,13 +364,13 @@
 				Config.link(link.href,conf['Stats Link']),
 				Config.link(link.href,conf['Tag Links'])
 			];
-			for ( var i = 0; i < data.tags.length; i++ ) {
+			for ( var i = 0, ii = data.tags.length; i < ii; i++ ) {
 				tag = $.el('a', {
 					innerHTML: data.tags[i],
 					className: "exlink extag",
 					href: 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+')
 				});
-				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
+				if( i < ii-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
 			if(data.uploader) {
@@ -609,7 +609,7 @@
 			var arr;
 			if(type === 's') {
 				arr = json.tokenlist;
-				for ( var i = 0; i < arr.length; i++ )
+				for ( var i = 0, ii = arr.length; i < ii; i++ )
 				{
 					API.queue.add('g',arr[i].gid,arr[i].token);
 				}
@@ -622,7 +622,7 @@
 			} else
 			if(type === 'g') {
 				arr = json.gmetadata;
-				for ( var j = 0; j < arr.length; j++ )
+				for ( var j = 0, jj = arr.length; j < jj; j++ )
 				{
 					Database.set(arr[j]);
 					Main.queue.add(arr[j].gid);
@@ -703,7 +703,7 @@
 		load: function() {
 			var key, data;
 			
-			for ( var i = 0; i < Cache.type.length; i++ )
+			for ( var i = 0, ii = Cache.type.length; i < ii; i++ )
 			{
 				key = Cache.type.key(i);
 				if( key.match(Main.namespace+'gallery') )
@@ -759,7 +759,7 @@
 		links: '.exlink',
 		unformatted: function(uid) {
 			var result = [], links = $$('a.uid-'+uid);
-			for ( var i = 0; i < links.length; i++ ) {
+			for ( var i = 0, ii = links.length; i < ii; i++ ) {
 				if(links[i].classList.contains('exprocessed')) {
 					result.push(links[i]);
 				}
@@ -771,7 +771,7 @@
 				linknode, sp, ml, tn, tl, tu;
 			nodes = $.tnodes(post);
 			if(nodes) {
-				for ( var i = 0; i < nodes.length; i++ )
+				for ( var i = 0, ii = nodes.length; i < ii; i++ )
 				{
 					node = nodes[i];
 					text = node.textContent;
@@ -1026,12 +1026,12 @@
 		format: function(queue) {
 			Debug.timer.start('format');
 			var uid, links, link, button, data, actions;
-			for ( var i = 0; i < queue.length; i++ ) {
+			for ( var i = 0, ii = queue.length; i < ii; i++ ) {
 				uid = queue[i];
 				data = Database.get(uid);
 				links = Parser.unformatted(uid);
 				Debug.value.add('formatlinks');
-				for ( var k = 0; k < links.length; k++ ) {
+				for ( var k = 0, kk = links.length; k < kk; k++ ) {
 					link = links[k];
 					button = $.id(link.id.replace('gallery','button'));
 					link.innerHTML = data.title;
@@ -1139,7 +1139,7 @@
 			Debug.timer.start('process');
 			Debug.value.set('post_total',posts.length);
 			
-			for ( var i = 0; i < posts.length; i++ )
+			for ( var i = 0, ii = posts.length; i < ii; i++ )
 			{
 				post = posts[i];
 				if(post.innerHTML.match(regex.url))
@@ -1148,7 +1148,7 @@
 					
 					if(conf['Hide in Quotes']) {
 						actions = $$('.exactions',post);
-						for ( var h = 0; h < actions.length; h++ ) {
+						for ( var h = 0, hh = actions.length; h < hh; h++ ) {
 							style = actions[h].getAttribute('style');
 							if(style.match('inline-block')) {
 								style = style.replace('inline-block','none');
@@ -1162,7 +1162,7 @@
 						
 						prelinks = $$(Parser.prelinks,post);
 						if(prelinks) {
-							for ( var k = 0; k < prelinks.length; k++ ) {
+							for ( var k = 0, kk = prelinks.length; k < kk; k++ ) {
 								if(prelinks[k].href.match(regex.url)) {
 									prelinks[k].classList.add('exlink');
 									prelinks[k].classList.add('exgallery');
@@ -1176,7 +1176,7 @@
 						post.classList.add('exlinkified');
 					}
 					links = $$('a.exlink',post);
-					for ( var j = 0; j < links.length; j++ )
+					for ( var j = 0, jj = links.length; j < jj; j++ )
 					{
 						link = links[j];
 						if(link.classList.contains('exbutton')) {
@@ -1295,7 +1295,7 @@
 			m.forEach(function(e) {
 				if(e.addedNodes) {
 					nodes = e.addedNodes;
-					for ( var i = 0; i < nodes.length; i++) {
+					for ( var i = 0, ii = nodes.length; i < ii; i++) {
 						node = nodes[i];
 						if(node.nodeName === 'DIV') {
 							if(node.classList.contains('postContainer')) {
