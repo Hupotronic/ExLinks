@@ -2,7 +2,7 @@
 (function() {
 	"use strict";
 	var fetch, options, conf, tempconf, pageconf, regex, img, d, t, $, $$,
-		UI, Cache, API, Database, Sauce, Filter, Parser, Options, Config, Main;
+		Debug, UI, Cache, API, Database, Sauce, Filter, Parser, Options, Config, Main;
 	
 	img = {};
 	fetch = {
@@ -16,13 +16,14 @@
 			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
 			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
 			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
-			'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.']
+			'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.'],
+			'Debug Mode':                  ['checkbox', false, 'Enable debugger and logging to browser console.']
 			/*'ExSauce':                   ['checkbox', true,  'Add ExSauce lookup to images.'],
 			'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],
 			'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']*/
 		},
 		actions: {
-			/*'Show by Default':           ['checkbox', false, 'Show gallery actions by default.'],*/
+			'Show by Default':             ['checkbox', false, 'Show gallery actions by default.'],
 			'Hide in Quotes':              ['checkbox', true,  'Hide any open gallery actions in inline quotes.'],
 			'Torrent Popup':               ['checkbox', true,  'Use the default pop-up window for torrents.'],
 			'Archiver Popup':              ['checkbox', true,  'Use the default pop-up window for archiver.'],
@@ -70,7 +71,7 @@
 		}*/
 	};	
 	regex = {
-		url: /(http:\/\/)?g?\.?e[\-x]hentai\.org\/[^\ \n]*/,
+		url: /(http:\/\/|http\:\/\/forums)?g?\.?e[\-x]hentai\.org\/[^\ \n]*/,
 		site: /(g\.e\-hentai\.org|exhentai\.org)/,
 		type: /t?y?p?e?[\/|\-]([gs])[\/|\ ]/,
 		uid: /uid\-([0-9]+)/,
@@ -223,7 +224,68 @@
 			}
 		}
 	});
-	
+	Debug = {
+		on: false,
+		timer: {},
+		value: {},
+		init: function() {
+			if(conf['Debug Mode'] === true) {
+				Debug.on = true;
+			}
+			$.extend(Debug.timer, {
+				start: function(name) {
+					if(Debug.on) {
+						Debug.timer[name] = Date.now();
+					}
+				},
+				stop: function(name) {
+					if(Debug.on) {
+						Debug.timer[name] = Date.now() - Debug.timer[name];
+						return Debug.timer[name]+'ms';
+					}
+				}
+			});
+			$.extend(Debug.value, {
+				add: function(name,value) {
+					if(Debug.on) {
+						if(!Debug.value[name]) {
+							Debug.value[name] = 0;
+						}
+						if(value) {
+							Debug.value[name] += value;
+						} else {
+							Debug.value[name]++;
+						}
+					}
+				},
+				get: function(name) {
+					if(Debug.on) {
+						var ret = Debug.value[name];
+						Debug.value[name] = 0;
+						return ret;
+					}
+				},
+				set: function(name,value) {
+					if(Debug.on) {
+						Debug.value[name] = value;
+					}
+				}
+			});
+		},
+		log: function(arr) {
+			if(Debug.on) {
+				var log;
+				if(Array.isArray(arr)) {
+					log = arr;
+				} else {
+					log = [arr];
+				}
+				for ( var i = 0; i < log.length; i++ ) {
+					console.log('ExLinks '+Main.version+':',log[i]);
+				}
+			}
+		}
+	};
 	UI = {
 		html: {
 			details: function(data) { return '#DETAILS#'; },
@@ -234,7 +296,7 @@
 			var data, date, div, frag, taglist, tagspace, tag, content;
 			data = Database.get(uid);
 			if(data.title_jpn) {
-				data.jtitle = '<br /><span style="opacity:0.5; font-size: 1.1em; text-shadow: 0.1em 0.1em 0.5em rgba(0,0,0,0.2) !important;">'+data.title_jpn+'</span>';
+				data.jtitle = '<br /><span class="exjptitle">'+data.title_jpn+'</span>';
 			} else {
 				data.jtitle = '';
 			}
@@ -249,7 +311,6 @@
 					className: "exlink extag",
 					href: 'http://exhentai.org/tag/'+data.tags[i].replace(/\ /g,'+')
 				});
-				tag.setAttribute('style','margin:0 2px !important; text-decoration:none !important;display:inline-block !important;font-size:1.05em!important;');
 				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
@@ -259,8 +320,8 @@
 				id: 'exblock-details-uid-'+uid,
 				className: 'exblock exdetails post reply'
 			});
-			div.setAttribute('style','font-size: 13px !important; opacity: 0.93; position: fixed; z-index: 1001; padding: 8px !important; border-radius: 8px !important; text-align: center; width: 60%; display: table !important;');
 			tagspace = $('.extags',div);
+			div.setAttribute('style','display: table !important;');
 			$.add(tagspace,taglist);
 			frag = d.createDocumentFragment();
 			frag.appendChild(div);
@@ -309,7 +370,6 @@
 					className: "exlink extag",
 					href: 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+')
 				});
-				tag.setAttribute('style','display: inline-block !important; text-decoration: none !important; margin: 0px 2px !important;');
 				if( i < data.tags.length-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
@@ -335,7 +395,11 @@
 				className: 'exblock exactions uid-'+uid,
 				id: link.id.replace('exlink-gallery','exblock-actions')
 			});
-			div.setAttribute('style','display: none !important; max-width: 100%; width: auto; padding: 4px; margin: 3px 0; border-radius: 4px; background-color: rgba(0,0,0,0.05) !important;');
+			if(conf['Show by Default'] === false) {
+				div.setAttribute('style','display: none !important;');
+			} else {
+				div.setAttribute('style','display: table !important;');
+			}
 			tagspace = $('.extags',div);
 			$.add(tagspace,taglist);
 			frag.appendChild(div);
@@ -359,11 +423,11 @@
 			e.preventDefault();
 			actions = $.id(e.target.id.replace('exlink-button','exblock-actions'));
 			style = actions.getAttribute('style');
-			if(style.match('inline-block')) {
-				style = style.replace('inline-block','none');
+			if(style.match('table')) {
+				style = style.replace('table','none');
 			} else
 			if(style.match('none')) {
-				style = style.replace('none','inline-block');
+				style = style.replace('none','table');
 			}
 			actions.setAttribute('style',style);
 		},
@@ -519,23 +583,21 @@
 				if(!API.working && Date.now() > API.cooldown) {
 					API.working = true;
 					API.cooldown = Date.now();
-					/*var debug_time = Date.now();
-					console.log('API Request');
-					console.log(request);*/
+					Debug.timer.start('apirequest');
+					Debug.log(['API Request',request]);
 					xhr = new XMLHttpRequest();
 					xhr.open('POST', 'http://g.e-hentai.org/api.php');
 					xhr.setRequestHeader('Content-Type', 'application/json');
 					xhr.onreadystatechange = function() {
 						if(xhr.readyState === 4 && xhr.status === 200)
 						{
-							/*debug_time = Date.now() - debug_time;
-							console.log('API Response, Time: '+debug_time+'ms');*/
 							if(xhr.responseText.substr(0,1) === "{") {
-								/*console.log(JSON.parse(xhr.responseText));*/
+								Debug.log(['API Response, Time: '+Debug.timer.stop('apirequest'),JSON.parse(xhr.responseText)]);
 								API.response(type,JSON.parse(xhr.responseText));
 							} else {
-								/*console.log('API request error. Waiting five seconds before trying again.');*/
+								Debug.log('API Request error. Waiting five seconds before trying again. (Time: '+Debug.timer.stop('apirequest')+')');
 								API.cooldown = Date.now() + (5 * t.SECOND);
+								window.setTimeout(Main.update, 5000);
 							}
 						}
 					};
@@ -788,7 +850,6 @@
 			var gen, overlay, frag;
 			pageconf = JSON.parse(JSON.stringify(tempconf));
 			overlay = $.el('div');
-			overlay.setAttribute('style','position: fixed; width: 100%; height: 100%; top: 0; left: 0; text-align: center; background: rgba(0,0,0,0.5); z-index: 1000;');
 			overlay.id = 'exlinks-overlay';
 			overlay.innerHTML = UI.html.options();
 			frag = d.createDocumentFragment();
@@ -800,7 +861,7 @@
 			$.on($.id('exlinks-options'),'click',function(e){e.stopPropagation();});
 			d.body.style.overflow = 'hidden';
 			gen = function(target,obj) {
-				var desc, tr, type, value, sel, zebra = true;
+				var desc, tr, type, value, sel;
 				for ( var i in obj ) {
 				desc = obj[i][2];
 				type = obj[i][0];
@@ -831,8 +892,6 @@
 					].join('');
 					$.on($('select',tr),'change',Options.toggle);
 				}
-				tr.setAttribute('style','background-color: rgba(0,0,0,'+(zebra ? '0.05' : '0.025')+');');
-				zebra = zebra ? false : true;
 				$.add(target,tr);
 				}
 			};
@@ -963,15 +1022,15 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.0.0',
+		version: '2.0.3',
 		format: function(queue) {
-			/*var debug_time = Date.now(), debug_links = 0;*/
+			Debug.timer.start('format');
 			var uid, links, link, button, data, actions;
 			for ( var i = 0; i < queue.length; i++ ) {
 				uid = queue[i];
 				data = Database.get(uid);
 				links = Parser.unformatted(uid);
-				/*debug_links += links.length;*/
+				Debug.value.add('formatlinks');
 				for ( var k = 0; k < links.length; k++ ) {
 					link = links[k];
 					button = $.id(link.id.replace('gallery','button'));
@@ -1008,8 +1067,8 @@
 				}
 			}
 			Main.queue.clear();
-			/*debug_time = Date.now() - debug_time;
-			console.log('ExLinks 2.0.0 - Formatted '+debug_links+' links. Time: '+debug_time+'ms');*/
+
+			Debug.log('Formatted '+Debug.value.get('formatlinks')+' links. Time: '+Debug.timer.stop('format'));
 		},
 		queue: function() {
 			var arr = [], i = 0,
@@ -1076,15 +1135,17 @@
 		process: function(posts) {
 			var post, actions, style, prelinks, links, link, site,
 				type, gid, sid, uid, button, usage;
-				
-			/*var debug_time = Date.now(), debug_posts_total = 0, debug_posts = 0, debug_linkified = 0, debug_processed = 0;
-			debug_posts_total = posts.length;*/
+			
+			Debug.timer.start('process');
+			Debug.value.set('post_total',posts.length);
+			
 			for ( var i = 0; i < posts.length; i++ )
 			{
 				post = posts[i];
 				if(post.innerHTML.match(regex.url))
 				{
-					/*debug_posts++;*/
+					Debug.value.add('posts');
+					
 					if(conf['Hide in Quotes']) {
 						actions = $$('.exactions',post);
 						for ( var h = 0; h < actions.length; h++ ) {
@@ -1097,7 +1158,8 @@
 					}
 					if(!post.classList.contains('exlinkified'))
 					{
-						/*debug_linkified++;*/
+						Debug.value.add('linkified');
+						
 						prelinks = $$(Parser.prelinks,post);
 						if(prelinks) {
 							for ( var k = 0; k < prelinks.length; k++ ) {
@@ -1127,7 +1189,7 @@
 								$.on(link,'click',Main.singlelink);
 							}
 						}
-						if(link.classList.contains('exactions')) {
+						if(link.classList.contains('exaction')) {
 							if(link.classList.contains('extorrent')) {
 								if(conf['Torrent Popup'] === true) {
 									$.on(link,'click',UI.popup);
@@ -1185,7 +1247,8 @@
 							if(link.classList.contains('exprocessed')) {
 								if(conf['Automatic Processing'] === true) {
 									Main.single(link);
-									/*debug_processed++;*/
+									
+									Debug.value.add('processed');
 								}
 							}
 							if(link.classList.contains('exformatted')) {
@@ -1205,9 +1268,27 @@
 				}	
 				
 			}
-			/*debug_time = Date.now() - debug_time;
-			console.log('ExLinks 2.0.0 - Total posts: '+debug_posts_total+' Linkified: '+debug_linkified+' Processed: '+debug_posts+' Links: '+debug_processed+' Time: '+debug_time+'ms');*/
+			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
 			Main.update();
+		},
+		dom: function(e) {
+			var node = e.target, nodelist = [];
+			if(node.nodeName === 'DIV') {
+				if(node.classList.contains('postContainer')) {
+					nodelist.push($(Parser.postbody,node));
+				} else
+				if(node.classList.contains('inline')) {
+					nodelist.push($(Parser.postbody,node));
+				}
+			} else
+			if(node.nodeName === 'ARTICLE') {
+				if(node.classList.contains('post')) {
+					nodelist.push($(Parser.postbody,node));
+				}
+			}
+			if(nodelist.length) {
+				Main.process(nodelist);
+			}
 		},
 		observer: function(m) {
 			var nodes, node, nodelist = [];
@@ -1237,20 +1318,38 @@
 			}
 		},
 		ready: function() {
+			var css, style;
+			Debug.timer.start('init');
 			Config.site();
 			Options.init();
+			/*
+				CSS insertion is done as a link with base64-encoded href instead of adding a style to the document head.
+				The reason for this is that no matter how you add the style to the head, it adds about ~165ms of overhead,
+				at least on my computer. This method, however, has practically no extra overhead based on debug timing.
+			*/
+			css = '';
+			style = $.el('link', {
+				rel: "stylesheet",
+				type: "text/css",
+				href: css
+			});
+			$.add(d.head,style);
+			Debug.log('Initialization complete. Time: '+Debug.timer.stop('init'));
 			var nodelist = $$(Parser.postbody),
 				MutationObserver, updater,
 				updater_config = { childList: true, subtree: true };
 			Main.process(nodelist);
-			MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.OMutationObserver;
+			MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 			if(MutationObserver) {
 				updater = new MutationObserver(Main.observer);
+				updater.observe(d.body, updater_config);
+			} else {
+				$.on(d.body,'DOMNodeInserted',Main.dom);
 			}
-			updater.observe(d.body, updater_config);
 		},
 		init: function() {
 			Config.init();
+			Debug.init();
 			Cache.init();
 			Database.init();
 			API.init();

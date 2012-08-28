@@ -1,15 +1,15 @@
 ﻿<!-- Thumbnail -->
-<div style="float: left; background-image: url(#{data.thumb}); margin-right: 8px; width: 140px; height: 200px; background-repeat: no-repeat; background-size: cover; background-position: 25% 0%;">
+<div class="exthumbnail" style="background-image:url(#{data.thumb});">
 	&nbsp;
 </div>
 <!-- Sidepanel -->
-<div style="float: right; margin-left: 8px; font-size: 1.05em !important; line-height: 1.0em !important;">
+<div class="exsidepanel">
 	<!-- Category -->
-	<div style="box-shadow: 0.0em 0.0em 0.5em rgba(32,32,32,0.2); border-radius: 4px; -webkit-background-clip: padding-box; height: 24px; margin-bottom: 9px;">
+	<div class="excategory">
 		<img src="#{img.categories[data.category]}" alt="#{data.category}" />
 	</div>
 	<!-- Rating -->
-	<div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0;">
+	<div class="exsidebarbox">
 		<b>Rating:</b><br />
 		<img src="#{img.ratings[Math.round(parseInt(data.rating,10)*2)]}" alt="#{data.rating}" /><br />
 		<span style="opacity: 0.65; font-size: 0.95em;">
@@ -17,7 +17,7 @@
 		</span>
 	</div>
 	<!-- Files -->
-	<div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0;">
+	<div class="exsidebarbox">
 		<b>Files:</b><br />
 		#{data.filecount} images<br />
 		<span style="opacity: 0.65; font-size: 0.95em;">
@@ -25,16 +25,16 @@
 		</span>
 	</div>
 	<!-- Torrents -->
-	<div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); margin-bottom: 9px; padding: 4px 0;">
+	<div class="exsidebarbox">
 		<b style="margin-right:4px;">Torrents:</b> #{data.torrentcount}
 	</div>
 	<!-- Visible -->
-	<div style="width: 64px; font-size: 0.8em; background-color: rgba(0,0,0,0.2); border-radius: 4px; -webkit-background-clip: padding-box; box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2); padding: 4px 0;">
+	<div class="exsidebarbox" style="margin-bottom: 0px;">
 		<b style="margin-right:4px;">Visible:</b> #{data.visible}
 	</div>
 </div>
 <!-- Title -->
-<a class="exlink extitle uid-#{data.gid}" href="#exdetails-#{data.gid}" style="cursor: default; font-size: 1.5em !important; font-weight: bold !important; text-shadow: 0.1em 0.1em 0.4em rgba(0,0,0,0.15) !important; text-decoration: none !important;">
+<a class="exlink extitle uid-#{data.gid}" href="#exdetails-#{data.gid}">
 	#{data.title}
 </a>
 #{data.jtitle}

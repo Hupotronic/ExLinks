@@ -1,17 +1,120 @@
+﻿.exactions {
+	 max-width: 100%;
+	 width: auto;
+	 padding: 4px;
+	 margin: 3px 0;
+	 border-radius: 4px;
+	 background-color: rgba(0,0,0,0.05) !important;
+}
+
+.exactions-table {
+	display: inline-block;
+	vertical-align: top;
+	width:100%;
+}
+
+.exaction {
+	text-decoration: none !important;
+	vertical-align: top;
+	margin: 0 4px;
+}
+
+.extag {
+	display: inline-block !important;
+	text-decoration: none !important;
+	margin: 0px 2px !important;
+}
+
+.exdetails {
+	font-size: 13px !important;
+	opacity: 0.93;
+	position: fixed !important;
+	z-index: 999 !important;
+	padding: 8px !important;
+	border-radius: 8px !important;
+	text-align: center !important;
+	width: 60% !important;
+}
+
+.exsidepanel {
+	float: right;
+	margin-left: 8px;
+	font-size: 14px !important;
+	line-height: 1.0em !important;
+}
+
+.excategory {
+	box-shadow: 0.0em 0.0em 0.5em rgba(32,32,32,0.2);
+	border-radius: 4px;
+	-webkit-background-clip: padding-box;
+	height: 24px;
+	margin-bottom: 9px;
+}
+
+.exsidebarbox {
+	width: 64px;
+	font-size: 0.8em;
+	background-color: rgba(0,0,0,0.2);
+	border-radius: 4px;
+	-webkit-background-clip: padding-box;
+	box-shadow: 0.0em 0.0em 0.5em rgba(0,0,0,0.2);
+	margin-bottom: 9px;
+	padding: 4px 0;
+}
+
+.extitle {
+	font-size: 1.5em !important;
+	font-weight: bold !important;
+	text-shadow: 0.1em 0.1em 0.4em rgba(0,0,0,0.15) !important;
+	text-decoration: none !important;
+}
+
+.exjptitle {
+	opacity:0.5;
+	font-size: 1.1em;
+	text-shadow: 0.1em 0.1em 0.5em rgba(0,0,0,0.2) !important;
+}
+
+.exdetails .extag {
+	font-size: 1.05em !important;
+}
+
+.exthumbnail {
+	float: left;
+	background-image: url(#{data.thumb}); 
+	margin-right: 8px;
+	width: 140px; 
+	height: 200px; 
+	background-repeat: no-repeat; 
+	background-size: cover; 
+	background-position: 25% 0%;
+}
+
+#exlinks-overlay {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	text-align: center;
+	background: rgba(0,0,0,0.5);
+	z-index: 1000;
+}
+
 #exlinks-options {
 	display: block !important;
 	font-family: sans-serif;
-	position: fixed;
-	width: 60%;
-	height: 60%;
-	top: 20%;
-	left: 20%;
+	position: fixed !important;
+	width: 60% !important;
+	height: 60% !important;
+	top: 16% !important;
+	left: 20% !important;
 	padding: 8px !important;
 	padding-top: 2px !important;
 	border-radius: 6px !important;
 	z-index: 1001 !important;
 	text-align: left !important;
-	background-color: #FF00FF !important;
+	padding-bottom: 64px !important;
 }
 
 .exlinks-options-button {
@@ -19,15 +122,15 @@
 	display: inline-block !important; 
 	padding: 4px; 
 	background: rgba(0,0,0,0.05); 
-	border-radius: 3px
+	border-radius: 3px;
 }
 
-#exlinks-options-title {
+.exlinks-options-title {
 	font-size: 2.0em !important;
 	font-weight: bold !important;
 	text-decoration: none !important;
 }
-#exlinks-options-version {
+.exlinks-options-version {
 	margin: 0 4px;
 	opacity: 0.9;
 	vertical-align: 75%; 
@@ -38,8 +141,8 @@
 	overflow-y: scroll !important;
 	padding: 4px !important;
 	text-align: left;
-	height: 90%;
-	margin-top: 4px;
+	height: 100%;
+	margin-top: 16px !important;
 }
 
 .exlinks-options-subtitle {
@@ -62,5 +165,5 @@
 	margin: 4px 0;
 }
 
-.exlinks-options-table tr:even { background-color: rgba(0,0,0,0.05); }
-.exlinks-options-table tr:odd { background-color: rgba(0,0,0,0.025); }
+.exlinks-options-table tr:nth-child(even) { background-color: rgba(0,0,0,0.05); }
+.exlinks-options-table tr:nth-child(odd) { background-color: rgba(0,0,0,0.025); }

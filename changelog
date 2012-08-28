@@ -1,5 +1,13 @@
 master
 
+2.0.3
+- Hupo
+	+ Feature: Debug Mode, which logs some statistics to your browser console if enabled
+	+ Feature: Opera support... but usage is not recommended due to lack of mutation observers
+	+ Feature: New option "Show by Default" for gallery actions (default: false)
+	+ Fix: Options dialog now has a proper height in Firefox
+	+ Fix: E-Hentai forum links are now parsed properly
+
 2.0.0
 - Hupo
 	+ Feature: Harder, Better, Faster, Stronger

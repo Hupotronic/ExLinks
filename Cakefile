@@ -4,7 +4,7 @@ fs       = require 'fs'
 {minify} = require 'html-minifier'
 ugly     = require 'uglify-js'
 
-VERSION   = '2.0.0'
+VERSION   = '2.0.3'
 HEADER    = """
 // ==UserScript==
 // @name           ExLinks
@@ -27,6 +27,7 @@ INFILE    = 'exlinks.js'
 ELEMENTS  = './elements'
 IMAGES    = './images'
 IMAGEJSON = 'images.json'
+STYLEFILE = 'style.css'
 OUTFILE   = 'ExLinks.user.js'
 LATEST    = 'latest.js'
 CHANGELOG = 'changelog'
@@ -53,10 +54,15 @@ task 'build', (options) ->
 	html = store ELEMENTS
 	input = fs.readFileSync INFILE, 'utf8'
 	images = fs.readFileSync IMAGEJSON, 'utf8'
+	style = fs.readFileSync STYLEFILE, 'utf8'
+	style = minify style, { collapseWhitespace: true }
+	stylebuf = new Buffer style, 'utf8'
+	styleb64 = stylebuf.toString('base64')
 	input = input.replace "\#DETAILS\#", html.details
 	input = input.replace "\#ACTIONS\#", html.actions
 	input = input.replace "\#OPTIONS\#", html.options
 	input = input.replace "img = {}", "img = #{images}"
+	input = input.replace "css = '';", "css = 'data:text/css;base64,#{styleb64}';"
 	input = input.replace /\/\*jshint.*\*\//, ''
 	if options.uglify
 		{uglify} = options
@@ -107,7 +113,10 @@ task 'dev', (options) ->
 	fs.watchFile './elements/options.htm', interval: 250, (curr, prev) ->
 		if curr.mtime > prev.mtime
 			invoke 'build'
-
+	fs.watchFile './style.css', interval: 250, (curr, prev) ->
+		if curr.mtime > prev.mtime
+			invoke 'build'
+###
 task 'release', (options) ->
 	{version} = options
 	unless version
@@ -122,3 +131,4 @@ task 'release', (options) ->
 		exec "git commit -am 'Release #{version}.'"
 		exec "git tag -a #{version} -m '#{version}'"
 		exec "git tag -af stable -m '#{version}'"
+###

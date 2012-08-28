@@ -1,16 +1,15 @@
-﻿<table style="display: inline-block; vertical-align: top; width:100%;">
+﻿<table class="exactions-table" style="display: inline-block; vertical-align: top; width:100%;">
 	<tr><td style="vertical-align: top;">
 		#{data.category} | #{data.filecount} files | View on: 
-		<a href="#{data.url.ge}" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px;">e-hentai</a> 
-		<a href="#{data.url.ex}" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">exhentai</a> | 
+		<a href="#{data.url.ge}" class="exaction" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px;">e-hentai</a> 
+		<a href="#{data.url.ex}" class="exaction" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">exhentai</a> | 
 		Download via: 
-		<a href="#{data.url.bt}" class="exlink exactions extorrent" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px;">torrent[#{data.torrentcount}]</a> 
-		<a href="#{data.url.hh}" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px;">hentai@home</a> 
-		<a href="#{data.url.arc}" class="exlink exactions exarchiver" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">archiver</a> | 
-		Uploader: <a href="#{data.url.user}" target="_blank" class="exlink exuploader uid-#{data.gid}" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">#{data.uploader}</a> | 
-		<a href="#{data.url.fav}" class="exlink exactions exfavorite" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">Favorite</a> | 
-		<a href="#{data.url.stats}" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px;">Stats</a><!-- | 
-		<img src="#{img.ratings[Math.round(parseInt(data.rating,10)*2)]}" style="height:12px; opacity: 0.75; vertical-align: bottom; margin-bottom: 2px;" alt="#{data.rating}" title ="Average: #{data.rating}" />-->
+		<a href="#{data.url.bt}" class="exlink exaction extorrent" target="_blank" style="margin-right: 0px;">torrent[#{data.torrentcount}]</a> 
+		<a href="#{data.url.hh}" class="exaction" target="_blank" style="margin-right: 0px;">hentai@home</a> 
+		<a href="#{data.url.arc}" class="exlink exaction exarchiver" target="_blank" >archiver</a> | 
+		Uploader: <a href="#{data.url.user}" target="_blank" class="exlink exaction exuploader uid-#{data.gid}">#{data.uploader}</a> | 
+		<a href="#{data.url.fav}" class="exlink exaction exfavorite" target="_blank">Favorite</a> | 
+		<a href="#{data.url.stats}" class="exaction" target="_blank">Stats</a>
 	</td></tr>
 </table>
 <span class="extags uid-#{data.gid}" style="display: inline-block !important;">
