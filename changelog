@@ -1,4 +1,4 @@
-master
+﻿master
 - Hupo
 	+ Add: Failure detection during link formatting (should hopefully fix any issues with links sometimes not getting formatted)
 	+ Add: Smart Links updated to recognize galleries tagged with "abortion"

@@ -748,14 +748,14 @@
 				}
 			}
 		},
-		get: function(uid,debug) {
+		get: function(uid/*,debug*/) {
 			var data;
 			/* Use this if you want to break database gets randomly for debugging */
-			if(debug === true) {
+			/*if(debug === true) {
 				if(Math.random() > 0.8) {
 					return false;
 				}
-			}
+			}*/
 			if(Database[uid])
 			{
 				return Database[uid];
