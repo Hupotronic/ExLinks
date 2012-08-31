@@ -98,89 +98,64 @@
 		sid: /\/s\/([0-9a-z]+)\/([0-9]+)\-([0-9]+)/,
 		fjord: /(bestiality|incest|lolicon|shotacon|toddlercon|abortion)/
 	};
-	conf = {};
-	tempconf = {};
-	pageconf = {};
-
-	/* 
-	A whole bunch of code lifted pretty much straight from 4chan X.
-	Stripped and extended to only contain the necessary functionality for ExLinks.
-	Loosely follows the jQuery API:	http://api.jquery.com/ (Not chainable)
-	*/
-	d = document;
-	t = { /* time units */
+	t = {
 		SECOND: 1000,
 		MINUTE: 1000 * 60,
 		HOUR: 1000 * 60 * 60,
 		DAY: 1000 * 60 * 60 * 24
 	};
+	d = document;
+	conf = {};
+	tempconf = {};
+	pageconf = {};
+	
+	/* 
+		Inspired by jQuery API:
+		http://api.jquery.com/
+		Functions are not chainable.
+	*/
 	$ = function(selector, root) {
-		if(root == null) {
-			root = d.body;
-		}
+		if(root == null) { root = d.body; }
 		return root.querySelector(selector);
 	};
 	$$ = function(selector, root) {
-		if(root == null) {
-			root = d.body;
-		}
+		if(root == null) { root = d.body; }
 		return Array.prototype.slice.call(root.querySelectorAll(selector));
 	};
-	$.extend = function(object, properties) {
-		var key, val;
-		for (key in properties)
-		{
-			val = properties[key];
-			object[key] = val;
+	$.extend = function(obj, properties) {
+		for ( var k in properties ) {
+			obj[k] = properties[k];
 		}
 	};
 	$.extend($, {
-		/*engine: /WebKit|Presto|Gecko/.exec(navigator.userAgent)[0].toLowerCase(),*/
-		ready: function(fc) {                  /* run function 'fc' when document is ready */
-			var cb;
-			if (/interactive|complete/.test(d.readyState))
-			{
-				return setTimeout(fc);
-			}
-			cb = function()
-			{
-				$.off(d, 'DOMContentLoaded', cb);
-				return fc();
-			};
-			return $.on(d, 'DOMContentLoaded', cb);
-		},
-		id: function(id) {                     /* get element by id */
-			return d.getElementById(id);
-		},
-		nodes: function(nodes) {               /* merge nodes into an element */
-			var frag, node, _i, _len;
-			if (!(nodes instanceof Array))
-			{
-				return nodes;
-			}
-			frag = d.createDocumentFragment();
-			for (_i = 0, _len = nodes.length; _i < _len; _i++)
-			{
-				node = nodes[_i];
-				frag.appendChild(node);
-			}
-			return frag;
-		},
-		tnodes: function(node) {               /* get textNodes of element */
-			var tn = [], ws = /^\s*$/, getTextNodes;
-			getTextNodes = function(n) {
-				var cn;
-				for ( var i = 0, ii = n.childNodes.length; i < ii; i++ )
+		prep: function(content) {
+			var frag;
+			if(content instanceof Array) {
+				frag = d.createDocumentFragment();
+				for ( var i = 0, ii = content.length; i < ii; i++ )
 				{
-					cn = n.childNodes[i];
-					if (cn.nodeType === 3)
+					frag.appendChild(content[i]);
+				}
+				return frag;
+			} else {
+				return content;
+			}
+		},
+		textnodes: function(elem) {
+			var tn = [], ws = /^\s*$/, getTextNodes;
+			getTextNodes = function(node) {
+				var cn;
+				for ( var i = 0, ii = node.childNodes.length; i < ii; i++ )
+				{
+					cn = node.childNodes[i];
+					if(cn.nodeType === 3)
 					{
 						if(!ws.test(cn.nodeValue))
 						{
 							tn.push(cn);
 						}
 					} else
-					if (cn.nodeType === 1)
+					if(cn.nodeType === 1)
 					{
 						if(cn.tagName === 'SPAN' || cn.tagName === 'P')
 						{
@@ -189,55 +164,52 @@
 					}
 				}
 			};
-			getTextNodes(node);
+			getTextNodes(elem);
 			return tn;
 		},
-		add: function(parent, children) {      /* insert 'children' to the end of 'parent' */
-			return parent.appendChild($.nodes(children));
+		id: function(id) {
+			return d.getElementById(id);
 		},
-		prepend: function(parent, children) {  /* insert 'children' to the beginning of 'parent' */
-			return parent.insertBefore($.nodes(children), parent.firstChild);
+		prepend: function(parent, child) {
+			return parent.insertBefore($.prep(child), parent.firstChild);
 		},
-		after: function(root, el) {            /* insert 'el' after 'root' */
-			return root.parentNode.insertBefore($.nodes(el), root.nextSibling);
+		add: function(parent, child) {
+			return parent.appendChild($.prep(child));
 		},
-		before: function(root, el) {           /* insert 'el' before 'root' */
-			return root.parentNode.insertBefore($.nodes(el), root);
+		before: function(root, elem) {
+			return root.parentNode.insertBefore($.prep(elem), root);
 		},
-		replace: function(root, el) {          /* replace 'root' with 'el' */
-			return root.parentNode.replaceChild($.nodes(el), root);
+		after: function(root, elem) {
+			return root.parentNode.insertBefore($.prep(elem), root.nextSibling);
 		},
-		tn: function(s) {                      /* create textNode */
-			return d.createTextNode(s);
+		replace: function(root, elem) {
+			return root.parentNode.replaceChild($.prep(elem), root);
 		},
-		el: function(tag, properties) {        /* create element */
-			var el;
-			el = d.createElement(tag);
-			if (properties)
-			{
-				$.extend(el, properties);
+		remove: function(elem) {
+			return elem.parentNode.removeChild(elem);
+		},
+		tnode: function(text) {
+			return d.createTextNode(text);
+		},
+		create: function(tag, properties) {
+			var elem = d.createElement(tag);
+			if(properties) {
+				$.extend(elem, properties);
 			}
-			return el;
+			return elem;
 		},
-		rm: function(el) {                     /* remove element */
-			return el.parentNode.removeChild(el);
-		},
-		on: function(el, events, handler) {    /* add event handler(s) */
-			var event, _i, _len, _ref;
-			_ref = events.split(' ');
-			for (_i = 0, _len = _ref.length; _i < _len; _i++)
+		on: function(elem, eventlist, handler) {
+			var events = eventlist.split(' ');
+			for ( var i = 0, ii = events.length; i < ii; i++ )
 			{
-				event = _ref[_i];
-				el.addEventListener(event, handler, false);
+				elem.addEventListener(events[i], handler, false);
 			}
 		},
-		off: function(el, events, handler) {   /* remove event handler(s) */
-			var event, _i, _len, _ref;
-			_ref = events.split(' ');
-			for (_i = 0, _len = _ref.length; _i < _len; _i++)
+		off: function(elem, eventlist, handler) {
+			var events = eventlist.split(' ');
+			for ( var i = 0, ii = events.length; i < ii; i++ )
 			{
-				event = _ref[_i];
-				el.removeEventListener(event, handler, false);
+				elem.removeEventListener(events[i], handler, false);
 			}
 		}
 	});
@@ -297,7 +269,8 @@
 				} else {
 					log = [arr];
 				}
-				for ( var i = 0, ii = log.length; i < ii; i++ ) {
+				for ( var i = 0, ii = log.length; i < ii; i++ )
+				{
 					console.log('ExLinks '+Main.version+':',log[i]);
 				}
 			}
@@ -321,8 +294,9 @@
 			data.datetext = UI.date(date);
 			data.visible = data.expunged ? 'No' : 'Yes';
 			taglist = [];
-			for ( var i = 0, ii = data.tags.length; i < ii; i++ ) {
-				tag = $.el('a', {
+			for ( var i = 0, ii = data.tags.length; i < ii; i++ )
+			{
+				tag = $.create('a', {
 					innerHTML: data.tags[i],
 					className: "exlink extag",
 					href: 'http://exhentai.org/tag/'+data.tags[i].replace(/\ /g,'+')
@@ -331,7 +305,7 @@
 				taglist.push(tag);
 			}
 			content = UI.html.details(data);
-			div = $.el('div', {
+			div = $.create('div', {
 				innerHTML: content,
 				id: 'exblock-details-uid-'+uid,
 				className: 'exblock exdetails post reply'
@@ -380,8 +354,9 @@
 				Config.link(link.href,conf['Stats Link']),
 				Config.link(link.href,conf['Tag Links'])
 			];
-			for ( var i = 0, ii = data.tags.length; i < ii; i++ ) {
-				tag = $.el('a', {
+			for ( var i = 0, ii = data.tags.length; i < ii; i++ )
+			{
+				tag = $.create('a', {
 					innerHTML: data.tags[i],
 					className: "exlink extag",
 					href: 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+')
@@ -406,7 +381,7 @@
 			};
 			frag = d.createDocumentFragment();
 			content = UI.html.actions(data);
-			div = $.el('div', {
+			div = $.create('div', {
 				innerHTML: content,
 				className: 'exblock exactions uid-'+uid,
 				id: link.id.replace('exlink-gallery','exblock-actions')
@@ -423,7 +398,7 @@
 		},
 		button: function(url,eid) {
 			var button;
-			button = $.el('a',{
+			button = $.create('a',{
 				id: eid.replace('gallery','button'),
 				className: 'exlink exbutton exfetch',
 				innerHTML: UI.button.text(url),
@@ -565,7 +540,7 @@
 					"method": "gtoken",
 					"pagelist": []
 				};
-				for( var j in API.s ) {
+				for ( var j in API.s ) {
 					if(limit < 25) {
 						request.pagelist.push([
 							parseInt(j,10),
@@ -688,7 +663,7 @@
 			json = Cache.type.getItem(key);
 			if(json) {
 				json = JSON.parse(json);
-				if ( Date.now() > json.added + json.TTL )
+				if(Date.now() > json.added + json.TTL)
 				{
 					Cache.type.removeItem(key);
 					return false;
@@ -704,7 +679,7 @@
 			key = Main.namespace+'gallery-'+data.gid;
 			limit = Date.now() - (12 * t.HOUR);
 			date = new Date(parseInt(data.posted,10)*1000);
-			if (date > limit) {
+			if(date > limit) {
 				TTL = date - limit;
 			} else {
 				TTL = 12 * t.HOUR;
@@ -795,7 +770,8 @@
 		links: '.exlink',
 		unformatted: function(uid) {
 			var result = [], links = $$('a.uid-'+uid);
-			for ( var i = 0, ii = links.length; i < ii; i++ ) {
+			for ( var i = 0, ii = links.length; i < ii; i++ )
+			{
 				if(links[i].classList.contains('exprocessed')) {
 					result.push(links[i]);
 				}
@@ -805,7 +781,7 @@
 		linkify: function(post) {
 			var nodes, node, text, match, ws = /^\s*$/,
 				linknode, sp, ml, tn, tl, tu;
-			nodes = $.tnodes(post);
+			nodes = $.textnodes(post);
 			if(nodes) {
 				for ( var i = 0, ii = nodes.length; i < ii; i++ )
 				{
@@ -818,9 +794,9 @@
 					{
 						sp = text.search(regex.url);
 						ml = match[0].length-1;
-						tn = $.tn(text.substr(0,sp));
+						tn = $.tnode(text.substr(0,sp));
 						tl = text.substr(sp+ml+1,text.length);
-						tu = $.el('a');
+						tu = $.create('a');
 						tu.className = 'exlink exgallery exunprocessed';
 						if(!match[0].match('http://')) {
 							tu.href = 'http://'+match[0];
@@ -842,7 +818,7 @@
 					}
 					if(tl) {
 						if(tl.length) {
-							linknode.push($.tn(tl));
+							linknode.push($.tnode(tl));
 						}
 					}
 					if(linknode) {
@@ -856,13 +832,13 @@
 		save: function(e) {
 			e.preventDefault();
 			Config.save();
-			$.rm($.id('exlinks-overlay'));	
+			$.remove($.id('exlinks-overlay'));	
 			d.body.style.overflow = 'visible';
 		},
 		close: function(e) {
 			e.preventDefault();
 			tempconf = JSON.parse(JSON.stringify(pageconf));
-			$.rm($.id('exlinks-overlay'));	
+			$.remove($.id('exlinks-overlay'));	
 			d.body.style.overflow = 'visible';
 		},
 		toggle: function(e) {
@@ -885,7 +861,7 @@
 		open: function() {
 			var gen, overlay, frag;
 			pageconf = JSON.parse(JSON.stringify(tempconf));
-			overlay = $.el('div');
+			overlay = $.create('div');
 			overlay.id = 'exlinks-overlay';
 			overlay.innerHTML = UI.html.options();
 			frag = d.createDocumentFragment();
@@ -896,39 +872,40 @@
 			$.on(overlay,'click',Options.close);
 			$.on($.id('exlinks-options'),'click',function(e){e.stopPropagation();});
 			d.body.style.overflow = 'hidden';
-			gen = function(target,obj) {
+			gen = function(target,obj)
+			{
 				var desc, tr, type, value, sel;
 				for ( var i in obj ) {
-				desc = obj[i][2];
-				type = obj[i][0];
-				value = tempconf[i];
-				tr = $.el('tr');
-				if(type === 'checkbox') {
-					if(value) {
-						sel = ' checked';
-					} else {
-						sel = '';
-					}
-					tr.innerHTML = [
+					desc = obj[i][2];
+					type = obj[i][0];
+					value = tempconf[i];
+					tr = $.create('tr');
+					if(type === 'checkbox') {
+						if(value) {
+							sel = ' checked';
+						} else {
+							sel = '';
+						}
+						tr.innerHTML = [
+							'<td style="padding:3px;">',
+							'<input type="'+type+'" style="float:right;margin-right:2px;" type="checkbox" id="'+i+'" name="'+i+'"'+sel+' />',
+							'<label for="'+i+'"><b>'+i+':</b> '+desc+'</label>',
+							'</td>'
+						].join('');
+						$.on($('input',tr),'change',Options.toggle);
+					} else
+					if(type === 'domain') {
+						tr.innerHTML = [
 						'<td style="padding:3px;">',
-						'<input type="'+type+'" style="float:right;margin-right:2px;" type="checkbox" id="'+i+'" name="'+i+'"'+sel+' />',
-						'<label for="'+i+'"><b>'+i+':</b> '+desc+'</label>',
-						'</td>'
-					].join('');
-					$.on($('input',tr),'change',Options.toggle);
-				} else
-				if(type === 'domain') {
-					tr.innerHTML = [
-					'<td style="padding:3px;">',
-					'<select name="'+i+'" type="'+type+'" style="font-size:0.92em!important;float:right;width:18%;">',
-						'<option value="1"'+(value.value==='Original'?' selected':'')+'>Original</option>',
-						'<option value="2"'+(value.value==='g.e-hentai.org'?' selected':'')+'>g.e-hentai.org</option>',
-						'<option value="3"'+(value.value==='exhentai.org'?' selected':'')+'>exhentai.org</option></select>',
-					'<b>'+i+':</b> '+desc+'</td>'
-					].join('');
-					$.on($('select',tr),'change',Options.toggle);
-				}
-				$.add(target,tr);
+						'<select name="'+i+'" type="'+type+'" style="font-size:0.92em!important;float:right;width:18%;">',
+							'<option value="1"'+(value.value==='Original'?' selected':'')+'>Original</option>',
+							'<option value="2"'+(value.value==='g.e-hentai.org'?' selected':'')+'>g.e-hentai.org</option>',
+							'<option value="3"'+(value.value==='exhentai.org'?' selected':'')+'>exhentai.org</option></select>',
+						'<b>'+i+':</b> '+desc+'</td>'
+						].join('');
+						$.on($('select',tr),'change',Options.toggle);
+					}
+					$.add(target,tr);
 				}
 			};
 			gen($.id('exlinks-options-general'),options.general);
@@ -940,9 +917,10 @@
 		var oneechan = $.id('OneeChanLink'),
 			chanss = $.id('themeoptionsLink'),
 			conflink, conflink2, arrtop, arrbot;
-			conflink = $.el('a', { title: 'ExLinks Options', className: 'exlinksOptionsLink' });
+			conflink = $.create('a', { title: 'ExLinks Options', className: 'exlinksOptionsLink' });
 			$.on(conflink,'click',Options.open);
-			if(Config.mode === '4chan') {
+			if(Config.mode === '4chan')
+			{
 				if(oneechan) {
 					conflink.setAttribute('style','position: fixed; background: url('+img.options+'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;');
 					$.on(conflink,'mouseover',function(e){e.target.style.opacity = 1.0;});
@@ -960,28 +938,31 @@
 					conflink.setAttribute('style','cursor: pointer');
 					conflink2 = conflink.cloneNode(true);
 					$.on(conflink2,'click',Options.open);
-					arrtop = [$.tn('['),conflink,$.tn('] ')];
-					arrbot = [$.tn('['),conflink2,$.tn('] ')];
+					arrtop = [$.tnode('['),conflink,$.tnode('] ')];
+					arrbot = [$.tnode('['),conflink2,$.tnode('] ')];
 					$.prepend($.id('navtopr'),arrtop);
 					$.prepend($.id('navbotr'),arrbot);
 				}
 			} else
-			if(Config.mode === 'foolz-fuuka') {
+			if(Config.mode === 'foolz-fuuka')
+			{
 				conflink.innerHTML = 'exlinks options';
 				conflink.setAttribute('style','cursor: pointer; text-decoration: underline;');
-				arrtop = [$.tn(' [ '),conflink,$.tn(' ] ')];
+				arrtop = [$.tnode(' [ '),conflink,$.tnode(' ] ')];
 				$.add($('div'),arrtop);
 			} else
-			if(Config.mode === 'foolz-default') {
+			if(Config.mode === 'foolz-default')
+			{
 				conflink.innerHTML = 'ExLinks Options';
 				conflink.setAttribute('style','cursor: pointer;');
-				arrtop = [$.tn(' [ '),conflink,$.tn(' ] ')];
+				arrtop = [$.tnode(' [ '),conflink,$.tnode(' ] ')];
 				$.add($('.letters'),arrtop);
 			}
 		}
 	};
 	Config = {
 		mode: '4chan',
+		engine: '',
 		link: function(url,opt) {
 			var site;
 			if(opt.value === "Original")
@@ -1041,6 +1022,7 @@
 		},
 		init: function() {
 			var temp, option;
+			Config.engine = navigator.userAgent.match(/WebKit|Presto|Gecko/)[0].toLowerCase();
 			for ( var i in options ) {
 				for ( var k in options[i] ) {
 					temp = localStorage.getItem(Main.namespace+'user-'+k);
@@ -1065,7 +1047,8 @@
 			check = Database.check(uid);
 			if(!check) {
 				links = Parser.unformatted(uid);
-				for ( var i = 0, ii = links.length; i < ii; i++ ) {
+				for ( var i = 0, ii = links.length; i < ii; i++ )
+				{
 					link = links[i];
 					type = link.className.match(regex.type)[1];
 					if(type === 's') {
@@ -1094,13 +1077,15 @@
 			Debug.value.set('failed',0);
 			
 			var uid, links, link, button, data, actions, failed = {}, failure, failtype=[];
-			for ( var i = 0, ii = queue.length; i < ii; i++ ) {
+			for ( var i = 0, ii = queue.length; i < ii; i++ )
+			{
 				uid = queue[i];
 				data = Database.get(uid);
 				links = Parser.unformatted(uid);
 				if(data) {
 					Debug.value.add('formatlinks');
-					for ( var k = 0, kk = links.length; k < kk; k++ ) {
+					for ( var k = 0, kk = links.length; k < kk; k++ )
+					{
 						link = links[k];
 						button = $.id(link.id.replace('gallery','button'));
 						link.innerHTML = data.title;
@@ -1229,7 +1214,8 @@
 					
 					if(conf['Hide in Quotes']) {
 						actions = $$('.exactions',post);
-						for ( var h = 0, hh = actions.length; h < hh; h++ ) {
+						for ( var h = 0, hh = actions.length; h < hh; h++ )
+						{
 							style = actions[h].getAttribute('style');
 							if(style.match('inline-block')) {
 								style = style.replace('inline-block','none');
@@ -1243,7 +1229,8 @@
 						
 						prelinks = $$(Parser.prelinks,post);
 						if(prelinks) {
-							for ( var k = 0, kk = prelinks.length; k < kk; k++ ) {
+							for ( var k = 0, kk = prelinks.length; k < kk; k++ )
+							{
 								if(prelinks[k].href.match(regex.url)) {
 									prelinks[k].classList.add('exlink');
 									prelinks[k].classList.add('exgallery');
@@ -1376,7 +1363,8 @@
 			m.forEach(function(e) {
 				if(e.addedNodes) {
 					nodes = e.addedNodes;
-					for ( var i = 0, ii = nodes.length; i < ii; i++) {
+					for ( var i = 0, ii = nodes.length; i < ii; i++ )
+					{
 						node = nodes[i];
 						if(node.nodeName === 'DIV') {
 							if(node.classList.contains('postContainer')) {
@@ -1409,7 +1397,7 @@
 				at least on my computer. This method, however, has practically no extra overhead based on debug timing.
 			*/
 			css = 'data:text/css;base64,LmV4YWN0aW9ucyB7IG1heC13aWR0aDogMTAwJTsgd2lkdGg6IGF1dG87IHBhZGRpbmc6IDRweDsgbWFyZ2luOiAzcHggMDsgYm9yZGVyLXJhZGl1czogNHB4OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMDUpICFpbXBvcnRhbnQ7IH0gLmV4YWN0aW9ucy10YWJsZSB7IGRpc3BsYXk6IGlubGluZS1ibG9jazsgdmVydGljYWwtYWxpZ246IHRvcDsgd2lkdGg6MTAwJTsgfSAuZXhhY3Rpb24geyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgdmVydGljYWwtYWxpZ246IHRvcDsgbWFyZ2luOiAwIDRweDsgfSAuZXh0YWcgeyBkaXNwbGF5OiBpbmxpbmUtYmxvY2sgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IG1hcmdpbjogMHB4IDJweCAhaW1wb3J0YW50OyB9IC5leGRldGFpbHMgeyBmb250LXNpemU6IDEzcHggIWltcG9ydGFudDsgb3BhY2l0eTogMC45MzsgcG9zaXRpb246IGZpeGVkICFpbXBvcnRhbnQ7IHotaW5kZXg6IDk5OSAhaW1wb3J0YW50OyBwYWRkaW5nOiA4cHggIWltcG9ydGFudDsgYm9yZGVyLXJhZGl1czogOHB4ICFpbXBvcnRhbnQ7IHRleHQtYWxpZ246IGNlbnRlciAhaW1wb3J0YW50OyB3aWR0aDogNjAlICFpbXBvcnRhbnQ7IH0gLmV4c2lkZXBhbmVsIHsgZmxvYXQ6IHJpZ2h0OyBtYXJnaW4tbGVmdDogOHB4OyBmb250LXNpemU6IDE0cHggIWltcG9ydGFudDsgbGluZS1oZWlnaHQ6IDEuMGVtICFpbXBvcnRhbnQ7IH0gLmV4Y2F0ZWdvcnkgeyBib3gtc2hhZG93OiAwLjBlbSAwLjBlbSAwLjVlbSByZ2JhKDMyLDMyLDMyLDAuMik7IGJvcmRlci1yYWRpdXM6IDRweDsgYmFja2dyb3VuZC1jbGlwOiBwYWRkaW5nLWJveDsgaGVpZ2h0OiAyNHB4OyBtYXJnaW4tYm90dG9tOiA5cHg7IH0gLmV4c2lkZWJhcmJveCB7IHdpZHRoOiA2NHB4OyBmb250LXNpemU6IDAuOGVtOyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMik7IGJvcmRlci1yYWRpdXM6IDRweDsgYmFja2dyb3VuZC1jbGlwOiBwYWRkaW5nLWJveDsgYm94LXNoYWRvdzogMC4wZW0gMC4wZW0gMC41ZW0gcmdiYSgwLDAsMCwwLjIpOyBtYXJnaW4tYm90dG9tOiA5cHg7IHBhZGRpbmc6IDRweCAwOyB9IC5leHRpdGxlIHsgZm9udC1zaXplOiAxLjVlbSAhaW1wb3J0YW50OyBmb250LXdlaWdodDogYm9sZCAhaW1wb3J0YW50OyB0ZXh0LXNoYWRvdzogMC4xZW0gMC4xZW0gMC40ZW0gcmdiYSgwLDAsMCwwLjE1KSAhaW1wb3J0YW50OyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgfSAuZXhqcHRpdGxlIHsgb3BhY2l0eTowLjU7IGZvbnQtc2l6ZTogMS4xZW07IHRleHQtc2hhZG93OiAwLjFlbSAwLjFlbSAwLjVlbSByZ2JhKDAsMCwwLDAuMikgIWltcG9ydGFudDsgfSAuZXhkZXRhaWxzIC5leHRhZyB7IGZvbnQtc2l6ZTogMS4wNWVtICFpbXBvcnRhbnQ7IH0gLmV4dGh1bWJuYWlsIHsgZmxvYXQ6IGxlZnQ7IGJhY2tncm91bmQtaW1hZ2U6IHVybCgje2RhdGEudGh1bWJ9KTsgbWFyZ2luLXJpZ2h0OiA4cHg7IHdpZHRoOiAxNDBweDsgaGVpZ2h0OiAyMDBweDsgYmFja2dyb3VuZC1yZXBlYXQ6IG5vLXJlcGVhdDsgYmFja2dyb3VuZC1zaXplOiBjb3ZlcjsgYmFja2dyb3VuZC1wb3NpdGlvbjogMjUlIDAlOyB9ICNleGxpbmtzLW92ZXJsYXkgeyBwb3NpdGlvbjogZml4ZWQ7IHdpZHRoOiAxMDAlOyBoZWlnaHQ6IDEwMCU7IHRvcDogMDsgbGVmdDogMDsgdGV4dC1hbGlnbjogY2VudGVyOyBiYWNrZ3JvdW5kOiByZ2JhKDAsMCwwLDAuNSk7IHotaW5kZXg6IDEwMDA7IH0gI2V4bGlua3Mtb3B0aW9ucyB7IGRpc3BsYXk6IGJsb2NrICFpbXBvcnRhbnQ7IGZvbnQtZmFtaWx5OiBzYW5zLXNlcmlmOyBwb3NpdGlvbjogZml4ZWQgIWltcG9ydGFudDsgd2lkdGg6IDYwJSAhaW1wb3J0YW50OyBoZWlnaHQ6IDYwJSAhaW1wb3J0YW50OyB0b3A6IDE2JSAhaW1wb3J0YW50OyBsZWZ0OiAyMCUgIWltcG9ydGFudDsgcGFkZGluZzogOHB4ICFpbXBvcnRhbnQ7IHBhZGRpbmctdG9wOiAycHggIWltcG9ydGFudDsgYm9yZGVyLXJhZGl1czogNnB4ICFpbXBvcnRhbnQ7IHotaW5kZXg6IDEwMDEgIWltcG9ydGFudDsgdGV4dC1hbGlnbjogbGVmdCAhaW1wb3J0YW50OyBwYWRkaW5nLWJvdHRvbTogNjRweCAhaW1wb3J0YW50OyB9IC5leGxpbmtzLW9wdGlvbnMtYnV0dG9uIHsgbWFyZ2luOiA0cHggMnB4OyBkaXNwbGF5OiBpbmxpbmUtYmxvY2sgIWltcG9ydGFudDsgcGFkZGluZzogNHB4OyBiYWNrZ3JvdW5kOiByZ2JhKDAsMCwwLDAuMDUpOyBib3JkZXItcmFkaXVzOiAzcHg7IH0gLmV4bGlua3Mtb3B0aW9ucy10aXRsZSB7IGZvbnQtc2l6ZTogMi4wZW0gIWltcG9ydGFudDsgZm9udC13ZWlnaHQ6IGJvbGQgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IH0gLmV4bGlua3Mtb3B0aW9ucy12ZXJzaW9uIHsgbWFyZ2luOiAwIDRweDsgb3BhY2l0eTogMC45OyB2ZXJ0aWNhbC1hbGlnbjogNzUlOyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgfSAjZXhsaW5rcy1vcHRpb25zLWNvbnRlbnQgeyBvdmVyZmxvdy15OiBzY3JvbGwgIWltcG9ydGFudDsgcGFkZGluZzogNHB4ICFpbXBvcnRhbnQ7IHRleHQtYWxpZ246IGxlZnQ7IGhlaWdodDogMTAwJTsgbWFyZ2luLXRvcDogMTZweCAhaW1wb3J0YW50OyB9IC5leGxpbmtzLW9wdGlvbnMtc3VidGl0bGUgeyBmb250LXNpemU6IDEuNWVtICFpbXBvcnRhbnQ7IGZvbnQtd2VpZ2h0OiBib2xkOyBmb250LWZhbWlseTogc2Fucy1zZXJpZjsgfSAuZXhsaW5rcy1vcHRpb25zLW5vdGljZSB7IGZsb2F0OiByaWdodDsgcGFkZGluZy10b3A6IDdweDsgbWFyZ2luLXJpZ2h0OiA0cHg7IG9wYWNpdHk6IDAuNjsgfSAuZXhsaW5rcy1vcHRpb25zLXRhYmxlIHsgd2lkdGg6IDEwMCU7IGJvcmRlcjogMXB4IHNvbGlkIHJnYmEoMCwwLDAsMC4yKTsgYm9yZGVyLXJhZGl1czogNHB4OyBtYXJnaW46IDRweCAwOyB9IC5leGxpbmtzLW9wdGlvbnMtdGFibGUgdHI6bnRoLWNoaWxkKGV2ZW4pIHsgYmFja2dyb3VuZC1jb2xvcjogcmdiYSgwLDAsMCwwLjA1KTsgfSAuZXhsaW5rcy1vcHRpb25zLXRhYmxlIHRyOm50aC1jaGlsZChvZGQpIHsgYmFja2dyb3VuZC1jb2xvcjogcmdiYSgwLDAsMCwwLjAyNSk7IH0=';
-			style = $.el('link', {
+			style = $.create('link', {
 				rel: "stylesheet",
 				type: "text/css",
 				href: css
@@ -1427,6 +1415,7 @@
 			} else {
 				$.on(d.body,'DOMNodeInserted',Main.dom);
 			}
+			$.off(d,'DOMContentLoaded',Main.ready);
 		},
 		init: function() {
 			Config.init();
@@ -1444,7 +1433,7 @@
 					Main.queue.list = {};
 				}
 			});
-			$.ready(Main.ready);
+			$.on(d,'DOMContentLoaded',Main.ready);
 		}
 	};	
 	
