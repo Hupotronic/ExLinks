@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.0.3
+// @version        2.0.4
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -110,7 +110,7 @@
 	pageconf = {};
 	
 	/* 
-		Inspired by jQuery API:
+		Inspired by 4chan X and jQuery API:
 		http://api.jquery.com/
 		Functions are not chainable.
 	*/
@@ -128,18 +128,13 @@
 		}
 	};
 	$.extend($, {
-		prep: function(content) {
-			var frag;
-			if(content instanceof Array) {
-				frag = d.createDocumentFragment();
-				for ( var i = 0, ii = content.length; i < ii; i++ )
-				{
-					frag.appendChild(content[i]);
-				}
-				return frag;
-			} else {
-				return content;
+		elem: function(arr) {
+			var frag = d.createDocumentFragment();
+			for ( var i = 0, ii = arr.length; i < ii; i++ )
+			{
+				frag.appendChild(arr[i]);
 			}
+			return frag;
 		},
 		textnodes: function(elem) {
 			var tn = [], ws = /^\s*$/, getTextNodes;
@@ -171,19 +166,19 @@
 			return d.getElementById(id);
 		},
 		prepend: function(parent, child) {
-			return parent.insertBefore($.prep(child), parent.firstChild);
+			return parent.insertBefore(child, parent.firstChild);
 		},
 		add: function(parent, child) {
-			return parent.appendChild($.prep(child));
+			return parent.appendChild(child);
 		},
 		before: function(root, elem) {
-			return root.parentNode.insertBefore($.prep(elem), root);
+			return root.parentNode.insertBefore(elem, root);
 		},
 		after: function(root, elem) {
-			return root.parentNode.insertBefore($.prep(elem), root.nextSibling);
+			return root.parentNode.insertBefore(elem, root.nextSibling);
 		},
 		replace: function(root, elem) {
-			return root.parentNode.replaceChild($.prep(elem), root);
+			return root.parentNode.replaceChild(elem, root);
 		},
 		remove: function(elem) {
 			return elem.parentNode.removeChild(elem);
@@ -199,17 +194,25 @@
 			return elem;
 		},
 		on: function(elem, eventlist, handler) {
-			var events = eventlist.split(' ');
-			for ( var i = 0, ii = events.length; i < ii; i++ )
-			{
-				elem.addEventListener(events[i], handler, false);
+			var event;
+			if(eventlist instanceof Array) {
+				for ( var i = 0, ii = eventlist.length; i < ii; i++ ) {
+					event = eventlist[i];
+					elem.addEventListener(event[0],event[1],false);
+				}
+			} else {
+				elem.addEventListener(eventlist,handler,false);
 			}
 		},
 		off: function(elem, eventlist, handler) {
-			var events = eventlist.split(' ');
-			for ( var i = 0, ii = events.length; i < ii; i++ )
-			{
-				elem.removeEventListener(events[i], handler, false);
+			var event;
+			if(eventlist instanceof Array) {
+				for ( var i = 0, ii = eventlist.length; i < ii; i++ ) {
+					event = eventlist[i];
+					elem.removeEventListener(event[0],event[1],false);
+				}
+			} else {
+				elem.removeEventListener(eventlist,handler,false);
 			}
 		}
 	});
@@ -264,7 +267,7 @@
 		log: function(arr) {
 			if(Debug.on) {
 				var log;
-				if(Array.isArray(arr)) {
+				if(arr instanceof Array) {
 					log = arr;
 				} else {
 					log = [arr];
@@ -312,7 +315,7 @@
 			});
 			tagspace = $('.extags',div);
 			div.setAttribute('style','display: table !important;');
-			$.add(tagspace,taglist);
+			$.add(tagspace,$.elem(taglist));
 			frag = d.createDocumentFragment();
 			frag.appendChild(div);
 			d.body.appendChild(frag);
@@ -392,7 +395,7 @@
 				div.setAttribute('style','display: table !important;');
 			}
 			tagspace = $('.extags',div);
-			$.add(tagspace,taglist);
+			$.add(tagspace,$.elem(taglist));
 			frag.appendChild(div);
 			return frag;
 		},
@@ -588,7 +591,7 @@
 							} else {
 								Debug.log('API Request error. Waiting five seconds before trying again. (Time: '+Debug.timer.stop('apirequest')+')');
 								API.cooldown = Date.now() + (5 * t.SECOND);
-								window.setTimeout(Main.update, 5000);
+								setTimeout(Main.update, 5000);
 							}
 						}
 					};
@@ -822,7 +825,7 @@
 						}
 					}
 					if(linknode) {
-						$.replace(node, linknode);
+						$.replace(node, $.elem(linknode));
 					}
 				}
 			}
@@ -923,16 +926,20 @@
 			{
 				if(oneechan) {
 					conflink.setAttribute('style','position: fixed; background: url('+img.options+'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;');
-					$.on(conflink,'mouseover',function(e){e.target.style.opacity = 1.0;});
-					$.on(conflink,'mouseout',function(e){e.target.style.opacity = 0.65;});
+					$.on(conflink,[
+						['mouseover',function(e){e.target.style.opacity = 1.0;}],
+						['mouseout',function(e){e.target.style.opacity = 0.65;}]
+					]);
 					$.add(d.body,conflink);
 				} else
 				if(chanss) {
 					conflink.innerHTML = 'Ex';
 					conflink.setAttribute('style','background-image: url('+img.options+'); padding-top: 15px !important; opacity: 0.75;');
-					$.on(conflink,'mouseover',function(e){e.target.style.opacity = 1.0;});
-					$.on(conflink,'mouseout',function(e){e.target.style.opacity = 0.65;});
-					$.add($.id('navtopr'),conflink);
+					$.on(conflink,[
+						['mouseover',function(e){e.target.style.opacity = 1.0;}],
+						['mouseout',function(e){e.target.style.opacity = 0.65;}]
+					]);
+					$.add($.id('navtopright'),conflink);
 				} else {
 					conflink.innerHTML = 'ExLinks Options';
 					conflink.setAttribute('style','cursor: pointer');
@@ -940,8 +947,8 @@
 					$.on(conflink2,'click',Options.open);
 					arrtop = [$.tnode('['),conflink,$.tnode('] ')];
 					arrbot = [$.tnode('['),conflink2,$.tnode('] ')];
-					$.prepend($.id('navtopr'),arrtop);
-					$.prepend($.id('navbotr'),arrbot);
+					$.prepend($.id('navtopright'),$.elem(arrtop));
+					$.prepend($.id('navbotright'),$.elem(arrbot));
 				}
 			} else
 			if(Config.mode === 'foolz-fuuka')
@@ -949,20 +956,19 @@
 				conflink.innerHTML = 'exlinks options';
 				conflink.setAttribute('style','cursor: pointer; text-decoration: underline;');
 				arrtop = [$.tnode(' [ '),conflink,$.tnode(' ] ')];
-				$.add($('div'),arrtop);
+				$.add($('div'),$.elem(arrtop));
 			} else
 			if(Config.mode === 'foolz-default')
 			{
 				conflink.innerHTML = 'ExLinks Options';
 				conflink.setAttribute('style','cursor: pointer;');
 				arrtop = [$.tnode(' [ '),conflink,$.tnode(' ] ')];
-				$.add($('.letters'),arrtop);
+				$.add($('.letters'),$.elem(arrtop));
 			}
 		}
 	};
 	Config = {
 		mode: '4chan',
-		engine: '',
 		link: function(url,opt) {
 			var site;
 			if(opt.value === "Original")
@@ -1022,7 +1028,6 @@
 		},
 		init: function() {
 			var temp, option;
-			Config.engine = navigator.userAgent.match(/WebKit|Presto|Gecko/)[0].toLowerCase();
 			for ( var i in options ) {
 				for ( var k in options[i] ) {
 					temp = localStorage.getItem(Main.namespace+'user-'+k);
@@ -1035,6 +1040,9 @@
 						localStorage.setItem(Main.namespace+'user-'+k,option);		
 					}
 				}
+			}
+			if(navigator.userAgent.match('Presto')) {
+				conf.ExSauce = false;
 			}
 			tempconf = JSON.parse(JSON.stringify(conf));
 		}
@@ -1091,9 +1099,11 @@
 						link.innerHTML = data.title;
 						$.off(button,'click',Main.singlelink);
 						if(conf['Gallery Details'] === true) {
-							$.on(link,'mouseover',UI.show);
-							$.on(link,'mouseout',UI.hide);
-							$.on(link,'mousemove',UI.move);
+							$.on(link,[
+								['mouseover',UI.show],
+								['mouseout',UI.hide],
+								['mousemove',UI.move]
+							]);
 						}
 						if(conf['Gallery Actions'] === true) {
 							$.on(button,'click',UI.toggle);
@@ -1321,9 +1331,11 @@
 							}
 							if(link.classList.contains('exformatted')) {
 								if(conf['Gallery Details'] === true) {
-									$.on(link,'mouseover',UI.show);
-									$.on(link,'mouseout',UI.hide);
-									$.on(link,'mousemove',UI.move);
+									$.on(link,[
+										['mouseover',UI.show],
+										['mouseout',UI.hide],
+										['mousemove',UI.move]
+									]);
 								}
 							}
 						}
