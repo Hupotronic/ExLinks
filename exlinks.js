@@ -1396,11 +1396,6 @@
 			Debug.timer.start('init');
 			Config.site();
 			Options.init();
-			/*
-				CSS insertion is done as a link with base64-encoded href instead of adding a style to the document head.
-				The reason for this is that no matter how you add the style to the head, it adds about ~165ms of overhead,
-				at least on my computer. This method, however, has practically no extra overhead based on debug timing.
-			*/
 			css = '';
 			style = $.create('link', {
 				rel: "stylesheet",
