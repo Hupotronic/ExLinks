@@ -1,5 +1,9 @@
 ﻿master
 
+2.0.5
+- Hupo
+	+ Fix: Malformed links are now properly ignored
+
 2.0.4
 - Hupo
 	+ Add: Failure detection during link formatting (should hopefully fix any issues with links sometimes not getting formatted)

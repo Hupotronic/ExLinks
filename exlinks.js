@@ -73,15 +73,15 @@
 		}*/
 	};	
 	regex = {
-		url: /(http:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n]*/,
+		url: /(http:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n\<\>\'\"]*/,
 		site: /(g\.e\-hentai\.org|exhentai\.org)/,
 		type: /t?y?p?e?[\/|\-]([gs])[\/|\ ]/,
 		uid: /uid\-([0-9]+)/,
-		token: /token\-([0-9a-z]+)/,
-		page: /page\-([0-9a-z]+)\-([0-9]+)/,
-		gid: /\/g\/([0-9]+)\/([0-9a-z]+)/,
-		sid: /\/s\/([0-9a-z]+)\/([0-9]+)\-([0-9]+)/,
-		fjord: /(bestiality|incest|lolicon|shotacon|toddlercon|abortion)/
+		token: /token\-([0-9a-f]+)/,
+		page: /page\-([0-9a-f]+)\-([0-9]+)/,
+		gid: /\/g\/([0-9]+)\/([0-9a-f]+)/,
+		sid: /\/s\/([0-9a-f]+)\/([0-9]+)\-([0-9]+)/,
+		fjord: /abortion|bestiality|incest|lolicon|shotacon|toddlercon/
 	};
 	t = {
 		SECOND: 1000,
@@ -1034,7 +1034,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.0.4',
+		version: '2.0.5',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1283,17 +1283,25 @@
 								}
 								if(type === 's') {
 									sid = link.href.match(regex.sid);
-									link.classList.add('type-s');
-									link.classList.add('uid-'+sid[2]);
-									link.classList.add('page-'+sid[1]+'-'+sid[3]);
-									uid = sid[2];
+									if(sid) {
+										link.classList.add('type-s');
+										link.classList.add('uid-'+sid[2]);
+										link.classList.add('page-'+sid[1]+'-'+sid[3]);
+										uid = sid[2];
+									} else {
+										type = null;
+									}
 								} else
 								if(type === 'g') {
 									gid = link.href.match(regex.gid);
-									link.classList.add('type-g');
-									link.classList.add('uid-'+gid[1]);
-									link.classList.add('token-'+gid[2]);
-									uid = gid[1];
+									if(gid) {
+										link.classList.add('type-g');
+										link.classList.add('uid-'+gid[1]);
+										link.classList.add('token-'+gid[2]);
+										uid = gid[1];
+									} else {
+										type = null;
+									}
 								}
 								link.classList.remove('exunprocessed');
 								if(type) {
