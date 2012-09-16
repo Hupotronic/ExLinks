@@ -73,7 +73,7 @@
 		}*/
 	};	
 	regex = {
-		url: /(http:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n\<\>\'\"]*/,
+		url: /(http:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n<>\'\"]*/,
 		site: /(g\.e\-hentai\.org|exhentai\.org)/,
 		type: /t?y?p?e?[\/|\-]([gs])[\/|\ ]/,
 		uid: /uid\-([0-9]+)/,
@@ -505,6 +505,7 @@
 		so: {},
 		g: {},
 		go: {},
+		timer: window.setTimeout,
 		cooldown: 0,
 		working: false,
 		queue: function(type) {
@@ -570,13 +571,14 @@
 					xhr.onreadystatechange = function() {
 						if(xhr.readyState === 4 && xhr.status === 200)
 						{
-							if(xhr.responseText.substr(0,1) === "{") {
+							if(JSON.parse(xhr.responseText)) {
 								Debug.log(['API Response, Time: '+Debug.timer.stop('apirequest'),JSON.parse(xhr.responseText)]);
 								API.response(type,JSON.parse(xhr.responseText));
 							} else {
 								Debug.log('API Request error. Waiting five seconds before trying again. (Time: '+Debug.timer.stop('apirequest')+')');
-								API.cooldown = Date.now() + (5 * t.SECOND);
-								setTimeout(Main.update, 5000);
+								Debug.log(xhr.responseText);
+								/*API.cooldown = Date.now() + (5 * t.SECOND);*/
+								API.timer(Main.update, 5000);
 							}
 						}
 					};
@@ -1034,7 +1036,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.0.5',
+		version: '2.0.6',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1194,7 +1196,7 @@
 			}
 		},
 		process: function(posts) {
-			var post, actions, style, prelinks, links, link, site,
+			var post, actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
 			
 			Debug.timer.start('process');
@@ -1226,12 +1228,13 @@
 						if(prelinks) {
 							for ( var k = 0, kk = prelinks.length; k < kk; k++ )
 							{
-								if(prelinks[k].href.match(regex.url)) {
-									prelinks[k].classList.add('exlink');
-									prelinks[k].classList.add('exgallery');
-									prelinks[k].classList.add('exunprocessed');
-									prelinks[k].style.textDecoration = 'none';
-									prelinks[k].setAttribute('target','_blank');
+								prelink = prelinks[k];
+								if(prelink.href.match(regex.url)) {
+									prelink.classList.add('exlink');
+									prelink.classList.add('exgallery');
+									prelink.classList.add('exunprocessed');
+									prelink.style.textDecoration = 'none';
+									prelink.setAttribute('target','_blank');
 								}
 							}
 						}

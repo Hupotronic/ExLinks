@@ -1,5 +1,9 @@
 ﻿master
 
+2.0.6
+- Hupo
+	+ Fix: Made it work again
+
 2.0.5
 - Hupo
 	+ Fix: Malformed links are now properly ignored
