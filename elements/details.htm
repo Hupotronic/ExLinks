@@ -1,52 +1,54 @@
-﻿<!-- Thumbnail -->
-<div class="exthumbnail" style="background-image:url(#{data.thumb});">
-	&nbsp;
+﻿<div id="exblock-details-uid-#{data.gid}" class="exblock exdetails post reply">
+	<!-- Thumbnail -->
+	<div class="exthumbnail" style="background-image:url(#{data.thumb});">
+		&nbsp;
+	</div>
+	<!-- Sidepanel -->
+	<div class="exsidepanel">
+		<!-- Category -->
+		<div class="excategory">
+			<img src="#{img.categories[data.category]}" alt="#{data.category}" />
+		</div>
+		<!-- Rating -->
+		<div class="exsidebarbox">
+			<b>Rating:</b><br />
+			<img src="#{img.ratings[Math.round(parseInt(data.rating,10)*2)]}" alt="#{data.rating}" /><br />
+			<span style="opacity: 0.65; font-size: 0.95em;">
+				(Avg. #{data.rating})
+			</span>
+		</div>
+		<!-- Files -->
+		<div class="exsidebarbox">
+			<b>Files:</b><br />
+			#{data.filecount} images<br />
+			<span style="opacity: 0.65; font-size: 0.95em;">
+				(#{data.size} MB)
+			</span>
+		</div>
+		<!-- Torrents -->
+		<div class="exsidebarbox">
+			<b style="margin-right:4px;">Torrents:</b> #{data.torrentcount}
+		</div>
+		<!-- Visible -->
+		<div class="exsidebarbox" style="margin-bottom: 0px;">
+			<b style="margin-right:4px;">Visible:</b> #{data.visible}
+		</div>
+	</div>
+	<!-- Title -->
+	<a class="exlink extitle uid-#{data.gid}" href="#exdetails-#{data.gid}">
+		#{data.title}
+	</a>
+	#{data.jtitle}
+	<br /><br />
+	<!-- Upload info -->
+	<span style="font-size:1.0em !important;">
+		Uploaded by <b class="exlink exuploader uid-#{data.gid}" style="font-size:1.0em!important;margin:0 5px;">#{data.uploader}</b> on
+		<b style="font-size:1.0em!important;margin: 0 5px;">#{data.datetext}</b>
+	</span>
+	<br /><br />
+	<!-- Tags -->
+	<span class="extags uid-#{data.gid}" style="font-size: 1.05em !important; display: inline !important;">
+		<b style="font-size:1.05em!important;margin-right:2px!important;">Tags:</b>
+	</span>
+	<br style="clear: both;" />
 </div>
-<!-- Sidepanel -->
-<div class="exsidepanel">
-	<!-- Category -->
-	<div class="excategory">
-		<img src="#{img.categories[data.category]}" alt="#{data.category}" />
-	</div>
-	<!-- Rating -->
-	<div class="exsidebarbox">
-		<b>Rating:</b><br />
-		<img src="#{img.ratings[Math.round(parseInt(data.rating,10)*2)]}" alt="#{data.rating}" /><br />
-		<span style="opacity: 0.65; font-size: 0.95em;">
-			(Avg. #{data.rating})
-		</span>
-	</div>
-	<!-- Files -->
-	<div class="exsidebarbox">
-		<b>Files:</b><br />
-		#{data.filecount} images<br />
-		<span style="opacity: 0.65; font-size: 0.95em;">
-			(#{data.size} MB)
-		</span>
-	</div>
-	<!-- Torrents -->
-	<div class="exsidebarbox">
-		<b style="margin-right:4px;">Torrents:</b> #{data.torrentcount}
-	</div>
-	<!-- Visible -->
-	<div class="exsidebarbox" style="margin-bottom: 0px;">
-		<b style="margin-right:4px;">Visible:</b> #{data.visible}
-	</div>
-</div>
-<!-- Title -->
-<a class="exlink extitle uid-#{data.gid}" href="#exdetails-#{data.gid}">
-	#{data.title}
-</a>
-#{data.jtitle}
-<br /><br />
-<!-- Upload info -->
-<span style="font-size:1.0em !important;">
-	Uploaded by <b class="exlink exuploader uid-#{data.gid}" style="font-size:1.0em!important;margin:0 5px;">#{data.uploader}</b> on
-	<b style="font-size:1.0em!important;margin: 0 5px;">#{data.datetext}</b>
-</span>
-<br /><br />
-<!-- Tags -->
-<span class="extags uid-#{data.gid}" style="font-size: 1.05em !important; display: inline !important;">
-	<b style="font-size:1.05em!important;margin-right:2px!important;">Tags:</b>
-</span>
-<br style="clear: both;" />

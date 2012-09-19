@@ -1,8 +1,8 @@
-﻿/*jshint eqnull:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, devel:true, maxerr:50 */
+﻿/*jshint eqnull:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, undef:true, curly:true, browser:true, devel:true, maxerr:50 */
 (function() {
 	"use strict";
 	var fetch, options, conf, tempconf, pageconf, regex, img, d, t, $, $$,
-		Debug, UI, Cache, API, Database, Sauce, Filter, Parser, Options, Config, Main;
+		Debug, UI, Cache, API, Database, SHA1, Sauce, Filter, Parser, Options, Config, Main;
 	
 	img = {};
 	fetch = {
@@ -15,9 +15,9 @@
 			'Automatic Processing':        ['checkbox', true,  'Get data and format links automatically.'],
 			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
 			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
-			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.']
-			/*'ExSauce':                   ['checkbox', true,  'Add ExSauce lookup to images.'],
-			'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
+			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
+			'ExSauce':                     ['checkbox', true,  'Add ExSauce lookup to images.']
+			/*'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
 		},
 		actions: {
 			'Show by Default':             ['checkbox', false, 'Show gallery actions by default.'],
@@ -30,6 +30,13 @@
 		favorite: {
 			'Favorite Category':           ['favorite', 0, 'The category to use.'],
 			'Favorite Comment':            ['textbox', 'ExLinks is awesome', 'The comment to use.']
+		},
+		sauce: {
+			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.'],
+			'Inline Sauce':                ['checkbox', true,  'Shows the results inlined rather than opening the site. Works with Smart Links.'],
+			'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
+			'Use Custom Label':            ['checkbox', false,  'Use a custom label instead of the site name (e-hentai/exhentai).'],
+			'Custom Label Text':           ['textbox', 'exsauce', 'The custom label.']
 		},
 		domains: {
 			'Gallery Link':                ['domain', fetch.original, 'The domain used for the actual link. Overriden by Smart Links.'],
@@ -45,7 +52,7 @@
 			'Debug Mode':                  ['checkbox', false, 'Enable debugger and logging to browser console.'],
 			'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.'],
 			'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']
-		}/*,
+		}/*
 		filter: {
 			'Name Filter': ['textarea', [
 				'# Highlight all doujinshi and manga galleries with (C82) in the name:',
@@ -63,14 +70,7 @@
 				'# Highlight links for galleries uploaded by "ExUploader"',
 				'# /ExUploader/;link:yes;color:#FFFFFF'
 			].join('\n')]
-		},
-		sauce: {
-			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.'],
-			'Inline Sauce':                ['checkbox', true,  'Shows the results inlined rather than opening the site. Works with Smart Links.'],
-			'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
-			'Use Custom Label':            ['checkbox', false,  'Use a custom label instead of the site name (e-hentai/exhentai).'],
-			'Custom Label Text':           ['textbox', 'exsauce', 'The custom label.']
-		}*/
+		},*/
 	};	
 	regex = {
 		url: /(http:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n<>\'\"]*/,
@@ -118,6 +118,17 @@
 			for ( var i = 0, ii = arr.length; i < ii; i++ )
 			{
 				frag.appendChild(arr[i]);
+			}
+			return frag;
+		},
+		frag: function(content) {
+			var frag, div;
+			frag = d.createDocumentFragment();
+			div = $.create('div', {
+				innerHTML: content
+			});
+			for ( var i = 0, ii = div.childNodes.length; i < ii; i++ ) {
+				frag.appendChild(div.childNodes[i].cloneNode(true));
 			}
 			return frag;
 		},
@@ -292,14 +303,10 @@
 				if( i < ii-1 ) { tag.innerHTML += ","; }
 				taglist.push(tag);
 			}
-			content = UI.html.details(data);
-			div = $.create('div', {
-				innerHTML: content,
-				id: 'exblock-details-uid-'+uid,
-				className: 'exblock exdetails post reply'
-			});
+			div = $.frag(UI.html.details(data));
+			content = div.firstChild;
 			tagspace = $('.extags',div);
-			div.setAttribute('style','display: table !important;');
+			content.setAttribute('style','display: table !important;');
 			$.add(tagspace,$.elem(taglist));
 			frag = d.createDocumentFragment();
 			frag.appendChild(div);
@@ -367,17 +374,15 @@
 				user: "http://"+sites[4]+"/uploader/"+user.replace(/\ /g,'+'),
 				stats: "http://"+sites[5]+"/stats.php?gid="+uid+"&t="+token
 			};
+			
 			frag = d.createDocumentFragment();
-			content = UI.html.actions(data);
-			div = $.create('div', {
-				innerHTML: content,
-				className: 'exblock exactions uid-'+uid,
-				id: link.id.replace('exlink-gallery','exblock-actions')
-			});
+			div = $.frag(UI.html.actions(data));
+			content = div.firstChild;
+			content.id = link.id.replace('exlink-gallery','exblock-actions');
 			if(conf['Show by Default'] === false) {
-				div.setAttribute('style','display: none !important;');
+				content.setAttribute('style','display: none !important;');
 			} else {
-				div.setAttribute('style','display: table !important;');
+				content.setAttribute('style','display: table !important;');
 			}
 			tagspace = $('.extags',div);
 			$.add(tagspace,$.elem(taglist));
@@ -754,6 +759,126 @@
 			}
 		}
 	});
+	SHA1 = {
+		/*
+			SHA-1 JS implementation originally created by Chris Verness
+			http://www.movable-type.co.uk/scripts/sha1.html
+		*/
+		data: function(image) {
+			var string = '';
+			for ( var i = 0, ii = image.length; i < ii; i++ ) {
+					string += String.fromCharCode(image[i].charCodeAt(0) & 0xff);
+			}
+			return string;
+		},
+		f: function(s, x, y, z) {
+			switch (s)
+			{
+				case 0: return (x & y) ^ (~x & z);
+				case 1: return x ^ y ^ z;
+				case 2: return (x & y) ^ (x & z) ^ (y & z);
+				case 3: return x ^ y ^ z;
+			}
+		},
+		ROTL: function(x, n) {
+			return (x << n) | (x >>> (32-n));
+		},
+		hex: function(str) {
+			var s = '', v;
+			for ( var i = 7; i >= 0; i-- ) {
+				v = (str >>> (i*4)) & 0xf;
+				s += v.toString(16);
+			}
+			return s;
+		},
+		hash: function(image) {
+			var H0, H1, H2, H3, H4, K, M, N, W, T,
+				a, b, c, d, e, s, l, msg;
+				
+			K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
+			msg = SHA1.data(image) + String.fromCharCode(0x80);
+			
+			l = msg.length / 4 + 2;
+			N = Math.ceil(l / 16);
+			M = [];
+			
+			for ( var i = 0; i < N; i++ ) {
+				M[i] = [];
+				for ( var j = 0; j < 16; j++ ) {
+					M[i][j] = (msg.charCodeAt(i*64+j*4) << 24) | (msg.charCodeAt(i*64+j*4+1) << 16) |
+							(msg.charCodeAt(i*64+j*4+2) << 8)  | (msg.charCodeAt(i*64+j*4+3));
+				}
+			}
+			
+			M[N-1][14] = ((msg.length-1)*8) / Math.pow(2, 32); M[N-1][14] = Math.floor(M[N-1][14]);
+			M[N-1][15] = ((msg.length-1)*8) & 0xffffffff;
+			
+			H0 = 0x67452301;
+			H1 = 0xefcdab89;
+			H2 = 0x98badcfe;
+			H3 = 0x10325476;
+			H4 = 0xc3d2e1f0;
+			
+			W = [];
+			
+			for ( var k = 0; k < N; k++ )
+			{
+				for ( var m = 0;  m < 16; m++ ) {
+					W[m] = M[k][m];
+				}	
+				for ( var n = 16; n < 80; n++ ) {
+					W[n] = SHA1.ROTL(W[n-3] ^ W[n-8] ^ W[n-14] ^ W[n-16], 1);
+				}
+				
+				a = H0;
+				b = H1;
+				c = H2;
+				d = H3;
+				e = H4;
+				
+				for ( var t = 0; t < 80; t++ )
+				{
+					s = Math.floor(t/20);
+					T = (SHA1.ROTL(a,5) + SHA1.f(s,b,c,d) + e + K[s] + W[t]) & 0xffffffff;
+					e = d;
+					d = c;
+					c = SHA1.ROTL(b, 30);
+					b = a;
+					a = T;
+				}
+				
+				H0 = (H0+a) & 0xffffffff;
+				H1 = (H1+b) & 0xffffffff;
+				H2 = (H2+c) & 0xffffffff;
+				H3 = (H3+d) & 0xffffffff;
+				H4 = (H4+e) & 0xffffffff;
+			}
+			
+			return SHA1.hex(H0) + SHA1.hex(H1) + SHA1.hex(H2) + SHA1.hex(H3) + SHA1.hex(H4);
+		}
+	};
+	Sauce = {
+		lookup: function(e) {
+			var a, image;
+			e.preventDefault();
+			a = e.target;
+			image = a.href;
+			Debug.log('Fetching image ' + image);
+			a.textContent = 'loading';
+			$.off(a,'click',Sauce.lookup);
+			GM_xmlhttpRequest(
+			{
+				method: "GET",
+				url: image,
+				overrideMimeType: "text/plain; charset=x-user-defined",
+				headers: { "Content-Type": "image/jpeg" },
+				onload: function(x) { 
+					a.textContent = 'done';
+					Debug.log('SHA-1 hash for image: ' + SHA1.hash(x.responseText));
+				}
+			});
+		}
+	};
 	Parser = {
 		postbody: 'blockquote',
 		prelinks: 'a:not(.quotelink)',
@@ -849,17 +974,16 @@
 			}
 		},
 		open: function() {
-			var gen, overlay, frag;
+			var gen, overlay, over, frag;
 			pageconf = JSON.parse(JSON.stringify(tempconf));
-			overlay = $.create('div');
-			overlay.id = 'exlinks-overlay';
-			overlay.innerHTML = UI.html.options();
+			overlay = $.frag(UI.html.options());
+			over = overlay.firstChild;
 			frag = d.createDocumentFragment();
 			frag.appendChild(overlay);
 			$.add(d.body,frag);
 			$.on($.id('exlinks-options-save'),'click',Options.save);
 			$.on($.id('exlinks-options-cancel'),'click',Options.close);
-			$.on(overlay,'click',Options.close);
+			$.on(over,'click',Options.close);
 			$.on($.id('exlinks-options'),'click',function(e){e.stopPropagation();});
 			d.body.style.overflow = 'hidden';
 			gen = function(target,obj)
@@ -1196,7 +1320,7 @@
 			}
 		},
 		process: function(posts) {
-			var post, actions, style, prelinks, prelink, links, link, site,
+			var post, file, info, sauce, exsauce, actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
 			
 			Debug.timer.start('process');
@@ -1205,6 +1329,31 @@
 			for ( var i = 0, ii = posts.length; i < ii; i++ )
 			{
 				post = posts[i];
+				if(conf.ExSauce === true) {
+					file = post.previousSibling;
+					if(file) {
+						if(file.classList.contains('file')) {
+							info = file.childNodes[0];
+							sauce = $('.exsauce',info);
+							if(!sauce) {
+								exsauce = $.create('a', {
+									textContent: 'exsauce',
+									className: 'exsauce',
+									href: file.childNodes[1].href
+								});
+								$.on(exsauce,'click',Sauce.lookup);
+								$.add(info,$.tnode(" "));
+								$.add(info,exsauce);
+							} else {
+								if(!sauce.classList.contains('sauced')) {
+									$.on(exsauce,'click',Sauce.lookup);
+								} else {
+									// Add mouseover stuff later
+								}
+							}
+						}
+					}
+				}
 				if(post.innerHTML.match(regex.url))
 				{
 					Debug.value.add('posts');
