@@ -16,7 +16,7 @@
 			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
 			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
 			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
-			'ExSauce':                     ['checkbox', true,  'Add ExSauce lookup to images.']
+			'ExSauce':                     ['checkbox', true,  'Add ExSauce reverse image search to posts.']
 			/*'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
 		},
 		actions: {
@@ -900,14 +900,41 @@
 	};
 	Sauce = {
 		format: function(a, result) {
-			var count = result.length;
+			var count = result.length, gtext,
+				results, block, parent, post, hover;
 			a.classList.add('sauced');
 			a.textContent = Sauce.text('Found: '+count);
-			/*if(count) {
+			if(count) {
 				if(conf['Inline Results'] === true) {
-					$.on(a,'click',Sauce.toggle);
+					// $.on(a,'click',Sauce.toggle);
+					if(count === 1) {
+						gtext = ' gallery';
+					} else {
+						gtext = ' galleries';
+					}
+					results = $.create('div',{
+						className: 'exblock exresults',
+						innerHTML: '<b>ExSauce Reverse Image Search Results</b> | View on: <a href="'+a.href+'">'+Sauce.label()+'</a><br />'
+					});
+					if(conf['Show Results by Default'] === true) {
+						results.setAttribute('style', 'display: table !important;');
+					} else {
+						results.setAttribute('style', 'display: none !important;');
+					}
+					for ( var i = 0, ii = result.length; i < ii; i++ ) {
+						results.appendChild($.tnode(result[i][0]));
+						if(i < ii-1) {
+							results.appendChild($.create('br'));
+						}
+					}
+					if(Config.mode === '4chan') {
+						parent = a.parentNode.parentNode.parentNode;
+						post = $(Parser.postbody, parent);
+						$.before(post,results);
+					}
+					Main.process([results]);
 				}
-				if(conf['Show Results by Default'] === false) {
+				/*if(conf['Show Results by Default'] === false) {
 					if(conf['Show Short Results'] === true) {
 						$.on(a,[
 							['mouseover',Sauce.show],
@@ -915,8 +942,8 @@
 							['mouseout',Sauce.hide]
 						]);
 					}
-				}
-			}*/
+				}*/
+			}
 			Debug.log('Formatting complete.');
 		},
 		lookup: function(a, sha1) {
@@ -952,6 +979,7 @@
 				overrideMimeType: "text/plain; charset=x-user-defined",
 				headers: { "Content-Type": "image/jpeg" },
 				onload: function(x) { 
+					a.textContent = Sauce.text('Hashing');
 					sha1 = SHA1.hash(x.responseText);
 					a.setAttribute('data-sha1',sha1);
 					Hash.set(sha1,'md5',md5);
@@ -995,7 +1023,7 @@
 			$.off(a,'click',Sauce.click);
 			Sauce.check(a);
 		},
-		label: function() {
+		label: function(retaincase) {
 			var site, label = 'ExSauce';
 			if(conf['Use Custom Label'] === true) {
 				label = conf['Custom Label Text'];
@@ -1008,8 +1036,10 @@
 				}
 			}
 			if(Config.mode === '4chan') {
-				if(conf['Lowercase on 4chan'] === true) {
-					label = label.toLowerCase();
+				if(!retaincase) {
+					if(conf['Lowercase on 4chan'] === true) {
+						label = label.toLowerCase();
+					}
 				}
 			}
 			return label;

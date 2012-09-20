@@ -1,4 +1,4 @@
-﻿.exactions {
+﻿.exactions, .exresults {
 	 max-width: 100%;
 	 width: auto;
 	 padding: 4px;
@@ -10,7 +10,7 @@
 .exactions-table {
 	display: inline-block;
 	vertical-align: top;
-	width:100%;
+	width: 100%;
 }
 
 .exaction {
@@ -70,7 +70,7 @@
 }
 
 .exjptitle {
-	opacity:0.5;
+	opacity: 0.5;
 	font-size: 1.1em;
 	text-shadow: 0.1em 0.1em 0.5em rgba(0,0,0,0.2) !important;
 }
