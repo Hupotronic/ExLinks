@@ -1,5 +1,11 @@
 ﻿master
 
+2.1.0
+- Hupo
+	+ Feature: ExSauce for 4chan (not available for Opera)
+	+ Add: ExSauce now comes with ExLinks-powered inline results
+	+ Add: Lots of new options for ExSauce
+
 2.0.6
 - Hupo
 	+ Fix: Made it work again

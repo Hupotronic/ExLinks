@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.0.6
+// @version        2.1.0
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -31,7 +31,7 @@
 			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
 			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
 			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
-			'ExSauce':                     ['checkbox', true,  'Add ExSauce reverse image search to posts.']
+			'ExSauce':                     ['checkbox', true,  'Add ExSauce reverse image search to posts. Disabled in Opera.']
 			/*'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
 		},
 		actions: {
@@ -42,19 +42,20 @@
 			'Favorite Popup':              ['checkbox', true,  'Use the default pop-up window for favorites.']
 			/*'Favorite Autosave':         ['checkbox', false, 'Autosave to favorites. Overrides normal behavior.']*/
 		},
-		favorite: {
+		/*favorite: {
 			'Favorite Category':           ['favorite', 0, 'The category to use.'],
 			'Favorite Comment':            ['textbox', 'ExLinks is awesome', 'The comment to use.']
-		},
+		},*/
 		sauce: {
-			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.'],
 			'Inline Results':              ['checkbox', true,  'Shows the results inlined rather than opening the site. Works with Smart Links.'],
 			'Show Results by Default':     ['checkbox', true,  'Open the inline results by default.'],
-			'Show Short Results':          ['checkbox', false, 'Show gallery names when hovering over the link after lookup (similar to old ExSauce).'],
+			'Hide Results in Quotes':      ['checkbox', true,  'Hide open inline results in inline quotes.'],
+			'Show Short Results':          ['checkbox', true,  'Show gallery names when hovering over the link after lookup (similar to old ExSauce).'],
 			'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
 			'Lowercase on 4chan':          ['checkbox', true,  'Lowercase ExSauce label on 4chan.'],
 			'Use Custom Label':            ['checkbox', false, 'Use a custom label instead of the site name (e-hentai/exhentai).'],
-			'Custom Label Text':           ['textbox', 'ExSauce', 'The custom label.']
+			'Custom Label Text':           ['textbox', 'ExSauce', 'The custom label.'],
+			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.']
 		},
 		domains: {
 			'Gallery Link':                ['domain', fetch.original, 'The domain used for the actual link. Overriden by Smart Links.'],
@@ -99,7 +100,6 @@
 		page: /page\-([0-9a-f]+)\-([0-9]+)/,
 		gid: /\/g\/([0-9]+)\/([0-9a-f]+)/,
 		sid: /\/s\/([0-9a-f]+)\/([0-9]+)\-([0-9]+)/,
-		hash: /hash\-([0-9a-f]+)/,
 		fjord: /abortion|bestiality|incest|lolicon|shotacon|toddlercon/
 	};
 	t = {
@@ -298,7 +298,7 @@
 		html: {
 			details: function(data) { return '<div id="exblock-details-uid-'+data.gid+'" class="exblock exdetails post reply"><div class="exthumbnail" style="background-image:url('+data.thumb+')">&nbsp;</div><div class="exsidepanel"><div class="excategory"><img src="'+img.categories[data.category]+'" alt="'+data.category+'"></div><div class="exsidebarbox"><b>Rating:</b><br><img src="'+img.ratings[Math.round(parseInt(data.rating,10)*2)]+'" alt="'+data.rating+'"><br><span style="opacity: 0.65; font-size: 0.95em">(Avg. '+data.rating+')</span></div><div class="exsidebarbox"><b>Files:</b><br>'+data.filecount+' images<br><span style="opacity: 0.65; font-size: 0.95em">('+data.size+' MB)</span></div><div class="exsidebarbox"><b style="margin-right:4px">Torrents:</b>'+data.torrentcount+'</div><div class="exsidebarbox" style="margin-bottom: 0px"><b style="margin-right:4px">Visible:</b>'+data.visible+'</div></div><a class="exlink extitle uid-'+data.gid+'" href="#exdetails-'+data.gid+'">'+data.title+'</a>'+data.jtitle+'<br><br><span style="font-size:1.0em !important">Uploaded by<b class="exlink exuploader uid-'+data.gid+'" style="font-size:1.0em!important;margin:0 5px">'+data.uploader+'</b>on<b style="font-size:1.0em!important;margin: 0 5px">'+data.datetext+'</b></span><br><br><span class="extags uid-'+data.gid+'" style="font-size: 1.05em !important; display: inline !important"><b style="font-size:1.05em!important;margin-right:2px!important">Tags:</b></span><br style="clear: both"></div>'; },
 			actions: function(data) { return '<div class="exblock exactions uid-'+data.uid+'"><table class="exactions-table" style="display: inline-block; vertical-align: top; width:100%"><tr><td style="vertical-align: top">'+data.category+' | '+data.filecount+' files | View on:<a href="'+data.url.ge+'" class="exaction" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px">e-hentai</a><a href="'+data.url.ex+'" class="exaction" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px">exhentai</a>| Download via:<a href="'+data.url.bt+'" class="exlink exaction extorrent" target="_blank" style="margin-right: 0px">torrent['+data.torrentcount+']</a><a href="'+data.url.hh+'" class="exaction" target="_blank" style="margin-right: 0px">hentai@home</a><a href="'+data.url.arc+'" class="exlink exaction exarchiver" target="_blank">archiver</a>| Uploader:<a href="'+data.url.user+'" target="_blank" class="exlink exaction exuploader uid-'+data.gid+'">'+data.uploader+'</a>|<a href="'+data.url.fav+'" class="exlink exaction exfavorite" target="_blank">Favorite</a>|<a href="'+data.url.stats+'" class="exaction" target="_blank">Stats</a></td></tr></table><span class="extags uid-'+data.gid+'" style="display: inline-block !important"><b style="margin-right:2px!important">Tags:</b></span></div>'; },
-			options: function()     { return '<div id="exlinks-overlay"><div id="exlinks-options" class="post reply"><div id="exlinks-options-nav" style="text-align:left"><div style="float: right"><div class="exlinks-options-button"><a id="exlinks-options-changelog" href="https://raw.github.com/hupotronic/ExLinks/master/changelog">Changelog</a></div><div class="exlinks-options-button"><a id="exlinks-options-issues" href="https://github.com/Hupotronic/ExLinks/issues">Issues</a></div><div class="exlinks-options-button"><a id="exlinks-options-save" href="">Save Settings</a></div><div class="exlinks-options-button"><a id="exlinks-options-cancel" href="">Cancel</a></div></div><a class="exlinks-options-title" href="http://hupotronic.github.com/ExLinks/">ExLinks</a><span class="exlinks-options-version">'+Main.version+'</span></div><div id="exlinks-options-content"><span class="exlinks-options-subtitle">General Settings</span><span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: You must reload the page after saving for any changes to take effect.</span><br><table id="exlinks-options-general" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Gallery Actions</span><br><table id="exlinks-options-actions" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Domain Settings</span><table id="exlinks-options-domains" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Debugger Settings</span><table id="exlinks-options-debug" class="exlinks-options-table"></table></div></div></div>'; }
+			options: function()     { return '<div id="exlinks-overlay"><div id="exlinks-options" class="post reply"><div id="exlinks-options-nav" style="text-align:left"><div style="float: right"><div class="exlinks-options-button"><a id="exlinks-options-changelog" href="https://raw.github.com/hupotronic/ExLinks/master/changelog">Changelog</a></div><div class="exlinks-options-button"><a id="exlinks-options-issues" href="https://github.com/Hupotronic/ExLinks/issues">Issues</a></div><div class="exlinks-options-button"><a id="exlinks-options-save" href="">Save Settings</a></div><div class="exlinks-options-button"><a id="exlinks-options-cancel" href="">Cancel</a></div></div><a class="exlinks-options-title" href="http://hupotronic.github.com/ExLinks/">ExLinks</a><span class="exlinks-options-version">'+Main.version+'</span></div><div id="exlinks-options-content"><span class="exlinks-options-subtitle">General Settings</span><span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: You must reload the page after saving for any changes to take effect.</span><br><table id="exlinks-options-general" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Gallery Actions</span><br><table id="exlinks-options-actions" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">ExSauce Settings</span><span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: ExSauce is currently not available in the Foolz archive.</span><br><table id="exlinks-options-sauce" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Domain Settings</span><table id="exlinks-options-domains" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Debugger Settings</span><table id="exlinks-options-debug" class="exlinks-options-table"></table></div></div></div>'; }
 		},
 		details: function(uid) {
 			var data, date, div, frag, taglist, tagspace, tag, content;
@@ -914,22 +914,101 @@
 		}
 	};
 	Sauce = {
+		UI: {
+			toggle: function(e) {
+				e.preventDefault();
+				var a = e.target, results, style, sha1, hover;
+				results = $.id(a.id.replace('exsauce','exresults'));
+				sha1 = a.getAttribute('data-sha1');
+				style = results.getAttribute('style');
+				if(style.match('table')) {
+					style = style.replace('table','none');
+					if(conf['Show Short Results'] === true) {
+						$.on(a,[
+							['mouseover',Sauce.UI.show],
+							['mousemove',Sauce.UI.move],
+							['mouseout',Sauce.UI.hide]
+						]);
+					}
+				} else
+				if(style.match('none')) {
+					style = style.replace('none','table');
+					if(conf['Show Short Results'] === true) {
+						$.off(a,[
+							['mouseover',Sauce.UI.show],
+							['mousemove',Sauce.UI.move],
+							['mouseout',Sauce.UI.hide]
+						]);
+						hover = $.id('exhover-'+sha1);
+						hover.setAttribute('style','display: none !important;');
+					}
+				}
+				results.setAttribute('style',style);
+			},
+			show: function(e) {
+				var a, sha1, hover;
+				a = e.target;
+				sha1 = a.getAttribute('data-sha1');
+				hover = $.id('exhover-'+sha1);
+				if(hover) {
+					hover.setAttribute('style','display: table !important;');
+				} else {
+					Sauce.UI.hover(sha1);
+				}
+			},
+			hide: function(e) {
+				var a, sha1, hover;
+				a = e.target;
+				sha1 = a.getAttribute('data-sha1');
+				hover = $.id('exhover-'+sha1);
+				if(hover) {
+					hover.setAttribute('style','display: none !important;');
+				} else {
+					Sauce.UI.hover(sha1);
+				}
+			},
+			move: function(e) {
+				var a, sha1, hover;
+				a = e.target;
+				sha1 = a.getAttribute('data-sha1');
+				hover = $.id('exhover-'+sha1);
+				if(hover) {
+					hover.setAttribute('style','display: table !important;');
+					hover.style.left = (e.clientX+12) + 'px';
+					hover.style.top = (e.clientY+22) + 'px';
+				} else {
+					Sauce.UI.hover(sha1);
+				}
+			},
+			hover: function(sha1) {
+				var hover, result;
+				hover = $.create('div',{
+					className: 'exblock exhover post reply',
+					id: 'exhover-'+sha1
+				});
+				result = Hash.get(sha1,'sha1');
+				for ( var i = 0, ii = result.length; i < ii; i++ ) {
+					hover.innerHTML += '<a class="exsauce-hover" href="'+result[i][0]+'">'+result[i][1]+'</a>';
+					if(i < ii-1) {
+						hover.innerHTML += '<br />';
+					}
+				}
+				hover.setAttribute('style','display: table !important;');
+				$.add(d.body,hover);
+			}
+		},
 		format: function(a, result) {
-			var count = result.length, gtext,
-				results, block, parent, post, hover;
+			var count = result.length,
+				results, parent, post;
 			a.classList.add('sauced');
 			a.textContent = Sauce.text('Found: '+count);
 			if(count) {
 				if(conf['Inline Results'] === true) {
-					// $.on(a,'click',Sauce.toggle);
-					if(count === 1) {
-						gtext = ' gallery';
-					} else {
-						gtext = ' galleries';
-					}
+					$.on(a,'click',Sauce.UI.toggle);
 					results = $.create('div',{
 						className: 'exblock exresults',
-						innerHTML: '<b>ExSauce Reverse Image Search Results</b> | View on: <a href="'+a.href+'">'+Sauce.label()+'</a><br />'
+						id: a.id.replace('exsauce','exresults'),
+						innerHTML: '<b>ExSauce Reverse Image Search Results</b> | View on: <a href="'+a.href+'">'+Sauce.label(true)+'</a><br />'
 					});
 					if(conf['Show Results by Default'] === true) {
 						results.setAttribute('style', 'display: table !important;');
@@ -949,15 +1028,15 @@
 					}
 					Main.process([results]);
 				}
-				/*if(conf['Show Results by Default'] === false) {
+				if(conf['Show Results by Default'] === false) {
 					if(conf['Show Short Results'] === true) {
 						$.on(a,[
-							['mouseover',Sauce.show],
-							['mousemove',Sauce.move],
-							['mouseout',Sauce.hide]
+							['mouseover',Sauce.UI.show],
+							['mousemove',Sauce.UI.move],
+							['mouseout',Sauce.UI.hide]
 						]);
 					}
-				}*/
+				}
 			}
 			Debug.log('Formatting complete.');
 		},
@@ -978,6 +1057,9 @@
 					}
 					Hash.set(result,'sha1',sha1);
 					Debug.log('Lookup successful. Formatting.');
+					if(conf['Show Short Results']) {
+						Sauce.UI.hover(sha1);
+					}
 					Sauce.format(a, result);
 				}
 			});
@@ -1038,23 +1120,22 @@
 			$.off(a,'click',Sauce.click);
 			Sauce.check(a);
 		},
-		label: function(retaincase) {
+		label: function(siteonly) {
 			var site, label = 'ExSauce';
-			if(conf['Use Custom Label'] === true) {
-				label = conf['Custom Label Text'];
+			site = conf['Site to Use'];
+			if(site.value === 'exhentai.org') {
+				label = 'ExHentai';
 			} else {
-				site = conf['Site to Use'];
-				if(site.value === 'exhentai.org') {
-					label = 'ExHentai';
-				} else {
-					label = 'E-Hentai';
+				label = 'E-Hentai';
+			}
+			if(!siteonly) {
+				if(conf['Use Custom Label'] === true) {
+					label = conf['Custom Label Text'];
 				}
 			}
 			if(Config.mode === '4chan') {
-				if(!retaincase) {
-					if(conf['Lowercase on 4chan'] === true) {
-						label = label.toLowerCase();
-					}
+				if(conf['Lowercase on 4chan'] === true) {
+					label = label.toLowerCase();
 				}
 			}
 			return label;
@@ -1160,8 +1241,11 @@
 				value = option.checked ? true : false;
 				tempconf[option.name] = value;
 			} else
-			if(type==='domain') {
+			if(type==='domain' || type==='saucedomain') {
 				tempconf[option.name] = domain[option.value];
+			} else
+			if(type==='text') {
+				tempconf[option.name] = option.value;
 			}
 		},
 		open: function() {
@@ -1193,7 +1277,7 @@
 						}
 						tr.innerHTML = [
 							'<td style="padding:3px;">',
-							'<input type="'+type+'" style="float:right;margin-right:2px;" type="checkbox" id="'+i+'" name="'+i+'"'+sel+' />',
+							'<input style="float:right;margin-right:2px;" type="checkbox" id="'+i+'" name="'+i+'"'+sel+' />',
 							'<label for="'+i+'"><b>'+i+':</b> '+desc+'</label>',
 							'</td>'
 						].join('');
@@ -1202,7 +1286,7 @@
 					if(type === 'domain') {
 						tr.innerHTML = [
 						'<td style="padding:3px;">',
-						'<select name="'+i+'" type="'+type+'" style="font-size:0.92em!important;float:right;width:18%;">',
+						'<select name="'+i+'" type="domain" style="font-size:0.92em!important;float:right;width:18%;">',
 							'<option value="1"'+(value.value==='Original'?' selected':'')+'>Original</option>',
 							'<option value="2"'+(value.value==='g.e-hentai.org'?' selected':'')+'>g.e-hentai.org</option>',
 							'<option value="3"'+(value.value==='exhentai.org'?' selected':'')+'>exhentai.org</option></select>',
@@ -1210,11 +1294,30 @@
 						].join('');
 						$.on($('select',tr),'change',Options.toggle);
 					}
+					if(type === 'saucedomain') {
+						tr.innerHTML = [
+						'<td style="padding:3px;">',
+						'<select name="'+i+'" type="domain" style="font-size:0.92em!important;float:right;width:18%;">',
+							'<option value="2"'+(value.value==='g.e-hentai.org'?' selected':'')+'>g.e-hentai.org</option>',
+							'<option value="3"'+(value.value==='exhentai.org'?' selected':'')+'>exhentai.org</option></select>',
+						'<b>'+i+':</b> '+desc+'</td>'
+						].join('');
+						$.on($('select',tr),'change',Options.toggle);
+					}
+					if(type === 'textbox') {
+						tr.innerHTML = [
+						'<td style="padding:3px;">',
+						'<input style="float:right;padding-left:5px;width:18%;font-size:0.92em!important;" type="text" id="'+i+'" name="'+i+'" value="'+value+'" />',
+						'<b>'+i+':</b> '+desc+'</td>'
+						].join('');
+						$.on($('input',tr),'input',Options.toggle);
+					}
 					$.add(target,tr);
 				}
 			};
 			gen($.id('exlinks-options-general'),options.general);
 			gen($.id('exlinks-options-actions'),options.actions);
+			gen($.id('exlinks-options-sauce'),options.sauce);
 			gen($.id('exlinks-options-domains'),options.domains);
 			gen($.id('exlinks-options-debug'),options.debug);
 		},
@@ -1353,7 +1456,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.0.6',
+		version: '2.1.0',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1513,7 +1616,8 @@
 			}
 		},
 		process: function(posts) {
-			var post, file, info, sauce, exsauce, md5, actions, style, prelinks, prelink, links, link, site,
+			var post, file, info, sauce, exsauce, md5, sha1, results, hover, saucestyle,
+				actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
 			
 			Debug.timer.start('process');
@@ -1524,38 +1628,67 @@
 				post = posts[i];
 				if(conf.ExSauce === true) {
 					// Needs redoing to make life easier with archive
-					if($(Parser.image, post.parentNode)) {
-						if(Config.mode === '4chan') {
-							file = $(Parser.image, post.parentNode);
-							if(file.childNodes.length > 1) {
-								info = file.childNodes[0];
-								md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
-								md5 = md5.replace('==','');
-								sauce = $('.exsauce',info);
-								if(!sauce) {
-									exsauce = $.create('a', {
-										textContent: Sauce.label(),
-										className: 'exsauce',
-										href: file.childNodes[1].href
-									});
-									exsauce.setAttribute('data-md5',md5);
-									$.on(exsauce,'click',Sauce.click);
-									$.add(info,$.tnode(" "));
-									$.add(info,exsauce);
-								} else {
-									if(!sauce.classList.contains('sauced')) {
+					if(!post.classList.contains('exresults')) {
+						if($(Parser.image, post.parentNode)) {
+							if(Config.mode === '4chan') {
+								file = $(Parser.image, post.parentNode);
+								if(file.childNodes.length > 1) {
+									info = file.childNodes[0];
+									md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
+									md5 = md5.replace('==','');
+									sauce = $('.exsauce',info);
+									if(!sauce) {
+										exsauce = $.create('a', {
+											textContent: Sauce.label(),
+											className: 'exsauce',
+											id: 'exsauce-'+post.id,
+											href: file.childNodes[1].href
+										});
+										exsauce.setAttribute('data-md5',md5);
 										$.on(exsauce,'click',Sauce.click);
+										$.add(info,$.tnode(" "));
+										$.add(info,exsauce);
 									} else {
-										// Add mouseover stuff later
+										if(!sauce.classList.contains('sauced')) {
+											$.on(sauce,'click',Sauce.click);
+										} else {
+											sha1 = sauce.getAttribute('data-sha1');
+											if(conf['Show Short Results'] === true) {
+												if(conf['Inline Results'] === true) {
+													results = $.id(sauce.id.replace('exsauce','exresults'));
+													saucestyle = results.getAttribute('style');
+													if(saucestyle.match('none')) {
+														$.on(sauce,[
+															['mouseover',Sauce.UI.show],
+															['mousemove',Sauce.UI.move],
+															['mouseout',Sauce.UI.hide]
+														]);
+													}
+												} else {
+													$.on(sauce,[
+														['mouseover',Sauce.UI.show],
+														['mousemove',Sauce.UI.move],
+														['mouseout',Sauce.UI.hide]
+													]);
+												}
+											}
+											if(conf['Inline Results'] === true) {
+												$.on(sauce,'click',Sauce.UI.toggle);
+												if(conf['Hide Results in Quotes'] === true) {
+													results = $.id(sauce.id.replace('exsauce','exresults'));
+													results.setAttribute('style','display: none !important;');
+												}
+											}
+										}
 									}
 								}
+							} else
+							if(Config.mode === 'foolz-fuuka') {
+								// A WORLD OF PAIN
+							} else
+							if(Config.mode === 'foolz-default') {
+								// AWAITS
 							}
-						} else
-						if(Config.mode === 'foolz-fuuka') {
-							// A WORLD OF PAIN
-						} else
-						if(Config.mode === 'foolz-default') {
-							// AWAITS
 						}
 					}
 				}
@@ -1753,7 +1886,7 @@
 			Debug.timer.start('init');
 			Config.site();
 			Options.init();
-			css = 'data:text/css;base64,LmV4YWN0aW9ucywgLmV4cmVzdWx0cyB7IG1heC13aWR0aDogMTAwJTsgd2lkdGg6IGF1dG87IHBhZGRpbmc6IDRweDsgbWFyZ2luOiAzcHggMDsgYm9yZGVyLXJhZGl1czogNHB4OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMDUpICFpbXBvcnRhbnQ7IH0gLmV4YWN0aW9ucy10YWJsZSB7IGRpc3BsYXk6IGlubGluZS1ibG9jazsgdmVydGljYWwtYWxpZ246IHRvcDsgd2lkdGg6IDEwMCU7IH0gLmV4YWN0aW9uIHsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IHZlcnRpY2FsLWFsaWduOiB0b3A7IG1hcmdpbjogMCA0cHg7IH0gLmV4dGFnIHsgZGlzcGxheTogaW5saW5lLWJsb2NrICFpbXBvcnRhbnQ7IHRleHQtZGVjb3JhdGlvbjogbm9uZSAhaW1wb3J0YW50OyBtYXJnaW46IDBweCAycHggIWltcG9ydGFudDsgfSAuZXhkZXRhaWxzIHsgZm9udC1zaXplOiAxM3B4ICFpbXBvcnRhbnQ7IG9wYWNpdHk6IDAuOTM7IHBvc2l0aW9uOiBmaXhlZCAhaW1wb3J0YW50OyB6LWluZGV4OiA5OTkgIWltcG9ydGFudDsgcGFkZGluZzogOHB4ICFpbXBvcnRhbnQ7IGJvcmRlci1yYWRpdXM6IDhweCAhaW1wb3J0YW50OyB0ZXh0LWFsaWduOiBjZW50ZXIgIWltcG9ydGFudDsgd2lkdGg6IDYwJSAhaW1wb3J0YW50OyB9IC5leHNpZGVwYW5lbCB7IGZsb2F0OiByaWdodDsgbWFyZ2luLWxlZnQ6IDhweDsgZm9udC1zaXplOiAxNHB4ICFpbXBvcnRhbnQ7IGxpbmUtaGVpZ2h0OiAxLjBlbSAhaW1wb3J0YW50OyB9IC5leGNhdGVnb3J5IHsgYm94LXNoYWRvdzogMC4wZW0gMC4wZW0gMC41ZW0gcmdiYSgzMiwzMiwzMiwwLjIpOyBib3JkZXItcmFkaXVzOiA0cHg7IGJhY2tncm91bmQtY2xpcDogcGFkZGluZy1ib3g7IGhlaWdodDogMjRweDsgbWFyZ2luLWJvdHRvbTogOXB4OyB9IC5leHNpZGViYXJib3ggeyB3aWR0aDogNjRweDsgZm9udC1zaXplOiAwLjhlbTsgYmFja2dyb3VuZC1jb2xvcjogcmdiYSgwLDAsMCwwLjIpOyBib3JkZXItcmFkaXVzOiA0cHg7IGJhY2tncm91bmQtY2xpcDogcGFkZGluZy1ib3g7IGJveC1zaGFkb3c6IDAuMGVtIDAuMGVtIDAuNWVtIHJnYmEoMCwwLDAsMC4yKTsgbWFyZ2luLWJvdHRvbTogOXB4OyBwYWRkaW5nOiA0cHggMDsgfSAuZXh0aXRsZSB7IGZvbnQtc2l6ZTogMS41ZW0gIWltcG9ydGFudDsgZm9udC13ZWlnaHQ6IGJvbGQgIWltcG9ydGFudDsgdGV4dC1zaGFkb3c6IDAuMWVtIDAuMWVtIDAuNGVtIHJnYmEoMCwwLDAsMC4xNSkgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IH0gLmV4anB0aXRsZSB7IG9wYWNpdHk6IDAuNTsgZm9udC1zaXplOiAxLjFlbTsgdGV4dC1zaGFkb3c6IDAuMWVtIDAuMWVtIDAuNWVtIHJnYmEoMCwwLDAsMC4yKSAhaW1wb3J0YW50OyB9IC5leGRldGFpbHMgLmV4dGFnIHsgZm9udC1zaXplOiAxLjA1ZW0gIWltcG9ydGFudDsgfSAuZXh0aHVtYm5haWwgeyBmbG9hdDogbGVmdDsgYmFja2dyb3VuZC1pbWFnZTogdXJsKCN7ZGF0YS50aHVtYn0pOyBtYXJnaW4tcmlnaHQ6IDhweDsgd2lkdGg6IDE0MHB4OyBoZWlnaHQ6IDIwMHB4OyBiYWNrZ3JvdW5kLXJlcGVhdDogbm8tcmVwZWF0OyBiYWNrZ3JvdW5kLXNpemU6IGNvdmVyOyBiYWNrZ3JvdW5kLXBvc2l0aW9uOiAyNSUgMCU7IH0gI2V4bGlua3Mtb3ZlcmxheSB7IHBvc2l0aW9uOiBmaXhlZDsgd2lkdGg6IDEwMCU7IGhlaWdodDogMTAwJTsgdG9wOiAwOyBsZWZ0OiAwOyB0ZXh0LWFsaWduOiBjZW50ZXI7IGJhY2tncm91bmQ6IHJnYmEoMCwwLDAsMC41KTsgei1pbmRleDogMTAwMDsgfSAjZXhsaW5rcy1vcHRpb25zIHsgZGlzcGxheTogYmxvY2sgIWltcG9ydGFudDsgZm9udC1mYW1pbHk6IHNhbnMtc2VyaWY7IHBvc2l0aW9uOiBmaXhlZCAhaW1wb3J0YW50OyB3aWR0aDogNjAlICFpbXBvcnRhbnQ7IGhlaWdodDogNjAlICFpbXBvcnRhbnQ7IHRvcDogMTYlICFpbXBvcnRhbnQ7IGxlZnQ6IDIwJSAhaW1wb3J0YW50OyBwYWRkaW5nOiA4cHggIWltcG9ydGFudDsgcGFkZGluZy10b3A6IDJweCAhaW1wb3J0YW50OyBib3JkZXItcmFkaXVzOiA2cHggIWltcG9ydGFudDsgei1pbmRleDogMTAwMSAhaW1wb3J0YW50OyB0ZXh0LWFsaWduOiBsZWZ0ICFpbXBvcnRhbnQ7IHBhZGRpbmctYm90dG9tOiA2NHB4ICFpbXBvcnRhbnQ7IH0gLmV4bGlua3Mtb3B0aW9ucy1idXR0b24geyBtYXJnaW46IDRweCAycHg7IGRpc3BsYXk6IGlubGluZS1ibG9jayAhaW1wb3J0YW50OyBwYWRkaW5nOiA0cHg7IGJhY2tncm91bmQ6IHJnYmEoMCwwLDAsMC4wNSk7IGJvcmRlci1yYWRpdXM6IDNweDsgfSAuZXhsaW5rcy1vcHRpb25zLXRpdGxlIHsgZm9udC1zaXplOiAyLjBlbSAhaW1wb3J0YW50OyBmb250LXdlaWdodDogYm9sZCAhaW1wb3J0YW50OyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgfSAuZXhsaW5rcy1vcHRpb25zLXZlcnNpb24geyBtYXJnaW46IDAgNHB4OyBvcGFjaXR5OiAwLjk7IHZlcnRpY2FsLWFsaWduOiA3NSU7IHRleHQtZGVjb3JhdGlvbjogbm9uZSAhaW1wb3J0YW50OyB9ICNleGxpbmtzLW9wdGlvbnMtY29udGVudCB7IG92ZXJmbG93LXk6IHNjcm9sbCAhaW1wb3J0YW50OyBwYWRkaW5nOiA0cHggIWltcG9ydGFudDsgdGV4dC1hbGlnbjogbGVmdDsgaGVpZ2h0OiAxMDAlOyBtYXJnaW4tdG9wOiAxNnB4ICFpbXBvcnRhbnQ7IH0gLmV4bGlua3Mtb3B0aW9ucy1zdWJ0aXRsZSB7IGZvbnQtc2l6ZTogMS41ZW0gIWltcG9ydGFudDsgZm9udC13ZWlnaHQ6IGJvbGQ7IGZvbnQtZmFtaWx5OiBzYW5zLXNlcmlmOyB9IC5leGxpbmtzLW9wdGlvbnMtbm90aWNlIHsgZmxvYXQ6IHJpZ2h0OyBwYWRkaW5nLXRvcDogN3B4OyBtYXJnaW4tcmlnaHQ6IDRweDsgb3BhY2l0eTogMC42OyB9IC5leGxpbmtzLW9wdGlvbnMtdGFibGUgeyB3aWR0aDogMTAwJTsgYm9yZGVyOiAxcHggc29saWQgcmdiYSgwLDAsMCwwLjIpOyBib3JkZXItcmFkaXVzOiA0cHg7IG1hcmdpbjogNHB4IDA7IH0gLmV4bGlua3Mtb3B0aW9ucy10YWJsZSB0cjpudGgtY2hpbGQoZXZlbikgeyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMDUpOyB9IC5leGxpbmtzLW9wdGlvbnMtdGFibGUgdHI6bnRoLWNoaWxkKG9kZCkgeyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMDI1KTsgfQ==';
+			css = 'data:text/css;base64,LmV4YWN0aW9ucywgLmV4cmVzdWx0cyB7IG1heC13aWR0aDogMTAwJTsgd2lkdGg6IGF1dG87IHBhZGRpbmc6IDRweDsgbWFyZ2luOiAzcHggMDsgYm9yZGVyLXJhZGl1czogNHB4OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDAsMCwwLDAuMDUpICFpbXBvcnRhbnQ7IH0gLmV4cmVzdWx0cyB7IHBhZGRpbmc6IDZweDsgfSAuZXhhY3Rpb25zLXRhYmxlIHsgZGlzcGxheTogaW5saW5lLWJsb2NrOyB2ZXJ0aWNhbC1hbGlnbjogdG9wOyB3aWR0aDogMTAwJTsgfSAuZXhzYXVjZSwgLmV4c2F1Y2UtaG92ZXIgeyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgfSAuZXhhY3Rpb24geyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgdmVydGljYWwtYWxpZ246IHRvcDsgbWFyZ2luOiAwIDRweDsgfSAuZXh0YWcgeyBkaXNwbGF5OiBpbmxpbmUtYmxvY2sgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IG1hcmdpbjogMHB4IDJweCAhaW1wb3J0YW50OyB9IC5leGRldGFpbHMgeyBmb250LXNpemU6IDEzcHggIWltcG9ydGFudDsgb3BhY2l0eTogMC45MzsgcG9zaXRpb246IGZpeGVkICFpbXBvcnRhbnQ7IHotaW5kZXg6IDk5OSAhaW1wb3J0YW50OyBwYWRkaW5nOiA4cHggIWltcG9ydGFudDsgYm9yZGVyLXJhZGl1czogOHB4ICFpbXBvcnRhbnQ7IHRleHQtYWxpZ246IGNlbnRlciAhaW1wb3J0YW50OyB3aWR0aDogNjAlICFpbXBvcnRhbnQ7IH0gLmV4aG92ZXIgeyBvcGFjaXR5OiAwLjkzOyBwb3NpdGlvbjogZml4ZWQgIWltcG9ydGFudDsgei1pbmRleDogOTk4ICFpbXBvcnRhbnQ7IHBhZGRpbmc6IDhweCAhaW1wb3J0YW50OyBib3JkZXItcmFkaXVzOiA0cHggIWltcG9ydGFudDsgd2lkdGg6IGF1dG8gIWltcG9ydGFudDsgfSAuZXhzaWRlcGFuZWwgeyBmbG9hdDogcmlnaHQ7IG1hcmdpbi1sZWZ0OiA4cHg7IGZvbnQtc2l6ZTogMTRweCAhaW1wb3J0YW50OyBsaW5lLWhlaWdodDogMS4wZW0gIWltcG9ydGFudDsgfSAuZXhjYXRlZ29yeSB7IGJveC1zaGFkb3c6IDAuMGVtIDAuMGVtIDAuNWVtIHJnYmEoMzIsMzIsMzIsMC4yKTsgYm9yZGVyLXJhZGl1czogNHB4OyBiYWNrZ3JvdW5kLWNsaXA6IHBhZGRpbmctYm94OyBoZWlnaHQ6IDI0cHg7IG1hcmdpbi1ib3R0b206IDlweDsgfSAuZXhzaWRlYmFyYm94IHsgd2lkdGg6IDY0cHg7IGZvbnQtc2l6ZTogMC44ZW07IGJhY2tncm91bmQtY29sb3I6IHJnYmEoMCwwLDAsMC4yKTsgYm9yZGVyLXJhZGl1czogNHB4OyBiYWNrZ3JvdW5kLWNsaXA6IHBhZGRpbmctYm94OyBib3gtc2hhZG93OiAwLjBlbSAwLjBlbSAwLjVlbSByZ2JhKDAsMCwwLDAuMik7IG1hcmdpbi1ib3R0b206IDlweDsgcGFkZGluZzogNHB4IDA7IH0gLmV4dGl0bGUgeyBmb250LXNpemU6IDEuNWVtICFpbXBvcnRhbnQ7IGZvbnQtd2VpZ2h0OiBib2xkICFpbXBvcnRhbnQ7IHRleHQtc2hhZG93OiAwLjFlbSAwLjFlbSAwLjRlbSByZ2JhKDAsMCwwLDAuMTUpICFpbXBvcnRhbnQ7IHRleHQtZGVjb3JhdGlvbjogbm9uZSAhaW1wb3J0YW50OyB9IC5leGpwdGl0bGUgeyBvcGFjaXR5OiAwLjU7IGZvbnQtc2l6ZTogMS4xZW07IHRleHQtc2hhZG93OiAwLjFlbSAwLjFlbSAwLjVlbSByZ2JhKDAsMCwwLDAuMikgIWltcG9ydGFudDsgfSAuZXhkZXRhaWxzIC5leHRhZyB7IGZvbnQtc2l6ZTogMS4wNWVtICFpbXBvcnRhbnQ7IH0gLmV4dGh1bWJuYWlsIHsgZmxvYXQ6IGxlZnQ7IGJhY2tncm91bmQtaW1hZ2U6IHVybCgje2RhdGEudGh1bWJ9KTsgbWFyZ2luLXJpZ2h0OiA4cHg7IHdpZHRoOiAxNDBweDsgaGVpZ2h0OiAyMDBweDsgYmFja2dyb3VuZC1yZXBlYXQ6IG5vLXJlcGVhdDsgYmFja2dyb3VuZC1zaXplOiBjb3ZlcjsgYmFja2dyb3VuZC1wb3NpdGlvbjogMjUlIDAlOyB9ICNleGxpbmtzLW92ZXJsYXkgeyBwb3NpdGlvbjogZml4ZWQ7IHdpZHRoOiAxMDAlOyBoZWlnaHQ6IDEwMCU7IHRvcDogMDsgbGVmdDogMDsgdGV4dC1hbGlnbjogY2VudGVyOyBiYWNrZ3JvdW5kOiByZ2JhKDAsMCwwLDAuNSk7IHotaW5kZXg6IDEwMDA7IH0gI2V4bGlua3Mtb3B0aW9ucyB7IGRpc3BsYXk6IGJsb2NrICFpbXBvcnRhbnQ7IGZvbnQtZmFtaWx5OiBzYW5zLXNlcmlmOyBwb3NpdGlvbjogZml4ZWQgIWltcG9ydGFudDsgd2lkdGg6IDYwJSAhaW1wb3J0YW50OyBoZWlnaHQ6IDYwJSAhaW1wb3J0YW50OyB0b3A6IDE2JSAhaW1wb3J0YW50OyBsZWZ0OiAyMCUgIWltcG9ydGFudDsgcGFkZGluZzogOHB4ICFpbXBvcnRhbnQ7IHBhZGRpbmctdG9wOiAycHggIWltcG9ydGFudDsgYm9yZGVyLXJhZGl1czogNnB4ICFpbXBvcnRhbnQ7IHotaW5kZXg6IDEwMDEgIWltcG9ydGFudDsgdGV4dC1hbGlnbjogbGVmdCAhaW1wb3J0YW50OyBwYWRkaW5nLWJvdHRvbTogNjRweCAhaW1wb3J0YW50OyB9IC5leGxpbmtzLW9wdGlvbnMtYnV0dG9uIHsgbWFyZ2luOiA0cHggMnB4OyBkaXNwbGF5OiBpbmxpbmUtYmxvY2sgIWltcG9ydGFudDsgcGFkZGluZzogNHB4OyBiYWNrZ3JvdW5kOiByZ2JhKDAsMCwwLDAuMDUpOyBib3JkZXItcmFkaXVzOiAzcHg7IH0gLmV4bGlua3Mtb3B0aW9ucy10aXRsZSB7IGZvbnQtc2l6ZTogMi4wZW0gIWltcG9ydGFudDsgZm9udC13ZWlnaHQ6IGJvbGQgIWltcG9ydGFudDsgdGV4dC1kZWNvcmF0aW9uOiBub25lICFpbXBvcnRhbnQ7IH0gLmV4bGlua3Mtb3B0aW9ucy12ZXJzaW9uIHsgbWFyZ2luOiAwIDRweDsgb3BhY2l0eTogMC45OyB2ZXJ0aWNhbC1hbGlnbjogNzUlOyB0ZXh0LWRlY29yYXRpb246IG5vbmUgIWltcG9ydGFudDsgfSAjZXhsaW5rcy1vcHRpb25zLWNvbnRlbnQgeyBvdmVyZmxvdy15OiBzY3JvbGwgIWltcG9ydGFudDsgcGFkZGluZzogNHB4ICFpbXBvcnRhbnQ7IHRleHQtYWxpZ246IGxlZnQ7IGhlaWdodDogMTAwJTsgbWFyZ2luLXRvcDogMTZweCAhaW1wb3J0YW50OyB9IC5leGxpbmtzLW9wdGlvbnMtc3VidGl0bGUgeyBmb250LXNpemU6IDEuNWVtICFpbXBvcnRhbnQ7IGZvbnQtd2VpZ2h0OiBib2xkOyBmb250LWZhbWlseTogc2Fucy1zZXJpZjsgfSAuZXhsaW5rcy1vcHRpb25zLW5vdGljZSB7IGZsb2F0OiByaWdodDsgcGFkZGluZy10b3A6IDdweDsgbWFyZ2luLXJpZ2h0OiA0cHg7IG9wYWNpdHk6IDAuNjsgfSAuZXhsaW5rcy1vcHRpb25zLXRhYmxlIHsgd2lkdGg6IDEwMCU7IGJvcmRlcjogMXB4IHNvbGlkIHJnYmEoMCwwLDAsMC4yKTsgYm9yZGVyLXJhZGl1czogNHB4OyBtYXJnaW46IDRweCAwOyB9IC5leGxpbmtzLW9wdGlvbnMtdGFibGUgdHI6bnRoLWNoaWxkKGV2ZW4pIHsgYmFja2dyb3VuZC1jb2xvcjogcmdiYSgwLDAsMCwwLjA1KTsgfSAuZXhsaW5rcy1vcHRpb25zLXRhYmxlIHRyOm50aC1jaGlsZChvZGQpIHsgYmFja2dyb3VuZC1jb2xvcjogcmdiYSgwLDAsMCwwLjAyNSk7IH0=';
 			style = $.create('link', {
 				rel: "stylesheet",
 				type: "text/css",

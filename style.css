@@ -7,10 +7,18 @@
 	 background-color: rgba(0,0,0,0.05) !important;
 }
 
+.exresults {
+	padding: 6px;
+}
+
 .exactions-table {
 	display: inline-block;
 	vertical-align: top;
 	width: 100%;
+}
+
+.exsauce, .exsauce-hover {
+	text-decoration: none !important;
 }
 
 .exaction {
@@ -34,6 +42,15 @@
 	border-radius: 8px !important;
 	text-align: center !important;
 	width: 60% !important;
+}
+
+.exhover {
+	opacity: 0.93;
+	position: fixed !important;
+	z-index: 998 !important;
+	padding: 8px !important;
+	border-radius: 4px !important;
+	width: auto !important;
 }
 
 .exsidepanel {

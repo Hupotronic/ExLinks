@@ -16,7 +16,7 @@
 			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
 			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
 			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
-			'ExSauce':                     ['checkbox', true,  'Add ExSauce reverse image search to posts.']
+			'ExSauce':                     ['checkbox', true,  'Add ExSauce reverse image search to posts. Disabled in Opera.']
 			/*'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
 		},
 		actions: {
@@ -27,19 +27,20 @@
 			'Favorite Popup':              ['checkbox', true,  'Use the default pop-up window for favorites.']
 			/*'Favorite Autosave':         ['checkbox', false, 'Autosave to favorites. Overrides normal behavior.']*/
 		},
-		favorite: {
+		/*favorite: {
 			'Favorite Category':           ['favorite', 0, 'The category to use.'],
 			'Favorite Comment':            ['textbox', 'ExLinks is awesome', 'The comment to use.']
-		},
+		},*/
 		sauce: {
-			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.'],
 			'Inline Results':              ['checkbox', true,  'Shows the results inlined rather than opening the site. Works with Smart Links.'],
 			'Show Results by Default':     ['checkbox', true,  'Open the inline results by default.'],
-			'Show Short Results':          ['checkbox', false, 'Show gallery names when hovering over the link after lookup (similar to old ExSauce).'],
+			'Hide Results in Quotes':      ['checkbox', true,  'Hide open inline results in inline quotes.'],
+			'Show Short Results':          ['checkbox', true,  'Show gallery names when hovering over the link after lookup (similar to old ExSauce).'],
 			'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
 			'Lowercase on 4chan':          ['checkbox', true,  'Lowercase ExSauce label on 4chan.'],
 			'Use Custom Label':            ['checkbox', false, 'Use a custom label instead of the site name (e-hentai/exhentai).'],
-			'Custom Label Text':           ['textbox', 'ExSauce', 'The custom label.']
+			'Custom Label Text':           ['textbox', 'ExSauce', 'The custom label.'],
+			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.']
 		},
 		domains: {
 			'Gallery Link':                ['domain', fetch.original, 'The domain used for the actual link. Overriden by Smart Links.'],
@@ -84,7 +85,6 @@
 		page: /page\-([0-9a-f]+)\-([0-9]+)/,
 		gid: /\/g\/([0-9]+)\/([0-9a-f]+)/,
 		sid: /\/s\/([0-9a-f]+)\/([0-9]+)\-([0-9]+)/,
-		hash: /hash\-([0-9a-f]+)/,
 		fjord: /abortion|bestiality|incest|lolicon|shotacon|toddlercon/
 	};
 	t = {
@@ -899,22 +899,101 @@
 		}
 	};
 	Sauce = {
+		UI: {
+			toggle: function(e) {
+				e.preventDefault();
+				var a = e.target, results, style, sha1, hover;
+				results = $.id(a.id.replace('exsauce','exresults'));
+				sha1 = a.getAttribute('data-sha1');
+				style = results.getAttribute('style');
+				if(style.match('table')) {
+					style = style.replace('table','none');
+					if(conf['Show Short Results'] === true) {
+						$.on(a,[
+							['mouseover',Sauce.UI.show],
+							['mousemove',Sauce.UI.move],
+							['mouseout',Sauce.UI.hide]
+						]);
+					}
+				} else
+				if(style.match('none')) {
+					style = style.replace('none','table');
+					if(conf['Show Short Results'] === true) {
+						$.off(a,[
+							['mouseover',Sauce.UI.show],
+							['mousemove',Sauce.UI.move],
+							['mouseout',Sauce.UI.hide]
+						]);
+						hover = $.id('exhover-'+sha1);
+						hover.setAttribute('style','display: none !important;');
+					}
+				}
+				results.setAttribute('style',style);
+			},
+			show: function(e) {
+				var a, sha1, hover;
+				a = e.target;
+				sha1 = a.getAttribute('data-sha1');
+				hover = $.id('exhover-'+sha1);
+				if(hover) {
+					hover.setAttribute('style','display: table !important;');
+				} else {
+					Sauce.UI.hover(sha1);
+				}
+			},
+			hide: function(e) {
+				var a, sha1, hover;
+				a = e.target;
+				sha1 = a.getAttribute('data-sha1');
+				hover = $.id('exhover-'+sha1);
+				if(hover) {
+					hover.setAttribute('style','display: none !important;');
+				} else {
+					Sauce.UI.hover(sha1);
+				}
+			},
+			move: function(e) {
+				var a, sha1, hover;
+				a = e.target;
+				sha1 = a.getAttribute('data-sha1');
+				hover = $.id('exhover-'+sha1);
+				if(hover) {
+					hover.setAttribute('style','display: table !important;');
+					hover.style.left = (e.clientX+12) + 'px';
+					hover.style.top = (e.clientY+22) + 'px';
+				} else {
+					Sauce.UI.hover(sha1);
+				}
+			},
+			hover: function(sha1) {
+				var hover, result;
+				hover = $.create('div',{
+					className: 'exblock exhover post reply',
+					id: 'exhover-'+sha1
+				});
+				result = Hash.get(sha1,'sha1');
+				for ( var i = 0, ii = result.length; i < ii; i++ ) {
+					hover.innerHTML += '<a class="exsauce-hover" href="'+result[i][0]+'">'+result[i][1]+'</a>';
+					if(i < ii-1) {
+						hover.innerHTML += '<br />';
+					}
+				}
+				hover.setAttribute('style','display: table !important;');
+				$.add(d.body,hover);
+			}
+		},
 		format: function(a, result) {
-			var count = result.length, gtext,
-				results, block, parent, post, hover;
+			var count = result.length,
+				results, parent, post;
 			a.classList.add('sauced');
 			a.textContent = Sauce.text('Found: '+count);
 			if(count) {
 				if(conf['Inline Results'] === true) {
-					// $.on(a,'click',Sauce.toggle);
-					if(count === 1) {
-						gtext = ' gallery';
-					} else {
-						gtext = ' galleries';
-					}
+					$.on(a,'click',Sauce.UI.toggle);
 					results = $.create('div',{
 						className: 'exblock exresults',
-						innerHTML: '<b>ExSauce Reverse Image Search Results</b> | View on: <a href="'+a.href+'">'+Sauce.label()+'</a><br />'
+						id: a.id.replace('exsauce','exresults'),
+						innerHTML: '<b>ExSauce Reverse Image Search Results</b> | View on: <a href="'+a.href+'">'+Sauce.label(true)+'</a><br />'
 					});
 					if(conf['Show Results by Default'] === true) {
 						results.setAttribute('style', 'display: table !important;');
@@ -934,15 +1013,15 @@
 					}
 					Main.process([results]);
 				}
-				/*if(conf['Show Results by Default'] === false) {
+				if(conf['Show Results by Default'] === false) {
 					if(conf['Show Short Results'] === true) {
 						$.on(a,[
-							['mouseover',Sauce.show],
-							['mousemove',Sauce.move],
-							['mouseout',Sauce.hide]
+							['mouseover',Sauce.UI.show],
+							['mousemove',Sauce.UI.move],
+							['mouseout',Sauce.UI.hide]
 						]);
 					}
-				}*/
+				}
 			}
 			Debug.log('Formatting complete.');
 		},
@@ -963,6 +1042,9 @@
 					}
 					Hash.set(result,'sha1',sha1);
 					Debug.log('Lookup successful. Formatting.');
+					if(conf['Show Short Results']) {
+						Sauce.UI.hover(sha1);
+					}
 					Sauce.format(a, result);
 				}
 			});
@@ -1023,23 +1105,22 @@
 			$.off(a,'click',Sauce.click);
 			Sauce.check(a);
 		},
-		label: function(retaincase) {
+		label: function(siteonly) {
 			var site, label = 'ExSauce';
-			if(conf['Use Custom Label'] === true) {
-				label = conf['Custom Label Text'];
+			site = conf['Site to Use'];
+			if(site.value === 'exhentai.org') {
+				label = 'ExHentai';
 			} else {
-				site = conf['Site to Use'];
-				if(site.value === 'exhentai.org') {
-					label = 'ExHentai';
-				} else {
-					label = 'E-Hentai';
+				label = 'E-Hentai';
+			}
+			if(!siteonly) {
+				if(conf['Use Custom Label'] === true) {
+					label = conf['Custom Label Text'];
 				}
 			}
 			if(Config.mode === '4chan') {
-				if(!retaincase) {
-					if(conf['Lowercase on 4chan'] === true) {
-						label = label.toLowerCase();
-					}
+				if(conf['Lowercase on 4chan'] === true) {
+					label = label.toLowerCase();
 				}
 			}
 			return label;
@@ -1145,8 +1226,11 @@
 				value = option.checked ? true : false;
 				tempconf[option.name] = value;
 			} else
-			if(type==='domain') {
+			if(type==='domain' || type==='saucedomain') {
 				tempconf[option.name] = domain[option.value];
+			} else
+			if(type==='text') {
+				tempconf[option.name] = option.value;
 			}
 		},
 		open: function() {
@@ -1178,7 +1262,7 @@
 						}
 						tr.innerHTML = [
 							'<td style="padding:3px;">',
-							'<input type="'+type+'" style="float:right;margin-right:2px;" type="checkbox" id="'+i+'" name="'+i+'"'+sel+' />',
+							'<input style="float:right;margin-right:2px;" type="checkbox" id="'+i+'" name="'+i+'"'+sel+' />',
 							'<label for="'+i+'"><b>'+i+':</b> '+desc+'</label>',
 							'</td>'
 						].join('');
@@ -1187,7 +1271,7 @@
 					if(type === 'domain') {
 						tr.innerHTML = [
 						'<td style="padding:3px;">',
-						'<select name="'+i+'" type="'+type+'" style="font-size:0.92em!important;float:right;width:18%;">',
+						'<select name="'+i+'" type="domain" style="font-size:0.92em!important;float:right;width:18%;">',
 							'<option value="1"'+(value.value==='Original'?' selected':'')+'>Original</option>',
 							'<option value="2"'+(value.value==='g.e-hentai.org'?' selected':'')+'>g.e-hentai.org</option>',
 							'<option value="3"'+(value.value==='exhentai.org'?' selected':'')+'>exhentai.org</option></select>',
@@ -1195,11 +1279,30 @@
 						].join('');
 						$.on($('select',tr),'change',Options.toggle);
 					}
+					if(type === 'saucedomain') {
+						tr.innerHTML = [
+						'<td style="padding:3px;">',
+						'<select name="'+i+'" type="domain" style="font-size:0.92em!important;float:right;width:18%;">',
+							'<option value="2"'+(value.value==='g.e-hentai.org'?' selected':'')+'>g.e-hentai.org</option>',
+							'<option value="3"'+(value.value==='exhentai.org'?' selected':'')+'>exhentai.org</option></select>',
+						'<b>'+i+':</b> '+desc+'</td>'
+						].join('');
+						$.on($('select',tr),'change',Options.toggle);
+					}
+					if(type === 'textbox') {
+						tr.innerHTML = [
+						'<td style="padding:3px;">',
+						'<input style="float:right;padding-left:5px;width:18%;font-size:0.92em!important;" type="text" id="'+i+'" name="'+i+'" value="'+value+'" />',
+						'<b>'+i+':</b> '+desc+'</td>'
+						].join('');
+						$.on($('input',tr),'input',Options.toggle);
+					}
 					$.add(target,tr);
 				}
 			};
 			gen($.id('exlinks-options-general'),options.general);
 			gen($.id('exlinks-options-actions'),options.actions);
+			gen($.id('exlinks-options-sauce'),options.sauce);
 			gen($.id('exlinks-options-domains'),options.domains);
 			gen($.id('exlinks-options-debug'),options.debug);
 		},
@@ -1338,7 +1441,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.0.6',
+		version: '2.1.0',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1498,7 +1601,8 @@
 			}
 		},
 		process: function(posts) {
-			var post, file, info, sauce, exsauce, md5, actions, style, prelinks, prelink, links, link, site,
+			var post, file, info, sauce, exsauce, md5, sha1, results, hover, saucestyle,
+				actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
 			
 			Debug.timer.start('process');
@@ -1509,38 +1613,67 @@
 				post = posts[i];
 				if(conf.ExSauce === true) {
 					// Needs redoing to make life easier with archive
-					if($(Parser.image, post.parentNode)) {
-						if(Config.mode === '4chan') {
-							file = $(Parser.image, post.parentNode);
-							if(file.childNodes.length > 1) {
-								info = file.childNodes[0];
-								md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
-								md5 = md5.replace('==','');
-								sauce = $('.exsauce',info);
-								if(!sauce) {
-									exsauce = $.create('a', {
-										textContent: Sauce.label(),
-										className: 'exsauce',
-										href: file.childNodes[1].href
-									});
-									exsauce.setAttribute('data-md5',md5);
-									$.on(exsauce,'click',Sauce.click);
-									$.add(info,$.tnode(" "));
-									$.add(info,exsauce);
-								} else {
-									if(!sauce.classList.contains('sauced')) {
+					if(!post.classList.contains('exresults')) {
+						if($(Parser.image, post.parentNode)) {
+							if(Config.mode === '4chan') {
+								file = $(Parser.image, post.parentNode);
+								if(file.childNodes.length > 1) {
+									info = file.childNodes[0];
+									md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
+									md5 = md5.replace('==','');
+									sauce = $('.exsauce',info);
+									if(!sauce) {
+										exsauce = $.create('a', {
+											textContent: Sauce.label(),
+											className: 'exsauce',
+											id: 'exsauce-'+post.id,
+											href: file.childNodes[1].href
+										});
+										exsauce.setAttribute('data-md5',md5);
 										$.on(exsauce,'click',Sauce.click);
+										$.add(info,$.tnode(" "));
+										$.add(info,exsauce);
 									} else {
-										// Add mouseover stuff later
+										if(!sauce.classList.contains('sauced')) {
+											$.on(sauce,'click',Sauce.click);
+										} else {
+											sha1 = sauce.getAttribute('data-sha1');
+											if(conf['Show Short Results'] === true) {
+												if(conf['Inline Results'] === true) {
+													results = $.id(sauce.id.replace('exsauce','exresults'));
+													saucestyle = results.getAttribute('style');
+													if(saucestyle.match('none')) {
+														$.on(sauce,[
+															['mouseover',Sauce.UI.show],
+															['mousemove',Sauce.UI.move],
+															['mouseout',Sauce.UI.hide]
+														]);
+													}
+												} else {
+													$.on(sauce,[
+														['mouseover',Sauce.UI.show],
+														['mousemove',Sauce.UI.move],
+														['mouseout',Sauce.UI.hide]
+													]);
+												}
+											}
+											if(conf['Inline Results'] === true) {
+												$.on(sauce,'click',Sauce.UI.toggle);
+												if(conf['Hide Results in Quotes'] === true) {
+													results = $.id(sauce.id.replace('exsauce','exresults'));
+													results.setAttribute('style','display: none !important;');
+												}
+											}
+										}
 									}
 								}
+							} else
+							if(Config.mode === 'foolz-fuuka') {
+								// A WORLD OF PAIN
+							} else
+							if(Config.mode === 'foolz-default') {
+								// AWAITS
 							}
-						} else
-						if(Config.mode === 'foolz-fuuka') {
-							// A WORLD OF PAIN
-						} else
-						if(Config.mode === 'foolz-default') {
-							// AWAITS
 						}
 					}
 				}
