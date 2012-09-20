@@ -1,5 +1,10 @@
 ﻿master
 
+2.1.1
+- Hupo
+	+ Add: "No Underline in Sauce" option for ExSauce (default: false)
+	+ Fix: Details has a background in archive again
+
 2.1.0
 - Hupo
 	+ Feature: ExSauce for 4chan (not available for Opera)

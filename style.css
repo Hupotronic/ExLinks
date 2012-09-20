@@ -17,7 +17,7 @@
 	width: 100%;
 }
 
-.exsauce, .exsauce-hover {
+.exsauce-no-underline, .exsauce-hover {
 	text-decoration: none !important;
 }
 

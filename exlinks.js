@@ -38,6 +38,7 @@
 			'Show Short Results':          ['checkbox', true,  'Show gallery names when hovering over the link after lookup (similar to old ExSauce).'],
 			'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
 			'Lowercase on 4chan':          ['checkbox', true,  'Lowercase ExSauce label on 4chan.'],
+			'No Underline on Sauce':       ['checkbox', false,  'Force the ExSauce label to have no underline.'],
 			'Use Custom Label':            ['checkbox', false, 'Use a custom label instead of the site name (e-hentai/exhentai).'],
 			'Custom Label Text':           ['textbox', 'ExSauce', 'The custom label.'],
 			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.']
@@ -1441,7 +1442,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.0',
+		version: '2.1.1',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1629,6 +1630,9 @@
 											id: 'exsauce-'+post.id,
 											href: file.childNodes[1].href
 										});
+										if(conf['No Underline on Sauce']) {
+											exsauce.classList.add('exsauce-no-underline');
+										}
 										exsauce.setAttribute('data-md5',md5);
 										$.on(exsauce,'click',Sauce.click);
 										$.add(info,$.tnode(" "));
