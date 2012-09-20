@@ -2,7 +2,7 @@
 (function() {
 	"use strict";
 	var fetch, options, conf, tempconf, pageconf, regex, img, d, t, $, $$,
-		Debug, UI, Cache, API, Database, SHA1, Sauce, Filter, Parser, Options, Config, Main;
+		Debug, UI, Cache, API, Database, Hash, SHA1, Sauce, Filter, Parser, Options, Config, Main;
 	
 	img = {};
 	fetch = {
@@ -33,10 +33,13 @@
 		},
 		sauce: {
 			'Site to Use':                 ['saucedomain', fetch.exHentai, 'The domain to use for the reverse image search.'],
-			'Inline Sauce':                ['checkbox', true,  'Shows the results inlined rather than opening the site. Works with Smart Links.'],
+			'Inline Results':              ['checkbox', true,  'Shows the results inlined rather than opening the site. Works with Smart Links.'],
+			'Show Results by Default':     ['checkbox', true,  'Open the inline results by default.'],
+			'Show Short Results':          ['checkbox', false, 'Show gallery names when hovering over the link after lookup (similar to old ExSauce).'],
 			'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
-			'Use Custom Label':            ['checkbox', false,  'Use a custom label instead of the site name (e-hentai/exhentai).'],
-			'Custom Label Text':           ['textbox', 'exsauce', 'The custom label.']
+			'Lowercase on 4chan':          ['checkbox', true,  'Lowercase ExSauce label on 4chan.'],
+			'Use Custom Label':            ['checkbox', false, 'Use a custom label instead of the site name (e-hentai/exhentai).'],
+			'Custom Label Text':           ['textbox', 'ExSauce', 'The custom label.']
 		},
 		domains: {
 			'Gallery Link':                ['domain', fetch.original, 'The domain used for the actual link. Overriden by Smart Links.'],
@@ -81,6 +84,7 @@
 		page: /page\-([0-9a-f]+)\-([0-9]+)/,
 		gid: /\/g\/([0-9]+)\/([0-9a-f]+)/,
 		sid: /\/s\/([0-9a-f]+)\/([0-9]+)\-([0-9]+)/,
+		hash: /hash\-([0-9a-f]+)/,
 		fjord: /abortion|bestiality|incest|lolicon|shotacon|toddlercon/
 	};
 	t = {
@@ -652,9 +656,12 @@
 				Cache.type = localStorage;
 			}
 		},
-		get: function(uid) {
+		get: function(uid,type) {
 			var key, json;
-			key = Main.namespace+'gallery-'+uid;
+			if(!type) {
+				type = 'gallery';
+			}
+			key = Main.namespace+type+'-'+uid;
 			json = Cache.type.getItem(key);
 			if(json) {
 				json = JSON.parse(json);
@@ -669,16 +676,23 @@
 				return false;
 			}
 		},
-		set: function(data) {
-			var key, TTL, limit, date, value;
-			key = Main.namespace+'gallery-'+data.gid;
-			limit = Date.now() - (12 * t.HOUR);
-			date = new Date(parseInt(data.posted,10)*1000);
-			if(date > limit) {
-				TTL = date - limit;
+		set: function(data,type,hash,ttl) {
+			var key, keyid, TTL, limit, date, value;
+			if(!type) {
+				type = 'gallery';
+				keyid = data.gid;
+				limit = Date.now() - (12 * t.HOUR);
+				date = new Date(parseInt(data.posted,10)*1000);
+				if(date > limit) {
+					TTL = date - limit;
+				} else {
+					TTL = 12 * t.HOUR;
+				}
 			} else {
-				TTL = 12 * t.HOUR;
+				keyid = hash;
+				TTL = ttl;
 			}
+			key = Main.namespace+type+'-'+keyid;
 			value = {
 				"added": Date.now(),
 				"TTL": TTL,
@@ -759,6 +773,33 @@
 			}
 		}
 	});
+	Hash = {
+		md5: {},
+		sha1: {},
+		get: function(hash,type) {
+			var result;
+			if(Hash[type][hash]) {
+				return Hash[type][hash];
+			} else {
+				result = Cache.get(hash,type);
+				if(result) {
+					Hash[type][hash] = result;
+					return result;
+				} else {
+					return false;
+				}
+			}
+		},
+		set: function(data,type,hash) {
+			var ttl;
+			if(type === 'md5') {
+				ttl = 365 * t.DAY;
+			} else {
+				ttl = 12 * t.HOUR;
+			}
+			Cache.set(data,type,hash,ttl);
+		}
+	};
 	SHA1 = {
 		/*
 			SHA-1 JS implementation originally created by Chris Verness
@@ -858,14 +899,52 @@
 		}
 	};
 	Sauce = {
-		lookup: function(e) {
-			var a, image;
-			e.preventDefault();
-			a = e.target;
+		format: function(a, result) {
+			var count = result.length;
+			a.classList.add('sauced');
+			a.textContent = Sauce.text('Found: '+count);
+			/*if(count) {
+				if(conf['Inline Results'] === true) {
+					$.on(a,'click',Sauce.toggle);
+				}
+				if(conf['Show Results by Default'] === false) {
+					if(conf['Show Short Results'] === true) {
+						$.on(a,[
+							['mouseover',Sauce.show],
+							['mousemove',Sauce.move],
+							['mouseout',Sauce.hide]
+						]);
+					}
+				}
+			}*/
+			Debug.log('Formatting complete.');
+		},
+		lookup: function(a, sha1) {
+			var response, links, link, result = [], count;
+			a.textContent = Sauce.text('Checking');
+			
+			GM_xmlhttpRequest({
+				method: "GET",
+				url: a.href,
+				onload: function(x) {
+					response = $.frag(x.responseText);
+					links = $$('div.it3 > a:not([rel="nofollow"]), div.itd2 > a:not([rel="nofollow"])',response);
+					count = links.length;
+					for ( var i = 0; i < count; i++ ) {
+							link = links[i];
+							result.push([link.href,link.innerHTML]);
+					}
+					Hash.set(result,'sha1',sha1);
+					Debug.log('Lookup successful. Formatting.');
+					Sauce.format(a, result);
+				}
+			});
+		},
+		hash: function(a, md5) {
+			var image, sha1;
 			image = a.href;
 			Debug.log('Fetching image ' + image);
-			a.textContent = 'loading';
-			$.off(a,'click',Sauce.lookup);
+			a.textContent = Sauce.text('Loading');
 			GM_xmlhttpRequest(
 			{
 				method: "GET",
@@ -873,16 +952,83 @@
 				overrideMimeType: "text/plain; charset=x-user-defined",
 				headers: { "Content-Type": "image/jpeg" },
 				onload: function(x) { 
-					a.textContent = 'done';
-					Debug.log('SHA-1 hash for image: ' + SHA1.hash(x.responseText));
+					sha1 = SHA1.hash(x.responseText);
+					a.setAttribute('data-sha1',sha1);
+					Hash.set(sha1,'md5',md5);
+					Debug.log('SHA-1 hash for image: ' + sha1);
+					Sauce.check(a);
 				}
 			});
+		},
+		check: function(a) {
+			var md5, sha1, result;
+			if(a.hasAttribute('data-sha1')) {
+				sha1 = a.getAttribute('data-sha1');
+			} else {
+				md5 = a.getAttribute('data-md5');
+				sha1 = Hash.get(md5,'md5');
+			}
+			if(sha1) {
+				Debug.log('SHA-1 hash found.');
+				a.setAttribute('data-sha1',sha1);
+				a.href = 'http://'+conf['Site to Use'].value+'/?f_shash='+sha1+'&fs_similar=0';
+				if(conf['Search Expunged'] === true) {
+					a.href += '&fs_exp=1';
+				}
+				a.setAttribute('target','_blank');
+				result = Hash.get(sha1,'sha1');
+				if(result) {
+					Debug.log('Cached result found. Formatting.');
+					Sauce.format(a, result);
+				} else {
+					Debug.log('No cached result found. Performing a lookup.');
+					Sauce.lookup(a, sha1);
+				}
+			} else {
+				Debug.log('No SHA-1 hash found. Fetching image.');
+				Sauce.hash(a, md5);
+			}
+		},
+		click: function(e) {
+			e.preventDefault();
+			var a = e.target;
+			$.off(a,'click',Sauce.click);
+			Sauce.check(a);
+		},
+		label: function() {
+			var site, label = 'ExSauce';
+			if(conf['Use Custom Label'] === true) {
+				label = conf['Custom Label Text'];
+			} else {
+				site = conf['Site to Use'];
+				if(site.value === 'exhentai.org') {
+					label = 'ExHentai';
+				} else {
+					label = 'E-Hentai';
+				}
+			}
+			if(Config.mode === '4chan') {
+				if(conf['Lowercase on 4chan'] === true) {
+					label = label.toLowerCase();
+				}
+			}
+			return label;
+		},
+		text: function(text) {
+			if(Config.mode === '4chan') {
+				if(conf['Lowercase on 4chan'] === true) {
+					return text.toLowerCase();
+				} else {
+					return text;
+				}
+			}
 		}
 	};
 	Parser = {
 		postbody: 'blockquote',
 		prelinks: 'a:not(.quotelink)',
 		links: '.exlink',
+		image: '.file',
 		unformatted: function(uid) {
 			var result = [], links = $$('a.uid-'+uid);
 			for ( var i = 0, ii = links.length; i < ii; i++ )
@@ -1124,9 +1270,11 @@
 				{
 					Config.mode = 'foolz-default';
 					Parser.postbody = '.text';
-					Parser.prelinks = 'a:not(.backlink)';	
+					Parser.prelinks = 'a:not(.backlink)';
+					Parser.image = '.thread_image_box';
 				} else {
 					Config.mode = 'foolz-fuuka';
+					Parser.image = '.thumb';
 				}
 			}
 		},
@@ -1320,7 +1468,7 @@
 			}
 		},
 		process: function(posts) {
-			var post, file, info, sauce, exsauce, actions, style, prelinks, prelink, links, link, site,
+			var post, file, info, sauce, exsauce, md5, actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
 			
 			Debug.timer.start('process');
@@ -1330,27 +1478,39 @@
 			{
 				post = posts[i];
 				if(conf.ExSauce === true) {
-					file = post.previousSibling;
-					if(file) {
-						if(file.classList.contains('file')) {
-							info = file.childNodes[0];
-							sauce = $('.exsauce',info);
-							if(!sauce) {
-								exsauce = $.create('a', {
-									textContent: 'exsauce',
-									className: 'exsauce',
-									href: file.childNodes[1].href
-								});
-								$.on(exsauce,'click',Sauce.lookup);
-								$.add(info,$.tnode(" "));
-								$.add(info,exsauce);
-							} else {
-								if(!sauce.classList.contains('sauced')) {
-									$.on(exsauce,'click',Sauce.lookup);
+					// Needs redoing to make life easier with archive
+					if($(Parser.image, post.parentNode)) {
+						if(Config.mode === '4chan') {
+							file = $(Parser.image, post.parentNode);
+							if(file.childNodes.length > 1) {
+								info = file.childNodes[0];
+								md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
+								md5 = md5.replace('==','');
+								sauce = $('.exsauce',info);
+								if(!sauce) {
+									exsauce = $.create('a', {
+										textContent: Sauce.label(),
+										className: 'exsauce',
+										href: file.childNodes[1].href
+									});
+									exsauce.setAttribute('data-md5',md5);
+									$.on(exsauce,'click',Sauce.click);
+									$.add(info,$.tnode(" "));
+									$.add(info,exsauce);
 								} else {
-									// Add mouseover stuff later
+									if(!sauce.classList.contains('sauced')) {
+										$.on(exsauce,'click',Sauce.click);
+									} else {
+										// Add mouseover stuff later
+									}
 								}
 							}
+						} else
+						if(Config.mode === 'foolz-fuuka') {
+							// A WORLD OF PAIN
+						} else
+						if(Config.mode === 'foolz-default') {
+							// AWAITS
 						}
 					}
 				}
