@@ -92,7 +92,8 @@ task 'images', (options) ->
 				dest[ext[0]] = image_b64
 		return dest
 	images = store IMAGES
-	images.ratings = store IMAGES+'/ratings'
+	# images.ratings = store IMAGES+'/ratings'
+	# images.categories = store IMAGES+/categories'
 
 	fs.writeFileSync OUTPUT, JSON.stringify(images), 'utf8', (err) ->
 		throw err if err

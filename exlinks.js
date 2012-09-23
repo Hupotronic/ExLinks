@@ -308,9 +308,9 @@
 			details: function(data) { return '#DETAILS#'; },
 			actions: function(data) { return '#ACTIONS#'; },
 			options: function()     { return '#OPTIONS#'; },
-			rating:  function(data) {
+			stars:   function(data) {
 				var str = '', star = '',
-					 tmp, rating = Math.ceil(parseFloat(data,10)*2);
+					tmp, rating = Math.round(parseFloat(data,10)*2);
 				for ( var i = 0; i < 5; i++ ) {
 					tmp = $.clamp(rating - (i*2),0,2);
 					switch(tmp) {

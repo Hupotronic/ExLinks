@@ -1,6 +1,7 @@
 ﻿master
 - Hupo
-	+ Change: Category images replaced with styled elements in Details View
+	+ Add: High-res image elements (category icons & stars)
+	+ Fix: Star rating actually matches properly now
 	
 2.1.1
 - Hupo
