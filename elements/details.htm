@@ -14,7 +14,10 @@
 		<!-- Rating -->
 		<div class="exsidebarbox">
 			<b>Rating:</b><br />
-			<img src="#{img.ratings[Math.round(parseInt(data.rating,10)*2)]}" alt="#{data.rating}" /><br />
+			<div class="exrating">
+				#{UI.html.rating(data.rating)}
+			</div>
+			<!--<img src="#{img.ratings[Math.round(parseInt(data.rating,10)*2)]}" alt="#{data.rating}" />--><br />
 			<span style="opacity: 0.65; font-size: 0.95em;">
 				(Avg. #{data.rating})
 			</span>

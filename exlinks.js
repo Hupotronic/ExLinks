@@ -131,6 +131,16 @@
 		}
 	};
 	$.extend($, {
+		clamp: function(val,min,max) {
+			if(val < min) {
+				return min;
+			} else
+			if(val > max) {
+				return max;
+			} else {
+				return val;
+			}
+		},
 		elem: function(arr) {
 			var frag = d.createDocumentFragment();
 			for ( var i = 0, ii = arr.length; i < ii; i++ )
@@ -297,7 +307,21 @@
 		html: {
 			details: function(data) { return '#DETAILS#'; },
 			actions: function(data) { return '#ACTIONS#'; },
-			options: function()     { return '#OPTIONS#'; }
+			options: function()     { return '#OPTIONS#'; },
+			rating:  function(data) {
+				var str = '', star = '',
+					 tmp, rating = Math.ceil(parseFloat(data,10)*2);
+				for ( var i = 0; i < 5; i++ ) {
+					tmp = $.clamp(rating - (i*2),0,2);
+					switch(tmp) {
+						case 0: star = 'none'; break;
+						case 1: star = 'half'; break;
+						case 2: star = 'full';
+					}
+					str += '<div class="exr'+(i+1)+' star-'+star+'"></div>';
+				}
+				return str;
+			}
 		},
 		details: function(uid) {
 			var data, date, div, frag, taglist, tagspace, tag, content;
