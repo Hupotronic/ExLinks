@@ -1,10 +1,23 @@
 ﻿/*jshint eqnull:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, undef:true, curly:true, browser:true, devel:true, maxerr:50 */
 (function() {
 	"use strict";
-	var fetch, options, conf, tempconf, pageconf, regex, img, d, t, $, $$,
+	var fetch, options, conf, tempconf, pageconf, regex, img, cat, d, t, $, $$,
 		Debug, UI, Cache, API, Database, Hash, SHA1, Sauce, Filter, Parser, Options, Config, Main;
 	
 	img = {};
+	cat = {
+		"Artist CG Sets": {"short": "artistcg",  "name": "Artist CG"  },
+		"Asian Porn":     {"short": "asianporn", "name": "Asian Porn" },
+		"Cosplay":        {"short": "cosplay",   "name": "Cosplay"    },
+		"Doujinshi":      {"short": "doujinshi", "name": "Doujinshi"  },
+		"Game CG Sets":   {"short": "gamecg",    "name": "Game CG"    },
+		"Image Sets":     {"short": "imageset",  "name": "Image Set"  },
+		"Manga":          {"short": "manga",     "name": "Manga"      },
+		"Misc":           {"short": "misc",      "name": "Misc"       },
+		"Non-H":          {"short": "non-h",     "name": "Non-H"      },
+		"Private":        {"short": "private",   "name": "Private"    },
+		"Western":        {"short": "western",   "name": "Western"    }
+	};
 	fetch = {
 		original: {value: "Original"},
 		geHentai: {value: "g.e-hentai.org"},
@@ -533,7 +546,7 @@
 			return 0;
 		},
 		request: function(type,hash) {
-			var xhr, request, limit = 0;
+			var xhr, request, limit = 0, json;
 			if(type === 's') {
 				request = {
 					"method": "gtoken",
@@ -581,9 +594,13 @@
 					xhr.onreadystatechange = function() {
 						if(xhr.readyState === 4 && xhr.status === 200)
 						{
-							if(JSON.parse(xhr.responseText)) {
-								Debug.log(['API Response, Time: '+Debug.timer.stop('apirequest'),JSON.parse(xhr.responseText)]);
-								API.response(type,JSON.parse(xhr.responseText));
+							json = JSON.parse(xhr.responseText);
+							if(!json) {
+								json = {};
+							}
+							if(Object.keys(json).length > 0) {
+								Debug.log(['API Response, Time: '+Debug.timer.stop('apirequest'),json]);
+								API.response(type,json);
 							} else {
 								Debug.log('API Request error. Waiting five seconds before trying again. (Time: '+Debug.timer.stop('apirequest')+')');
 								Debug.log(xhr.responseText);
@@ -1342,14 +1359,14 @@
 					$.prepend($.id('navbotright'),$.elem(arrbot));
 				}
 			} else
-			if(Config.mode === 'foolz-fuuka')
+			if(Config.mode === 'fuuka')
 			{
 				conflink.innerHTML = 'exlinks options';
 				conflink.setAttribute('style','cursor: pointer; text-decoration: underline;');
 				arrtop = [$.tnode(' [ '),conflink,$.tnode(' ] ')];
 				$.add($('div'),$.elem(arrtop));
 			} else
-			if(Config.mode === 'foolz-default')
+			if(Config.mode === 'foolz')
 			{
 				conflink.innerHTML = 'ExLinks Options';
 				conflink.setAttribute('style','cursor: pointer;');
@@ -1402,12 +1419,12 @@
 			{
 				if(curType.match('<!DOCTYPE html>'))
 				{
-					Config.mode = 'foolz-default';
+					Config.mode = 'foolz';
 					Parser.postbody = '.text';
 					Parser.prelinks = 'a:not(.backlink)';
 					Parser.image = '.thread_image_box';
 				} else {
-					Config.mode = 'foolz-fuuka';
+					Config.mode = 'fuuka';
 					Parser.image = '.thumb';
 				}
 			}
@@ -1672,10 +1689,10 @@
 									}
 								}
 							} else
-							if(Config.mode === 'foolz-fuuka') {
+							if(Config.mode === 'fuuka') {
 								// A WORLD OF PAIN
 							} else
-							if(Config.mode === 'foolz-default') {
+							if(Config.mode === 'foolz') {
 								// AWAITS
 							}
 						}
@@ -1871,16 +1888,22 @@
 			}
 		},
 		ready: function() {
-			var css, style;
+			var css, font, style;
 			Debug.timer.start('init');
 			Config.site();
 			Options.init();
 			css = '';
+			font = $.create('link', {
+				rel: "stylesheet",
+				type: "text/css",
+				href: "//fonts.googleapis.com/css?family=Source+Sans+Pro:900"
+			});
 			style = $.create('link', {
 				rel: "stylesheet",
 				type: "text/css",
 				href: css
 			});
+			$.add(d.head,font);
 			$.add(d.head,style);
 			Debug.log('Initialization complete. Time: '+Debug.timer.stop('init'));
 			var nodelist = $$(Parser.postbody),
@@ -1918,4 +1941,4 @@
 	
 	Main.init();
 	
-}).call(this);
+})();

@@ -1,5 +1,7 @@
 ﻿master
-
+- Hupo
+	+ Change: Category images replaced with styled elements in Details View
+	
 2.1.1
 - Hupo
 	+ Add: "No Underline in Sauce" option for ExSauce (default: false)
