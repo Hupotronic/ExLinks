@@ -1,5 +1,9 @@
 ﻿master
 
+2.1.3
+- Hupo
+	+ Fix: ExSauce doesn't break on deleted files anymore
+
 2.1.2
 - Hupo
 	+ Add: High-res image elements (category icons & stars)
