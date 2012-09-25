@@ -1,4 +1,6 @@
 ﻿master
+
+2.1.2
 - Hupo
 	+ Add: High-res image elements (category icons & stars)
 	+ Fix: Star rating actually matches properly now
