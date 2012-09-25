@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.1.2
+// @version        2.1.3
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -1498,7 +1498,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.2',
+		version: '2.1.3',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1677,51 +1677,53 @@
 								if(file.childNodes.length > 1) {
 									info = file.childNodes[0];
 									md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
-									md5 = md5.replace('==','');
-									sauce = $('.exsauce',info);
-									if(!sauce) {
-										exsauce = $.create('a', {
-											textContent: Sauce.label(),
-											className: 'exsauce',
-											id: 'exsauce-'+post.id,
-											href: file.childNodes[1].href
-										});
-										if(conf['No Underline on Sauce']) {
-											exsauce.classList.add('exsauce-no-underline');
-										}
-										exsauce.setAttribute('data-md5',md5);
-										$.on(exsauce,'click',Sauce.click);
-										$.add(info,$.tnode(" "));
-										$.add(info,exsauce);
-									} else {
-										if(!sauce.classList.contains('sauced')) {
-											$.on(sauce,'click',Sauce.click);
+									if(md5) {
+										md5 = md5.replace('==','');
+										sauce = $('.exsauce',info);
+										if(!sauce) {
+											exsauce = $.create('a', {
+												textContent: Sauce.label(),
+												className: 'exsauce',
+												id: 'exsauce-'+post.id,
+												href: file.childNodes[1].href
+											});
+											if(conf['No Underline on Sauce']) {
+												exsauce.classList.add('exsauce-no-underline');
+											}
+											exsauce.setAttribute('data-md5',md5);
+											$.on(exsauce,'click',Sauce.click);
+											$.add(info,$.tnode(" "));
+											$.add(info,exsauce);
 										} else {
-											sha1 = sauce.getAttribute('data-sha1');
-											if(conf['Show Short Results'] === true) {
-												if(conf['Inline Results'] === true) {
-													results = $.id(sauce.id.replace('exsauce','exresults'));
-													saucestyle = results.getAttribute('style');
-													if(saucestyle.match('none')) {
+											if(!sauce.classList.contains('sauced')) {
+												$.on(sauce,'click',Sauce.click);
+											} else {
+												sha1 = sauce.getAttribute('data-sha1');
+												if(conf['Show Short Results'] === true) {
+													if(conf['Inline Results'] === true) {
+														results = $.id(sauce.id.replace('exsauce','exresults'));
+														saucestyle = results.getAttribute('style');
+														if(saucestyle.match('none')) {
+															$.on(sauce,[
+																['mouseover',Sauce.UI.show],
+																['mousemove',Sauce.UI.move],
+																['mouseout',Sauce.UI.hide]
+															]);
+														}
+													} else {
 														$.on(sauce,[
 															['mouseover',Sauce.UI.show],
 															['mousemove',Sauce.UI.move],
 															['mouseout',Sauce.UI.hide]
 														]);
 													}
-												} else {
-													$.on(sauce,[
-														['mouseover',Sauce.UI.show],
-														['mousemove',Sauce.UI.move],
-														['mouseout',Sauce.UI.hide]
-													]);
 												}
-											}
-											if(conf['Inline Results'] === true) {
-												$.on(sauce,'click',Sauce.UI.toggle);
-												if(conf['Hide Results in Quotes'] === true) {
-													results = $.id(sauce.id.replace('exsauce','exresults'));
-													results.setAttribute('style','display: none !important;');
+												if(conf['Inline Results'] === true) {
+													$.on(sauce,'click',Sauce.UI.toggle);
+													if(conf['Hide Results in Quotes'] === true) {
+														results = $.id(sauce.id.replace('exsauce','exresults'));
+														results.setAttribute('style','display: none !important;');
+													}
 												}
 											}
 										}
