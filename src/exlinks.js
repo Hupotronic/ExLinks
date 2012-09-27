@@ -1,6 +1,7 @@
-﻿/*jshint eqnull:true, noarg:true, noempty:true, eqeqeq:true, bitwise:false, strict:true, undef:true, curly:true, browser:true, devel:true, maxerr:50 */
+/*jshint eqnull:true, noempty:false, bitwise:false, newcap:false, strict:false, browser:true, devel:true */
+/*global GM_xmlhttpRequest:true */
 (function() {
-	"use strict";
+
 	var fetch, options, conf, tempconf, pageconf, regex, img, cat, d, t, $, $$,
 		Debug, UI, Cache, API, Database, Hash, SHA1, Sauce, Filter, Parser, Options, Config, Main;
 	
@@ -30,7 +31,7 @@
 			'Gallery Actions':             ['checkbox', true,  'Generate gallery actions for links.'],
 			'Smart Links':                 ['checkbox', false, 'All links lead to E-Hentai unless they have fjording tags.'],
 			'ExSauce':                     ['checkbox', true,  'Add ExSauce reverse image search to posts. Disabled in Opera.']
-			/*'Filter':                      ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
+			/*'Filter':                    ['checkbox', true,  'Use the highlight filter on gallery information.'],*/
 		},
 		actions: {
 			'Show by Default':             ['checkbox', false, 'Show gallery actions by default.'],
@@ -80,7 +81,9 @@
 				'# Highlight "english" and "translated" tags in non-western non-non-h galleries:',
 				'# /english|translated/;not:western,non-h;color:#0069B6',
 				'# Highlight all non-english language tags in doujinshi/manga/artistcg/gamecg galleries:',
-				'# /korean|chinese|italian|vietnamese|thai|spanish|french|german|portuguese|russian|dutch|hungarian|indonesian|finnish|rewrite/;only:doujinshi,manga,artistcg,gamecg;color:#FF000',
+				'# /korean|chinese|italian|vietnamese|thai|spanish|french|german'+
+				'|portuguese|russian|dutch|hungarian|indonesian|finnish|rewrite/'+
+				';only:doujinshi,manga,artistcg,gamecg;color:#FF000',
 				'# Highlight the link for galleries tagged with "touhou project":',
 				'# /touhou project/;link:yes,color:#FF3300'
 			].join('\n')],
@@ -517,7 +520,9 @@
 				h = 320;
 			}
 			if(type) {
-				window.open(link.href,"_pu"+(Math.random()+"").replace(/0\./,""),"toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width="+w+",height="+h+",left="+((screen.width-w)/2)+",top="+((screen.height-h)/2));
+				window.open(link.href,"_pu"+(Math.random()+"").replace(/0\./,""),
+					"toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width="+
+					w+",height="+h+",left="+((screen.width-w)/2)+",top="+((screen.height-h)/2));
 			}
 		},
 		date: function(d) {
@@ -1357,7 +1362,9 @@
 			if(Config.mode === '4chan')
 			{
 				if(oneechan) {
-					conflink.setAttribute('style','position: fixed; background: url('+img.options+'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;');
+					conflink.setAttribute('style','position: fixed; background: url('+img.options+
+						'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;'
+					);
 					$.on(conflink,[
 						['mouseover',function(e){e.target.style.opacity = 1.0;}],
 						['mouseout',function(e){e.target.style.opacity = 0.65;}]
@@ -1366,7 +1373,8 @@
 				} else
 				if(chanss) {
 					conflink.innerHTML = 'Ex';
-					conflink.setAttribute('style','background-image: url('+img.options+'); padding-top: 15px !important; opacity: 0.75;');
+					conflink.setAttribute('style','background-image: url('+img.options+
+						'); padding-top: 15px !important; opacity: 0.75;');
 					$.on(conflink,[
 						['mouseover',function(e){e.target.style.opacity = 1.0;}],
 						['mouseout',function(e){e.target.style.opacity = 0.65;}]
@@ -1483,7 +1491,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.3',
+		version: '////version',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1569,7 +1577,9 @@
 				}
 			}
 			Main.queue.clear();
-			Debug.log('Formatted IDs: '+Debug.value.get('formatlinks')+' OK, '+Debug.value.get('failed')+' FAIL. Time: '+Debug.timer.stop('format'));
+			Debug.log('Formatted IDs: '+Debug.value.get('formatlinks')+
+				' OK, '+Debug.value.get('failed')+
+				' FAIL. Time: '+Debug.timer.stop('format'));
 			if(Object.keys(failed).length) {
 				for ( var j in failed ) {
 					failure = Main.check(parseInt(j,10));
@@ -1643,7 +1653,7 @@
 			}
 		},
 		process: function(posts) {
-			var post, file, info, sauce, exsauce, md5, sha1, results, hover, saucestyle,
+			var post, file, info, sauce, exsauce, md5, sha1, results, saucestyle,
 				actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
 			
@@ -1863,7 +1873,11 @@
 				}	
 				
 			}
-			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
+			Debug.log('Total posts: '+Debug.value.get('post_total')+
+				' Linkified: '+Debug.value.get('linkified')+
+				' Processed: '+Debug.value.get('posts')+
+				' Links: '+Debug.value.get('processed')+
+				' Time: '+Debug.timer.stop('process'));
 			Main.update();
 		},
 		dom: function(e) {

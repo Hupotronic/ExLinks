@@ -2,12 +2,19 @@
 
 ## Building
 
-1. Install node.js
-2. Install CoffeeScript (it's used for compiling)
-3. Install other relevant plugins (`html-minifier`, `uglify-js`)
-4. Build with `cake build`. To minify use `--uglify "mangle,squeeze"`
+1. Install [Node.js](http://nodejs.org/).
+2. Install [grunt](https://github.com/cowboy/grunt) with `npm install -g grunt`.
+3. Clone ExLinks.
+4. Navigate to the directory.
+5. Install dependencies with `npm install`.
+6. Build with `grunt`.
 
 ## Developing
 
-* Run `cake dev` for continous builds when relevant script files are updated.
-* Run `cake images` to rebuild images.json from the files in `images`.
+* Run `grunt watch` for continuous builds.
+* Run `grunt images` to rebuild `images.json`.
+
+## Releasing a new version
+
+1. Run `grunt patch/minor/major release`.
+2. Push to remote with `grunt push`.
