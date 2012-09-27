@@ -1,13 +1,30 @@
-#exlinks-overlay
-	#exlinks-options.post.reply
-			#exlinks-options-nav(style="text-align:left;")
-					div(style="float:right;")
-						a#exlinks-options-changelog(href="#{changelog}").
-							Changelog
-						a#exlinks-options-issues(href="#{issues}").
-							Issues
-						a#exlinks-options-save.
-							Save Settings
-						a#exlinks-options-cancel.
-							Cancel
-
+- var data = {
+- 	buttons: [
+-	{"name":"changelog","text":"Changelog"},
+-	{"name":"issues","text":"Issues"},
+-	{"name":"save","text":"Save Settings"},
+-	{"name":"cancel","text":"Cancel"}
+- ],
+- 	sections: [
+- 	{"name":"general","title":"General Settings","subtitle":"Note: You must reload the page after saving for any changes to take effect."},
+-	{"name":"actions","title":"Gallery Actions"},
+-	{"name":"sauce","title":"ExSauce Settings","subtitle":"Note: ExSauce is currently not available in the Foolz archive."},
+-	{"name":"domains","title":"Domain Settings"},
+-	{"name":"debug","title":"Debugger Settings"}
+- ],
+- site: "http://hupotronic.github.com/ExLinks/"
+- };
+#exoverlay
+	#exmenu.post.reply.post_wrapper
+		#exnav
+			each button in data.buttons
+				.exnavbutton
+					#exopts-#{button.name}= button.text
+			a.exopts-title(href=#{data.site}) ExLinks
+			span.exopts-version= version
+		#exopts
+			each section in data.sections
+				span.exoptitle= section.title
+				if section.subtitle
+					span.exopnote= section.subtitle
+				table.exoptable#exopts-#{section.name}
