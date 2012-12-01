@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.1.3
+// @version        2.1.4
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -372,8 +372,9 @@
 		actions: function(data,link) {
 			var uid, token, key, date, taglist, user, sites, tag, tagstring, button, div, tagspace, frag, content;
 			
+			tagstring = data.tags.join(',');
+
 			if(conf['Smart Links'] === true) {
-				tagstring = data.tags.join(',');
 				if(tagstring.match(regex.fjord)) {
 					if(link.href.match('g.e-hentai.org')) {
 						link.href = link.href.replace('g.e-hentai.org','exhentai.org');
@@ -426,12 +427,16 @@
 				ex: "http://exhentai.org/g/"+uid+"/"+token+"/",
 				bt: "http://"+sites[0]+"/gallerytorrents.php?gid="+uid+"&t="+token,
 				hh: "http://"+sites[1]+"/hathdler.php?gid="+uid+"&t="+token,
-				arc: "http://"+sites[2]+"/archiver.php?gid="+uid+"&or="+key,
+				arc: "http://"+sites[2]+"/archiver.php?gid="+uid+"&token="+token+"&or="+key,
 				fav: "http://"+sites[3]+"/gallerypopups.php?gid="+uid+"&t="+token+"&act=addfav",
 				user: "http://"+sites[4]+"/uploader/"+user.replace(/\ /g,'+'),
 				stats: "http://"+sites[5]+"/stats.php?gid="+uid+"&t="+token
 			};
-			
+			if(data.url.arc.match("g.e-hentai.org")) {
+				if(tagstring.match(regex.fjord)) {
+					data.url.arc = data.url.arc.replace('g.e-hentai','exhentai');
+				}
+			}
 			frag = d.createDocumentFragment();
 			div = $.frag(UI.html.actions(data));
 			content = div.firstChild;
@@ -1498,7 +1503,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.3',
+		version: '2.1.4',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
