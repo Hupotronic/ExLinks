@@ -22,8 +22,8 @@
 		original: {value: "Original"},
 		geHentai: {value: "g.e-hentai.org"},
 		exHentai: {value: "exhentai.org"}
-	};	
-	options = { 
+	};
+	options = {
 		general: {
 			'Automatic Processing':        ['checkbox', true,  'Get data and format links automatically.'],
 			'Gallery Details':             ['checkbox', true,  'Show gallery details for link on hover.'],
@@ -112,7 +112,7 @@
 	tempconf = {};
 	pageconf = {};
 	
-	/* 
+	/*
 		Inspired by 4chan X and jQuery API:
 		http://api.jquery.com/
 		Functions are not chainable.
@@ -551,7 +551,7 @@
 				}
 			});
 		}
-	};	
+	};
 	API = {
 		s: {},
 		so: {},
@@ -745,7 +745,7 @@
 				"TTL": TTL,
 				"data": data
 			};
-			Cache.type.setItem(key,JSON.stringify(value));	
+			Cache.type.setItem(key,JSON.stringify(value));
 		},
 		load: function() {
 			var key, data;
@@ -913,7 +913,7 @@
 			{
 				for ( var m = 0;  m < 16; m++ ) {
 					W[m] = M[k][m];
-				}	
+				}
 				for ( var n = 16; n < 80; n++ ) {
 					W[n] = SHA1.ROTL(W[n-3] ^ W[n-8] ^ W[n-14] ^ W[n-16], 1);
 				}
@@ -1107,7 +1107,7 @@
 				url: image,
 				overrideMimeType: "text/plain; charset=x-user-defined",
 				headers: { "Content-Type": "image/jpeg" },
-				onload: function(x) { 
+				onload: function(x) {
 					a.textContent = Sauce.text('Hashing');
 					sha1 = SHA1.hash(x.responseText);
 					a.setAttribute('data-sha1',sha1);
@@ -1199,12 +1199,19 @@
 		},
 		linkify: function(post) {
 			var nodes, node, text, match, ws = /^\s*$/,
-				linknode, sp, ml, tn, tl, tu;
+				linknode, sp, ml, tn, tl, tu, wbr;
 			nodes = $.textnodes(post);
 			if(nodes) {
 				for ( var i = 0, ii = nodes.length; i < ii; i++ )
 				{
 					node = nodes[i];
+					wbr = node.nextSibling;
+					wbr = wbr ? wbr.tagName : null;
+					if(wbr === "WBR") {
+						post.removeChild(node.nextSibling);
+						node.textContent += nodes[i+1].textContent;
+						nodes[i+1].textContent = "";
+					}
 					text = node.textContent;
 					match = text.match(regex.url);
 					tl = null;
@@ -1251,13 +1258,13 @@
 		save: function(e) {
 			e.preventDefault();
 			Config.save();
-			$.remove($.id('exlinks-overlay'));	
+			$.remove($.id('exlinks-overlay'));
 			d.body.style.overflow = 'visible';
 		},
 		close: function(e) {
 			e.preventDefault();
 			tempconf = JSON.parse(JSON.stringify(pageconf));
-			$.remove($.id('exlinks-overlay'));	
+			$.remove($.id('exlinks-overlay'));
 			d.body.style.overflow = 'visible';
 		},
 		toggle: function(e) {
@@ -1441,7 +1448,7 @@
 				"<!DOCTYPE ",
 				curDocType.name,
 				(curDocType.publicId ? ' PUBLIC "' + curDocType.publicId + '"' : ''),
-				(!curDocType.publicId && curDocType.systemId ? ' SYSTEM' : ''), 
+				(!curDocType.publicId && curDocType.systemId ? ' SYSTEM' : ''),
 				(curDocType.systemId ? ' "' + curDocType.systemId + '"' : ''),
 			'>'].join('');
 			if(curSite.match('archive.foolz.us'))
@@ -1476,7 +1483,7 @@
 					} else {
 						option = JSON.stringify(options[i][k][1]);
 						conf[k] = JSON.parse(option);
-						localStorage.setItem(Main.namespace+'user-'+k,option);		
+						localStorage.setItem(Main.namespace+'user-'+k,option);
 					}
 				}
 			}
@@ -1488,7 +1495,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.4',
+		version: '2.1.5',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1968,7 +1975,7 @@
 			});
 			$.on(d,'DOMContentLoaded',Main.ready);
 		}
-	};	
+	};
 	
 	Main.init();
 	

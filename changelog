@@ -1,5 +1,9 @@
 ﻿master
 
+2.1.5
+- Hupo
+	+ Fix: Remove link-breaking <wbr> elements in the middle of links (if present)
+
 2.1.4
 - Hupo
 	+ Fix: Archiver URL is correct again

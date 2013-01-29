@@ -5,3 +5,4 @@ tools/
 node_modules/
 *.pdn
 *.sublime*
+test/
