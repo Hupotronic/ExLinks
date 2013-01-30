@@ -3,7 +3,7 @@
 2.1.6
 - Hupo
 	+ Fix: Make sure no <wbr> elements are removed outside links
-	+ Fix: A bug in <wbr> that could stop the whole script
+	+ Fix: Squashed a bug in <wbr> removal that could stop the whole script
 	+ Fix: Linkifier now handles https links properly 
 
 2.1.5
