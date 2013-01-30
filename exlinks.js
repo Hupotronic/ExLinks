@@ -91,7 +91,8 @@
 		},*/
 	};	
 	regex = {
-		url: /(http:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n<>\'\"]*/,
+		url: /(https?:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n<>\'\"]*/,
+		protocol: /https?\:\/\//,
 		site: /(g\.e\-hentai\.org|exhentai\.org)/,
 		type: /t?y?p?e?[\/|\-]([gs])[\/|\ ]/,
 		uid: /uid\-([0-9]+)/,
@@ -1224,7 +1225,7 @@
 						tl = text.substr(sp+ml+1,text.length);
 						tu = $.create('a');
 						tu.className = 'exlink exgallery exunprocessed';
-						if(!match[0].match('http://')) {
+						if(!match[0].match(regex.protocol)) {
 							tu.href = 'http://'+match[0];
 							tu.innerHTML = 'http://'+match[0];
 						} else {
