@@ -1,4 +1,6 @@
 ﻿master
+- Hupo
+	+ Change: Minor performance improvement in <wbr> removal
 
 2.1.6
 - Hupo
