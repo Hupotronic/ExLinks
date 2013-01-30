@@ -1207,8 +1207,8 @@
 					node = nodes[i];
 					wbr = node.nextSibling;
 					wbr = wbr ? wbr.tagName : null;
-					if(wbr === "WBR") {
-						post.removeChild(node.nextSibling);
+					if (wbr === "WBR" && node.textContent.match(regex.url)) {
+						node.parentNode.removeChild(node.nextSibling);
 						node.textContent += nodes[i+1].textContent;
 						nodes[i+1].textContent = "";
 					}
