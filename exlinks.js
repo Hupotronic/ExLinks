@@ -177,7 +177,7 @@
 					} else
 					if(cn.nodeType === 1)
 					{
-						if(cn.tagName === 'SPAN' || cn.tagName === 'P')
+						if(cn.tagName === 'SPAN' || cn.tagName === 'P' || cn.tagName === 'S')
 						{
 							getTextNodes(cn);
 						}
