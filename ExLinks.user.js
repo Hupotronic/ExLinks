@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.1.6
+// @version        2.1.7
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -192,7 +192,7 @@
 					} else
 					if(cn.nodeType === 1)
 					{
-						if(cn.tagName === 'SPAN' || cn.tagName === 'P')
+						if(cn.tagName === 'SPAN' || cn.tagName === 'P' || cn.tagName === 'S')
 						{
 							getTextNodes(cn);
 						}
@@ -1511,7 +1511,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.6',
+		version: '2.1.7',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);

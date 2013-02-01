@@ -1,6 +1,9 @@
 ﻿master
+
+2.1.7
 - Hupo
 	+ Change: Minor performance improvement in <wbr> removal
+	+ Fix: ExLinks works in <s>-spoilers now
 
 2.1.6
 - Hupo

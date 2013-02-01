@@ -4,7 +4,7 @@ fs       = require 'fs'
 {minify} = require 'html-minifier'
 ugly     = require 'uglify-js'
 
-VERSION   = '2.1.6'
+VERSION   = '2.1.7'
 HEADER    = """
 // ==UserScript==
 // @name           ExLinks
