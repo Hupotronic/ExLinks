@@ -1199,7 +1199,6 @@
 			return result;
 		},
 		linkify: function(post) {
-			console.log(post);
 			var nodes, node, text, match, ws = /^\s*$/,
 				linknode, sp, ml, tn, tl, tu, wbr;
 			nodes = $.textnodes(post);
@@ -1368,10 +1367,17 @@
 		var oneechan = $.id('OneeChanLink'),
 			chanss = $.id('themeoptionsLink'),
 			conflink, conflink2, arrtop, arrbot;
-			conflink = $.create('a', { title: 'ExLinks Options', className: 'exlinksOptionsLink' });
+			conflink = $.create('a', { title: 'ExLinks Settings', className: 'exlinksOptionsLink' });
 			$.on(conflink,'click',Options.open);
 			if(Config.mode === '4chan')
 			{
+				d.dispatchEvent(new CustomEvent("AddMenuEntry", {
+					detail: {
+						el: conflink,
+						order: 112,
+						type: "header"
+					}
+				}));
 				if(oneechan) {
 					conflink.setAttribute('style','position: fixed; background: url('+img.options+'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;');
 					$.on(conflink,[
@@ -1389,8 +1395,8 @@
 					]);
 					$.add($.id('navtopright'),conflink);
 				} else {
-					conflink.innerHTML = 'ExLinks Options';
-					conflink.setAttribute('style','cursor: pointer');
+					conflink.innerHTML = 'ExLinks Settings';
+					conflink.setAttribute('style',conflink.getAttribute('style')+' cursor: pointer');
 					conflink2 = conflink.cloneNode(true);
 					$.on(conflink2,'click',Options.open);
 					arrtop = [$.tnode('['),conflink,$.tnode('] ')];
