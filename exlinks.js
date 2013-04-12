@@ -1211,7 +1211,7 @@
 					wbr = wbr ? wbr.tagName : null;
 					if (wbr === "WBR" && regex.url.test(node.textContent)) {
 						node.parentNode.removeChild(node.nextSibling);
-						if(node[i+1]) {
+						if(nodes[i+1]) {
 							node.textContent += nodes[i+1].textContent;
 							nodes[i+1].textContent = "";
 						}
