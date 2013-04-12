@@ -1,5 +1,10 @@
 ﻿master
 
+2.1.8
+- Hupo
+  + Add: 4chan X v3 menu integration for opening settings
+  + Fix: Posts ending in <wbr> no longer break things
+
 2.1.7
 - Hupo
 	+ Change: Minor performance improvement in <wbr> removal

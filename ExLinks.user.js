@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.1.7
+// @version        2.1.8
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -1225,8 +1225,10 @@
 					wbr = wbr ? wbr.tagName : null;
 					if (wbr === "WBR" && regex.url.test(node.textContent)) {
 						node.parentNode.removeChild(node.nextSibling);
-						node.textContent += nodes[i+1].textContent;
-						nodes[i+1].textContent = "";
+						if(nodes[i+1]) {
+							node.textContent += nodes[i+1].textContent;
+							nodes[i+1].textContent = "";
+						}
 					}
 					text = node.textContent;
 					match = text.match(regex.url);
@@ -1380,10 +1382,17 @@
 		var oneechan = $.id('OneeChanLink'),
 			chanss = $.id('themeoptionsLink'),
 			conflink, conflink2, arrtop, arrbot;
-			conflink = $.create('a', { title: 'ExLinks Options', className: 'exlinksOptionsLink' });
+			conflink = $.create('a', { title: 'ExLinks Settings', className: 'exlinksOptionsLink' });
 			$.on(conflink,'click',Options.open);
 			if(Config.mode === '4chan')
 			{
+				d.dispatchEvent(new CustomEvent("AddMenuEntry", {
+					detail: {
+						el: conflink,
+						order: 112,
+						type: "header"
+					}
+				}));
 				if(oneechan) {
 					conflink.setAttribute('style','position: fixed; background: url('+img.options+'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;');
 					$.on(conflink,[
@@ -1401,8 +1410,8 @@
 					]);
 					$.add($.id('navtopright'),conflink);
 				} else {
-					conflink.innerHTML = 'ExLinks Options';
-					conflink.setAttribute('style','cursor: pointer');
+					conflink.innerHTML = 'ExLinks Settings';
+					conflink.setAttribute('style',conflink.getAttribute('style')+' cursor: pointer');
 					conflink2 = conflink.cloneNode(true);
 					$.on(conflink2,'click',Options.open);
 					arrtop = [$.tnode('['),conflink,$.tnode('] ')];
@@ -1511,7 +1520,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.7',
+		version: '2.1.8',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
