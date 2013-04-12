@@ -1199,6 +1199,7 @@
 			return result;
 		},
 		linkify: function(post) {
+			console.log(post);
 			var nodes, node, text, match, ws = /^\s*$/,
 				linknode, sp, ml, tn, tl, tu, wbr;
 			nodes = $.textnodes(post);
@@ -1210,8 +1211,10 @@
 					wbr = wbr ? wbr.tagName : null;
 					if (wbr === "WBR" && regex.url.test(node.textContent)) {
 						node.parentNode.removeChild(node.nextSibling);
-						node.textContent += nodes[i+1].textContent;
-						nodes[i+1].textContent = "";
+						if(node[i+1]) {
+							node.textContent += nodes[i+1].textContent;
+							nodes[i+1].textContent = "";
+						}
 					}
 					text = node.textContent;
 					match = text.match(regex.url);
