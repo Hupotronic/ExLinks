@@ -1366,18 +1366,21 @@
 		init: function() {
 		var oneechan = $.id('OneeChanLink'),
 			chanss = $.id('themeoptionsLink'),
+			chanx3 = d.documentElement.classList.contains("fourchan-x"),
 			conflink, conflink2, arrtop, arrbot;
 			conflink = $.create('a', { title: 'ExLinks Settings', className: 'exlinksOptionsLink' });
 			$.on(conflink,'click',Options.open);
 			if(Config.mode === '4chan')
 			{
-				d.dispatchEvent(new CustomEvent("AddMenuEntry", {
-					detail: {
-						el: conflink,
-						order: 112,
-						type: "header"
-					}
-				}));
+				if(chanx3) {
+						d.dispatchEvent(new CustomEvent("AddMenuEntry", {
+						detail: {
+							el: conflink,
+							order: 112,
+							type: "header"
+						}
+					}));
+				}
 				if(oneechan) {
 					conflink.setAttribute('style','position: fixed; background: url('+img.options+'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;');
 					$.on(conflink,[
