@@ -1,5 +1,9 @@
 ﻿master
 
+2.1.9
+- Hupo
+	+ Fix: 4chan X v3 menu event should not fire with 4chan X v2 now
+
 2.1.8
 - Hupo
   + Add: 4chan X v3 menu integration for opening settings
