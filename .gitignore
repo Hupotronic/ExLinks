@@ -1,8 +1,2 @@
-.workspace
-tmp/
-old/
-tools/
-node_modules/
-*.pdn
-*.sublime*
-test/
+old
+node_modules
