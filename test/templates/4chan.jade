@@ -1,0 +1,32 @@
+#boardNavDesktop.desktop
+  span#navtopright
+    | [
+    a#settingsWindowLink(href="#") Settings
+    | ] [
+    a(href="#") Home
+    | ]
+.board
+  .thread(id="t"+posts[0].no)
+    each post in posts
+      pt = post.resto ? 'reply' : 'op'
+      div(class="postContainer "+pt+"Container",id="pc"+post.no)
+        div(id="p"+post.no,class="post "+pt)
+          div(class="postInfoM mobile",id="pim"+post.no) postInfoM
+          if post.md5
+            .file(id="f"+post.no)
+              .fileInfo
+                span.fileText(id="fT"+post.no) fileText
+              a.fileThumb(href="data/img/"+post.tim+post.ext,target="_blank")
+                img(src="data/img/thumb/"+post.tim+"s.jpg",
+                  alt="",data-md5=post.md5)
+          div(class="postInfo desktop",id="pi"+post.no) postInfo
+          blockquote.postMessage(id="m"+post.no)!= post.com
+#boardNavDesktopFoot.desktop
+  span#navbotright
+    | [
+    a#settingsWindowLinkBot(href="#") Settings
+    | ] [
+    a(href="#") Home
+    | ]
+
+

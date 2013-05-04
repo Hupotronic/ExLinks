@@ -1,0 +1,49 @@
+.letters
+  | Boards: [
+  a(href="#") foolz
+  | ]
+.container-fluid
+  .navbar
+  .main#main
+    .search_box search
+    post = posts[0]
+    article(id=post.no,class="thread",data-thread-num=post.no)
+      // Project Wonderful Ad Box Code
+      div.adbox Ads
+      // End Project Wonderful Ad Box Code
+      .thread_image_box
+        a.thread_image_link(href="data/img/"+post.tim+post.ext,target="_blank",rel="noreferrer")
+          img.thread_image(src="data/img/thumb/"+post.tim+"s.jpg",data-md5=post.md5)
+        .post_file postInfo
+        .post_file_controls
+          a.btnr.parent(href="#") Google
+          a.btnr.parent(href="#") iqdb
+          a.btnr.parent(href="#") SauceNAO
+      header
+        .post_data
+      .text!= post.com
+      aside.posts
+        - posts.shift()
+        each post in posts
+          postclass = post.md5 ? "post has_image" : "post"
+          article(class=postclass,id=post.no)
+            .post_wrapper
+              if post.md5
+                .post_file
+                  span.post_file_controls
+                    a.btnr.parent(href="#") Google
+                    a.btnr.parent(href="#") iqdb
+                    a.btnr.parent(href="#") SauceNAO
+                    | postInfo
+                .thread_image_box
+                  a.thread_image_link(href="data/img/"+post.tim+post.ext,target="_blank",rel="noreferrer")
+                   img.lazyload.thread_image(src="data/img/thumb/"+post.tim+"s.jpg",data-md5=post.md5)
+              header
+                .post_data
+              .backlink_list(style="display:block")
+                | Quoted By: 
+                span.post_backlink(data-post=post.no)
+              .text!= post.com
+
+
+

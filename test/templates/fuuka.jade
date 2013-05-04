@@ -1,0 +1,70 @@
+div
+  | [
+  a(href="#") report bug
+  | ] [
+  a(href="#") stats
+  | ]
+div(style="min-height: 30px;")
+  h1 Title
+form#postform
+  input#form_foolframe_csrf_token
+  input#form_id
+  #content
+    post = posts[0]
+    div(id=post.no)
+      span
+        | fileInfo
+        | <!-- #{post.md5}--> 
+      |[
+      a(href="#") View Same
+      |] [
+      a(href="#") Google
+      |] [
+      a(href="#") iqdb
+      |] [
+      a(hreF="#") SauceNAO
+      |]
+      br
+      a(href="data/img/"+post.tim+post.ext,rel="noreferrer")
+        img.thumb(src="data/img/thumb/"+post.tim+"s.jpg",alt=post.no)
+      label postInfo
+      a.js(href="#") No.
+      a.js(href="#")= post.no
+      |[
+      a(href="#") Reply
+      |] [
+      a(href="#") Original
+      |]
+      .quoted-by Quoted By:
+      blockquote
+        p!= post.com
+      - posts.shift()
+      each post in posts
+        table
+          tbody
+            tr
+              td.doubledash >>
+              td.reply(id=post.no)
+                label postInfo
+                a.js(href="#") No.
+                a.js(href="#")= post.no
+                br
+                if post.md5
+                  span
+                    | fileInfo
+                    | <!-- #{post.md5}-->
+                    |[
+                    a(href="#") View Same
+                    |] [
+                    a(href="#") Google
+                    |] [
+                    a(href="#") iqdb
+                    |] [
+                    a(hreF="#") SauceNAO
+                    |]
+                    br
+                    a(href="data/img/"+post.tim+post.ext,rel="noreferrer")
+                      img.thumb(src="data/img/thumb/"+post.tim+"s.jpg",alt=post.no)
+                .quoted-by Quoted by:
+                blockquote
+                  p!= post.com
