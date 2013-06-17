@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.1.9
+// @version        2.1.10
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -1056,7 +1056,7 @@
 					results = $.create('div',{
 						className: 'exblock exresults',
 						id: a.id.replace('exsauce','exresults'),
-						innerHTML: '<b>ExSauce Reverse Image Search Results</b> | View on: <a href="'+a.href+'">'+Sauce.label(true)+'</a><br />'
+						innerHTML: '<b>Reverse Image Search Results</b> | View on: <a href="'+a.href+'">'+Sauce.label(true)+'</a><br />'
 					});
 					if(conf['Show Results by Default'] === true) {
 						results.setAttribute('style', 'display: table !important;');
@@ -1097,7 +1097,7 @@
 				url: a.href,
 				onload: function(x) {
 					response = $.frag(x.responseText);
-					links = $$('div.it3 > a:not([rel="nofollow"]), div.itd2 > a:not([rel="nofollow"])',response);
+					links = $$('div.it5 a',response);
 					count = links.length;
 					for ( var i = 0; i < count; i++ ) {
 							link = links[i];
@@ -1523,7 +1523,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.9',
+		version: '2.1.10',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);

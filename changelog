@@ -1,5 +1,9 @@
 ﻿master
 
+2.1.10
+- Hupo
+  + Fix: Reverse image search should return results properly again
+
 2.1.9
 - Hupo
 	+ Fix: 4chan X v3 menu event should not fire with 4chan X v2 now
