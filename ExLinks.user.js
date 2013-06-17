@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.1.10
+// @version        2.1.11
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -1097,7 +1097,7 @@
 				url: a.href,
 				onload: function(x) {
 					response = $.frag(x.responseText);
-					links = $$('div.it5 a',response);
+					links = $$('div.it5 a, div.id2 a',response);
 					count = links.length;
 					for ( var i = 0; i < count; i++ ) {
 							link = links[i];
@@ -1523,7 +1523,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.10',
+		version: '2.1.11',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
