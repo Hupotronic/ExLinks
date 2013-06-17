@@ -1082,7 +1082,7 @@
 				url: a.href,
 				onload: function(x) {
 					response = $.frag(x.responseText);
-					links = $$('div.it5 a',response);
+					links = $$('div.it5 a, div.id2 a',response);
 					count = links.length;
 					for ( var i = 0; i < count; i++ ) {
 							link = links[i];
