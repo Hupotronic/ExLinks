@@ -21,52 +21,52 @@ This is the meat of the API - requesting gallery metadata for links. You must pr
 For example, for http://g.e-hentai.org/g/618395/0439fa3666/ you would make the following request:
 
 ```json
-    {
-        "method": "gdata",
-        "gidlist": [
-            [618395,"0439fa3666"]
-        ]
-    }
+{
+    "method": "gdata",
+    "gidlist": [
+        [618395,"0439fa3666"]
+    ]
+}
 ```
 
 To get the metadata for multiple galleries, you simply add entries to the `gidlist`. You can have 25 entries at most in a single request. The previous request, when successful, would give you the following JSON payload in response:
 
 ```json
+{
+  "gmetadata": [
     {
-      "gmetadata": [
-        {
-          "gid": 618395,
-          "token": "0439fa3666",
-          "archiver_key": "382385--9764970b04b79524bcbdc984e4c7857561397907",
-          "title": "(TouKou 8) [Handful☆Happiness! (Fuyuki Nanahara)] TOUHOU GUNMANIA A2 (Touhou Project)",
-          "title_jpn": "(東方紅楼夢8) [Handful☆Happiness! (七原冬雪)] TOUHOU GUNMANIA A2 (東方Project)",
-          "category": "Non-H",
-          "thumb": "http://gt1.ehgt.org/14/63/1463dfbc16847c9ebef92c46a90e21ca881b2a12-1729712-4271-6032-   jpg_l.jpg",
-          "uploader": "avexotsukaai",
-          "posted": "1376143500",
-          "filecount": "20",
-          "filesize": 51210504,
-          "expunged": false,
-          "rating": "4.64",
-          "torrentcount": "1",
-          "tags": [
-            "touhou project",
-            "handful happiness",
-            "fuyuki nanahara",
-            "full color"
-          ]
-        }
+      "gid": 618395,
+      "token": "0439fa3666",
+      "archiver_key": "382385--9764970b04b79524bcbdc984e4c7857561397907",
+      "title": "(TouKou 8) [Handful☆Happiness! (Fuyuki Nanahara)] TOUHOU GUNMANIA A2 (Touhou Project)",
+      "title_jpn": "(東方紅楼夢8) [Handful☆Happiness! (七原冬雪)] TOUHOU GUNMANIA A2 (東方Project)",
+      "category": "Non-H",
+      "thumb": "http://gt1.ehgt.org/14/63/1463dfbc16847c9ebef92c46a90e21ca881b2a12-1729712-4271-6032-jpg_l.jpg",
+      "uploader": "avexotsukaai",
+      "posted": "1376143500",
+      "filecount": "20",
+      "filesize": 51210504,
+      "expunged": false,
+      "rating": "4.64",
+      "torrentcount": "1",
+      "tags": [
+        "touhou project",
+        "handful happiness",
+        "fuyuki nanahara",
+        "full color"
       ]
     }
+  ]
+}
 ```
 
 If an invalid token is specified for a gallery in the original request, its entry in the `gmetadata` array will consist of just the following, however:
 
 ```json
-    {
-       "gid":519325,
-       "error":"Key missing, or incorrect key provided."
-    }
+{
+   "gid":519325,
+   "error":"Key missing, or incorrect key provided."
+}
 ```
 
 More details about the metadata keys can be found below.
@@ -81,25 +81,25 @@ Individual page links can't be used directly for requesting gallery metadata - w
 Eg. for this URL: http://g.e-hentai.org/s/40bc07a79a/618395-11 you would make the following request:
 
 ```json
-    {
-      "method": "gtoken",
-      "pagelist": [
-        [618395,"40bc07a79a",11]
-      ]
-    }
+{
+  "method": "gtoken",
+  "pagelist": [
+    [618395,"40bc07a79a",11]
+  ]
+}
 ```
 
 As with the metadata requests, you can ask forfor max 25 tokens in a single request by having multiple entries in the `pagelist`. A successful request would then net you the following JSON payload in response:
 
 ```json
-    {
-       "tokenlist": [
-          {
-             "gid":618395,
-             "token":"0439fa3666"
-          }
-       ]
-    }
+{
+   "tokenlist": [
+      {
+         "gid":618395,
+         "token":"0439fa3666"
+      }
+   ]
+}
 ```
 
 If any of your entries are invalid, however, you will get an `"error": "File not found"` instead of the `"token"` for that entry.
