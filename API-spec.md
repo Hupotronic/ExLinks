@@ -111,17 +111,17 @@ While the gallery metadata is largely self-explanatory, there are some details y
 - **`token`** - Tokens change every now and then. I don't know the exact timeframe, but it's good to know that you can't rely on them infinitely.
 - **`archiver_key`** - Archiver keys change every hour, but an individual key is good for up to 24 hours.
 - **`category`** - Category names differ slightly from the ones used on the actual site. Here's the full list of how they are called in the API:
-  * `Doujinshi`
-  * `Manga`
-  * `Artist CG Sets`
-  * `Game CG Sets`
-  * `Western`
-  * `Image Sets`
-  * `Non-H`
-  * `Cosplay`
-  * `Asian Porn`
-  * `Misc`
-  * `Private`
+  * Doujinshi
+  * Manga
+  * Artist CG Sets
+  * Game CG Sets
+  * Western
+  * Image Sets
+  * Non-H
+  * Cosplay
+  * Asian Porn
+  * Misc
+  * Private
 - **`posted`** - UNIX timestamp, UTC.
 - **`filesize`** - Gallery size in bytes.
 - **`tags`** - A list of the gallery tags as strings. An important thing to note is that **no namespace information is provided for the tags.** This will hopefully change in the future.
