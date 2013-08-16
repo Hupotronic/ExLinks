@@ -714,9 +714,12 @@
 					}
 				}
 			}
-			console.log(res);
-			for(i = 0, ii = res.length; i < ii; i++) {
-				Cache.type.removeItem(res[i]);
+			var len = res.length;
+			if(len) {
+				Debug.log("Purged "+res.length+" old entries from cache.")
+				for(i = 0; i < len; i++) {
+					Cache.type.removeItem(res[i]);
+				}
 			}
 		},
 		get: function(uid,type) {
