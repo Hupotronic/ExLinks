@@ -16,6 +16,9 @@ HEADER    = """
 // @include        https://boards.4chan.org/*
 // @include        http://archive.foolz.us/*
 // @include        https://archive.foolz.us/*
+// @include        http://beta.foolz.us/*
+// @include        https://beta.foolz.us/*
+// @include        http://boards.38chan.net/*
 // @updateURL      https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @downloadURL    https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @run-at         document-start
