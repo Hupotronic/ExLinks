@@ -279,7 +279,7 @@
 					if(Debug.on) {
 						var ret = Debug.value[name];
 						Debug.value[name] = 0;
-						return ret;
+						return ret || 0;
 					}
 				},
 				set: function(name,value) {
