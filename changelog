@@ -1,5 +1,9 @@
 ﻿master
 
+2.1.13
+- Hupo
+  + Fix: Cache purging is now logged properly when debug mode is turned on
+
 2.1.12
 - Hupo
   + Fix: Old cache entries are now actually purged
