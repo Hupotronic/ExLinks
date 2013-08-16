@@ -108,7 +108,6 @@ If any of your entries are invalid, however, you will get an `"error": "File not
 
 While the gallery metadata is largely self-explanatory, there are some details you should be aware of.
 
-- **`token`** - Tokens change every now and then. I don't know the exact timeframe, but it's good to know that you can't rely on them infinitely.
 - **`archiver_key`** - Archiver keys change every hour, but an individual key is good for up to 24 hours.
 - **`category`** - Category names differ slightly from the ones used on the actual site. Here's the full list of how they are called in the API:
   * Doujinshi
