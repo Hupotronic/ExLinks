@@ -1770,6 +1770,9 @@
 							if(Config.mode === 'foolz') {
 								// AWAITS
 							}
+							if(Config.mode === '38chan') {
+								// Man, why doesn't Tinychan even have md5 hashes for images? 
+							}
 						}
 					}
 				}
