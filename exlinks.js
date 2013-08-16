@@ -1147,7 +1147,7 @@
 			if(sha1) {
 				Debug.log('SHA-1 hash found.');
 				a.setAttribute('data-sha1',sha1);
-				a.href = 'http://'+conf['Site to Use'].value+'/?f_shash='+sha1+'&fs_similar=0';
+				a.href = 'http://'+conf['Site to Use'].value+'/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash='+sha1+'&fs_similar=0';
 				if(conf['Search Expunged'] === true) {
 					a.href += '&fs_exp=1';
 				}
