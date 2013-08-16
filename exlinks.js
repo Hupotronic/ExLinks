@@ -1495,6 +1495,12 @@
 					Parser.image = '.thumb';
 				}
 			}
+			if(curSite.match('boards.38chan.net/')) {
+				Config.mode = '38chan'
+				Parser.postbody = '.post:not(.hidden) > .body'
+				Parser.prelinks = 'a:not([onclick])'
+				Parser.image = '.fileinfo'
+			}
 		},
 		save: function() {
 			for ( var i in options ) {
