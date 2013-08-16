@@ -1440,6 +1440,16 @@
 				arrtop = [$.tnode(' [ '),conflink,$.tnode(' ] ')];
 				$.add($('.letters'),$.elem(arrtop));
 			}
+			if(Config.mode === '38chan') {
+				conflink.innerHTML = 'exlinks options';
+				conflink.setAttribute('style','cursor: pointer;');
+				conflink2 = conflink.cloneNode(true);
+				$.on(conflink2,'click',Options.open);
+				arrtop = [$.tnode('  [ '),conflink,$.tnode(' ] ')];
+				arrbot = [$.tnode('  [ '),conflink2,$.tnode(' ] ')];
+				$.add($('.boardlist'),$.elem(arrtop));
+				$.add($('.boardlist.bottom'),$.elem(arrbot));
+			}
 		}
 	};
 	Config = {
