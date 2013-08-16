@@ -703,6 +703,21 @@
 			} else {
 				Cache.type = localStorage;
 			}
+			var key, json;
+			for(var i = 0, ii = Cache.type.length, res = []; i < ii; i++) {
+				key = Cache.type.key(i);
+				if(key.match(/exlinks-(gallery|md5|sha1)/)) {
+					json = Cache.type.getItem(key);
+					json = JSON.parse(json);
+					if(Date.now() > json.added + json.TTL) {
+						res.push(key);
+					}
+				}
+			}
+			console.log(res);
+			for(i = 0, ii = res.length; i < ii; i++) {
+				Cache.type.removeItem(res[i]);
+			}
 		},
 		get: function(uid,type) {
 			var key, json;
