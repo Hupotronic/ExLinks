@@ -1,5 +1,13 @@
 ﻿master
 
+2.2.0
+- Hupo
+  + Feature: Basic 38chan support. Links work, reverse image searching doesn't.
+  + Fix: ExLinks now works on Foolz Beta as well
+  + Fix: Fix options background on Foolz
+  + Fix: Reverse image search now always looks for results in all categories
+  + Fix: No more "undefined" values in debug logging
+
 2.1.13
 - Hupo
   + Fix: Cache purging is now logged properly when debug mode is turned on
