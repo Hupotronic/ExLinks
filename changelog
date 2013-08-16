@@ -1,5 +1,9 @@
 ﻿master
 
+2.1.12
+- Hupo
+  + Fix: Old cache entries are now actually purged
+
 2.1.11
 - Hupo
   + Fix: Reverse image search should work for thumbnail view users again 

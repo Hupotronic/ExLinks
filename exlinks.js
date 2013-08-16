@@ -1523,7 +1523,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.1.10',
+		version: '2.1.12',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
