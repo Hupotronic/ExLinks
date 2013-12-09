@@ -1,5 +1,10 @@
 ﻿master
 
+2.2.1
+- Hupo
+  + Fix: Reverse image search works with 4chan X again
+  + Fix: ExLinks work properly with 4chan X's Linkify now
+
 2.2.0
 - Hupo
   + Feature: Basic 38chan support. Links work, reverse image searching doesn't.
@@ -18,7 +23,7 @@
 
 2.1.11
 - Hupo
-  + Fix: Reverse image search should work for thumbnail view users again 
+  + Fix: Reverse image search should work for thumbnail view users again
 
 2.1.10
 - Hupo
@@ -42,7 +47,7 @@
 - Hupo
 	+ Fix: Make sure no <wbr> elements are removed outside links
 	+ Fix: Squashed a bug in <wbr> removal that could stop the whole script
-	+ Fix: Linkifier now handles https links properly 
+	+ Fix: Linkifier now handles https links properly
 
 2.1.5
 - Hupo
@@ -61,7 +66,7 @@
 - Hupo
 	+ Add: High-res image elements (category icons & stars)
 	+ Fix: Star rating actually matches properly now
-	
+
 2.1.1
 - Hupo
 	+ Add: "No Underline in Sauce" option for ExSauce (default: false)
@@ -90,7 +95,7 @@
 	+ Change: "Disable Local Storage Cache" moved to debugging options
 	+ Fix: Link parsing updated again to not break on management URLs
 	+ Fix: Now works with the latest 4chan code update
-	
+
 2.0.3
 - Hupo
 	+ Feature: Debug Mode, which logs some statistics to your browser console if enabled
@@ -135,9 +140,9 @@
 
 1.5.7
 - Hupo
-	+ Change: Torrent view now opens as a pop-up by default (customizable) 
-	+ Change: Archiver link now has strikethrough initially (since it requires fetching the thumbnail) 
-	+ Fix: Cursor icon changes to pointer on pop-up links 
+	+ Change: Torrent view now opens as a pop-up by default (customizable)
+	+ Change: Archiver link now has strikethrough initially (since it requires fetching the thumbnail)
+	+ Fix: Cursor icon changes to pointer on pop-up links
 	+ Fix: Pop-up links can now be opened to new tabs
 
 1.5.5
@@ -152,27 +157,27 @@
 	+ Fix: Thumbnail hover no longer goes offscreen
 	+ Feature: Thumbnail hover reports on load failure
 	+ Change: Thumbnail loading improved to avoid loading the same image multiple times
-	
+
 1.3.5
 - Hupo
 	+ Change: Thumbnail fetching no longer on name expansion, now activates on gallery name hover
 	+ Change: Gallery name fetching defaults to g.e-hentai.org
 	+ Feature: Thumbnail fetching cooldown to prevent autoban
-	
+
 1.2.5
 - Hupo
 	+ Feature: Gallery thumbnail fetching along with the name
 	+ Feature: Customizable fetching options
 	+ Fix: Doesn't break 4chan X anymore
 	+ Change: File count removed from detailed view
-	
+
 1.1.0
 - Anonymous
 	+ Change: Gallery name is now fetched from H@H download info
 	+ Feature: Expandable details view with tags and file count
 	+ Feature: Automatic link processing
 	+ Fix: Accidental quote removal
-	
+
 1.0.0
 - Hupo
 	+ Feature: Manual gallery name fetching from gallery torrent page
