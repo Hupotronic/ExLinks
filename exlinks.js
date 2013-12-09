@@ -1941,7 +1941,6 @@
 		observer: function(m) {
 			var nodes, node, nodelist = [];
 			m.forEach(function(e) {
-				console.log(e);
 				if(e.addedNodes) {
 					nodes = e.addedNodes;
 					for ( var i = 0, ii = nodes.length; i < ii; i++ )
@@ -1966,7 +1965,6 @@
 				if(Main["4chanX3"]) {
 					// detect when source links are added.
 					if(e.target.classList.contains("fileText")) {
-						console.log(e);
 						if(e.previousSibling &&
 							 e.previousSibling.classList &&
 							 e.previousSibling.classList.contains("file-info")) {
@@ -1983,6 +1981,33 @@
 								}
 							}
 							if(node) { nodelist.push($(Parser.postbody,node)); }
+						}
+					}
+				}
+				// detect 4chan X's linkification muck-ups
+				if(e.addedNodes) {
+					var nodes = e.addedNodes;
+					for(var i = 0, ii = nodes.length; i < ii; ++i) {
+						var node = nodes[i];
+						if(node.nodeName === 'A' &&
+							 node.classList.contains('linkified')) {
+							if(node.innerHTML.match(regex.url) &&
+								 node.previousSibling.classList.contains('exbutton')) {
+								node.className = "exlink exgallery exunprocessed";
+								$.remove(node.previousSibling);
+								while(node) {
+									if(node.classList.contains("postContainer") ||
+										 node.classList.contains("inline")) {
+										break;
+									}
+									node = node.parentNode;
+									if(node.nodeName === 'BODY') {
+										node = null;
+										break;
+									}
+								}
+								if(node) { nodelist.push($(Parser.postbody,node)); }
+							}
 						}
 					}
 				}
