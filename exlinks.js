@@ -3,7 +3,7 @@
 	"use strict";
 	var fetch, options, conf, tempconf, pageconf, regex, img, cat, d, t, $, $$,
 		Debug, UI, Cache, API, Database, Hash, SHA1, Sauce, Filter, Parser, Options, Config, Main;
-	
+
 	img = {};
 	cat = {
 		"Artist CG Sets": {"short": "artistcg",  "name": "Artist CG"  },
@@ -89,7 +89,7 @@
 				'# /ExUploader/;link:yes;color:#FFFFFF'
 			].join('\n')]
 		},*/
-	};	
+	};
 	regex = {
 		url: /(https?:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n<>\'\"]*/,
 		protocol: /https?\:\/\//,
@@ -112,7 +112,7 @@
 	conf = {};
 	tempconf = {};
 	pageconf = {};
-	
+
 	/*
 		Inspired by 4chan X and jQuery API:
 		http://api.jquery.com/
@@ -357,7 +357,7 @@
 		},
 		actions: function(data,link) {
 			var uid, token, key, date, taglist, user, sites, tag, tagstring, button, div, tagspace, frag, content;
-			
+
 			tagstring = data.tags.join(',');
 
 			if(conf['Smart Links'] === true) {
@@ -768,7 +768,7 @@
 		},
 		load: function() {
 			var key, data;
-			
+
 			for ( var i = 0, ii = Cache.type.length; i < ii; i++ )
 			{
 				key = Cache.type.key(i);
@@ -901,14 +901,14 @@
 		hash: function(image) {
 			var H0, H1, H2, H3, H4, K, M, N, W, T,
 				a, b, c, d, e, s, l, msg;
-				
+
 			K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
 			msg = SHA1.data(image) + String.fromCharCode(0x80);
-			
+
 			l = msg.length / 4 + 2;
 			N = Math.ceil(l / 16);
 			M = [];
-			
+
 			for ( var i = 0; i < N; i++ ) {
 				M[i] = [];
 				for ( var j = 0; j < 16; j++ ) {
@@ -916,18 +916,18 @@
 							(msg.charCodeAt(i*64+j*4+2) << 8)  | (msg.charCodeAt(i*64+j*4+3));
 				}
 			}
-			
+
 			M[N-1][14] = ((msg.length-1)*8) / Math.pow(2, 32); M[N-1][14] = Math.floor(M[N-1][14]);
 			M[N-1][15] = ((msg.length-1)*8) & 0xffffffff;
-			
+
 			H0 = 0x67452301;
 			H1 = 0xefcdab89;
 			H2 = 0x98badcfe;
 			H3 = 0x10325476;
 			H4 = 0xc3d2e1f0;
-			
+
 			W = [];
-			
+
 			for ( var k = 0; k < N; k++ )
 			{
 				for ( var m = 0;  m < 16; m++ ) {
@@ -936,13 +936,13 @@
 				for ( var n = 16; n < 80; n++ ) {
 					W[n] = SHA1.ROTL(W[n-3] ^ W[n-8] ^ W[n-14] ^ W[n-16], 1);
 				}
-				
+
 				a = H0;
 				b = H1;
 				c = H2;
 				d = H3;
 				e = H4;
-				
+
 				for ( var t = 0; t < 80; t++ )
 				{
 					s = Math.floor(t/20);
@@ -953,14 +953,14 @@
 					b = a;
 					a = T;
 				}
-				
+
 				H0 = (H0+a) & 0xffffffff;
 				H1 = (H1+b) & 0xffffffff;
 				H2 = (H2+c) & 0xffffffff;
 				H3 = (H3+d) & 0xffffffff;
 				H4 = (H4+e) & 0xffffffff;
 			}
-			
+
 			return SHA1.hex(H0) + SHA1.hex(H1) + SHA1.hex(H2) + SHA1.hex(H3) + SHA1.hex(H4);
 		}
 	};
@@ -1094,7 +1094,7 @@
 		lookup: function(a, sha1) {
 			var response, links, link, result = [], count;
 			a.textContent = Sauce.text('Checking');
-			
+
 			GM_xmlhttpRequest({
 				method: "GET",
 				url: a.href,
@@ -1384,21 +1384,12 @@
 		init: function() {
 		var oneechan = $.id('OneeChanLink'),
 			chanss = $.id('themeoptionsLink'),
-			chanx3 = d.documentElement.classList.contains("fourchan-x"),
 			conflink, conflink2, arrtop, arrbot;
+			Main["4chanX3"] = d.documentElement.classList.contains("fourchan-x");
 			conflink = $.create('a', { title: 'ExLinks Settings', className: 'exlinksOptionsLink' });
 			$.on(conflink,'click',Options.open);
 			if(Config.mode === '4chan')
 			{
-				if(chanx3) {
-						d.dispatchEvent(new CustomEvent("AddMenuEntry", {
-						detail: {
-							el: conflink,
-							order: 112,
-							type: "header"
-						}
-					}));
-				}
 				if(oneechan) {
 					conflink.setAttribute('style','position: fixed; background: url('+img.options+'); top: 108px; right: 10px; left: auto; width: 15px; height: 15px; opacity: 0.75; z-index: 5;');
 					$.on(conflink,[
@@ -1576,7 +1567,7 @@
 		format: function(queue) {
 			Debug.timer.start('format');
 			Debug.value.set('failed',0);
-			
+
 			var uid, links, link, button, data, actions, failed = {}, failure, failtype=[];
 			for ( var i = 0, ii = queue.length; i < ii; i++ )
 			{
@@ -1668,7 +1659,7 @@
 			link = $.id(e.target.id.replace('button','gallery'));
 			Main.single(link);
 			Main.update();
-			
+
 		},
 		single: function(link) {
 			var type, uid, token, page, check;
@@ -1705,10 +1696,10 @@
 			var post, file, info, sauce, exsauce, md5, sha1, results, hover, saucestyle,
 				actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
-			
+
 			Debug.timer.start('process');
 			Debug.value.set('post_total',posts.length);
-			
+
 			for ( var i = 0, ii = posts.length; i < ii; i++ )
 			{
 				post = posts[i];
@@ -1781,7 +1772,7 @@
 								// AWAITS
 							}
 							if(Config.mode === '38chan') {
-								// Man, why doesn't Tinychan even have md5 hashes for images? 
+								// Man, why doesn't Tinychan even have md5 hashes for images?
 							}
 						}
 					}
@@ -1789,7 +1780,7 @@
 				if(post.innerHTML.match(regex.url))
 				{
 					Debug.value.add('posts');
-					
+
 					if(conf['Hide in Quotes']) {
 						actions = $$('.exactions',post);
 						for ( var h = 0, hh = actions.length; h < hh; h++ )
@@ -1804,7 +1795,7 @@
 					if(!post.classList.contains('exlinkified'))
 					{
 						Debug.value.add('linkified');
-						
+
 						prelinks = $$(Parser.prelinks,post);
 						if(prelinks) {
 							for ( var k = 0, kk = prelinks.length; k < kk; k++ )
@@ -1902,7 +1893,7 @@
 							if(link.classList.contains('exprocessed')) {
 								if(conf['Automatic Processing'] === true) {
 									Main.single(link);
-									
+
 									Debug.value.add('processed');
 								}
 							}
@@ -1922,8 +1913,8 @@
 							}
 						}
 					}
-				}	
-				
+				}
+
 			}
 			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
 			Main.update();
@@ -1950,6 +1941,7 @@
 		observer: function(m) {
 			var nodes, node, nodelist = [];
 			m.forEach(function(e) {
+				console.log(e);
 				if(e.addedNodes) {
 					nodes = e.addedNodes;
 					for ( var i = 0, ii = nodes.length; i < ii; i++ )
@@ -1967,6 +1959,30 @@
 							if(node.classList.contains('post')) {
 								nodelist.push($(Parser.postbody,node));
 							}
+						}
+					}
+				}
+				// 4chan X specific hacks.
+				if(Main["4chanX3"]) {
+					// detect when source links are added.
+					if(e.target.classList.contains("fileText")) {
+						console.log(e);
+						if(e.previousSibling &&
+							 e.previousSibling.classList &&
+							 e.previousSibling.classList.contains("file-info")) {
+							var node = e.target;
+							while(node) {
+								if(node.classList.contains("postContainer") ||
+									 node.classList.contains("inline")) {
+									break;
+								}
+								node = node.parentNode;
+								if(node.nodeName === 'BODY') {
+									node = null;
+									break;
+								}
+							}
+							if(node) { nodelist.push($(Parser.postbody,node)); }
 						}
 					}
 				}
@@ -2026,7 +2042,7 @@
 			$.on(d,'DOMContentLoaded',Main.ready);
 		}
 	};
-	
+
 	Main.init();
-	
+
 })();
