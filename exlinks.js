@@ -1386,7 +1386,7 @@
 			chanss = $.id('themeoptionsLink'),
 			conflink, conflink2, arrtop, arrbot;
 			Main["4chanX3"] = d.documentElement.classList.contains("fourchan-x");
-			conflink = $.create('a', { title: 'ExLinks Settings', className: 'exlinksOptionsLink' });
+			conflink = $.create('a', { title: 'ExLinks Settings', className: 'exlinksOptionsLink entry' });
 			$.on(conflink,'click',Options.open);
 			if(Config.mode === '4chan')
 			{
@@ -1985,7 +1985,7 @@
 					}
 				}
 				// detect 4chan X's linkification muck-ups
-				if(e.addedNodes) {
+				if(e.addedNodes.length) {
 					var nodes = e.addedNodes;
 					for(var i = 0, ii = nodes.length; i < ii; ++i) {
 						var node = nodes[i];
@@ -2010,6 +2010,31 @@
 							}
 						}
 					}
+				}
+				// add menu button back in whenever the menu is opened.
+				if(e.addedNodes.length &&
+					 e.addedNodes[0].id === "menu") {
+					var menu = e.addedNodes[0];
+					var conflink = $.create('a', {
+						className: 'exlinksOptionsLink entry',
+						textContent: "ExLinks Settings"
+					});
+					$.on(conflink,'click',function(){
+						$.remove(menu);
+						Options.open();
+					});
+					$.on(conflink,'mouseover',function(){
+						var entries = $$('.entry', menu);
+						for(var f = 0, ff = entries.length; f < ff; ++f) {
+							entries[f].classList.remove('focused');
+						}
+						conflink.classList.add("focused");
+					});
+					$.on(conflink,'mouseout',function(){
+						conflink.classList.remove("focused");
+					});
+					conflink.style.order = 112;
+					$.add(e.addedNodes[0], conflink);
 				}
 			});
 			if(nodelist.length) {
