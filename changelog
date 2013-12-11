@@ -1,5 +1,9 @@
 ﻿master
 
+2.2.3
+- Hupo
+  + Fix: ExLinks now works in board index pages again
+
 2.2.2
 - Hupo
   + Fix: "ExLinks Settings" 4chan X menu entry only shows up in header menu now

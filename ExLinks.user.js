@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.2.2
+// @version        2.2.3
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -1551,7 +1551,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.2.2',
+		version: '2.2.3',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1970,6 +1970,9 @@
 							} else
 							if(node.classList.contains('inline')) {
 								nodelist.push($(Parser.postbody,node));
+							} else // support 4chan's new index pages
+							if(node.classList.contains('thread')) {
+								nodelist = nodelist.concat($$(Parser.postbody,node));
 							}
 						} else
 						if(node.nodeName === 'ARTICLE') {
