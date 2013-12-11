@@ -1952,6 +1952,9 @@
 							} else
 							if(node.classList.contains('inline')) {
 								nodelist.push($(Parser.postbody,node));
+							} else // support 4chan's new index pages
+							if(node.classList.contains('thread')) {
+								nodelist = nodelist.concat($$(Parser.postbody,node));
 							}
 						} else
 						if(node.nodeName === 'ARTICLE') {
