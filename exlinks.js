@@ -2013,7 +2013,8 @@
 				}
 				// add menu button back in whenever the menu is opened.
 				if(e.addedNodes.length &&
-					 e.addedNodes[0].id === "menu") {
+					 e.addedNodes[0].id === "menu" &&
+					 e.addedNodes[0].parentNode.parentNode.parentNode.parentNode.id === "header-bar") {
 					var menu = e.addedNodes[0];
 					var conflink = $.create('a', {
 						className: 'exlinksOptionsLink entry',
