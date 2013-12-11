@@ -1,5 +1,9 @@
 ﻿master
 
+2.2.2
+- Hupo
+  + Fix: "ExLinks Settings" 4chan X menu entry only shows up in header menu now
+
 2.2.1
 - Hupo
   + Fix: Reverse image search works with 4chan X again
