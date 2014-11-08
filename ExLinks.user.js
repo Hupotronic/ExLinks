@@ -3,17 +3,16 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.2.3
+// @version        2.2.4
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
-// @include        http://archive.foolz.us/*
-// @include        https://archive.foolz.us/*
-// @include        http://beta.foolz.us/*
-// @include        https://beta.foolz.us/*
+// @include        http://archive.moe/*
+// @include        https://archive.moe/*
 // @include        http://boards.38chan.net/*
 // @updateURL      https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @downloadURL    https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
+// @grant          GM_xmlhttpRequest
 // @run-at         document-start
 // ==/UserScript==
 ﻿
@@ -324,9 +323,9 @@
 	};
 	UI = {
 		html: {
-			details: function(data) { return '<div id="exblock-details-uid-'+data.gid+'" class="exblock exdetails post reply post_wrapper"><div class="exthumbnail" style="background-image:url('+data.thumb+')">&nbsp;</div><div class="exsidepanel"><div class="btn btn-eh btn-'+cat[data.category].short+'"><div class="noise">'+cat[data.category].name+'</div></div><div class="exsidebarbox"><b>Rating:</b><br><div class="exrating">'+UI.html.stars(data.rating)+'</div><br><span style="opacity: 0.65; font-size: 0.95em">(Avg. '+data.rating+')</span></div><div class="exsidebarbox"><b>Files:</b><br>'+data.filecount+' images<br><span style="opacity: 0.65; font-size: 0.95em">('+data.size+' MB)</span></div><div class="exsidebarbox"><b style="margin-right:4px">Torrents:</b> '+data.torrentcount+'</div><div class="exsidebarbox" style="margin-bottom: 0px"><b style="margin-right:4px">Visible:</b> '+data.visible+'</div></div><a class="exlink extitle uid-'+data.gid+'" href="#exdetails-'+data.gid+'">'+data.title+'</a>'+data.jtitle+'<br><br><span style="font-size:1.0em !important">Uploaded by <b class="exlink exuploader uid-'+data.gid+'" style="font-size:1.0em!important;margin:0 5px">'+data.uploader+'</b> on<b style="font-size:1.0em!important;margin: 0 5px">'+data.datetext+'</b></span><br><br><span class="extags uid-'+data.gid+'" style="font-size: 1.05em !important; display: inline !important"><b style="font-size:1.05em!important;margin-right:2px!important">Tags:</b></span><br style="clear: both"></div>'; },
+			details: function(data) { return '<div id="exblock-details-uid-'+data.gid+'" class="exblock exdetails post reply post_wrapper"><div class="exthumbnail" style="background-image:url('+data.thumb+')">&nbsp;</div><div class="exsidepanel"><div class="btn btn-eh btn-'+cat[data.category].short+'"><div class="noise">'+cat[data.category].name+'</div></div><div class="exsidebarbox"><b>Rating:</b><br><div class="exrating">'+UI.html.stars(data.rating)+'</div><br><span style="opacity: 0.65; font-size: 0.95em">(Avg. '+data.rating+')</span></div><div class="exsidebarbox"><b>Files:</b><br>'+data.filecount+' images<br><span style="opacity: 0.65; font-size: 0.95em">('+data.size+' MB)</span></div><div class="exsidebarbox"><b style="margin-right:4px">Torrents:</b> '+data.torrentcount+'</div><div class="exsidebarbox" style="margin-bottom: 0px"><b style="margin-right:4px">Visible:</b> '+data.visible+'</div></div><a class="exlink extitle uid-'+data.gid+'" href="#exdetails-'+data.gid+'">'+data.title+'</a> '+data.jtitle+'<br><br><span style="font-size:1.0em !important">Uploaded by <b class="exlink exuploader uid-'+data.gid+'" style="font-size:1.0em!important;margin:0 5px">'+data.uploader+'</b> on <b style="font-size:1.0em!important;margin: 0 5px">'+data.datetext+'</b></span><br><br><span class="extags uid-'+data.gid+'" style="font-size: 1.05em !important; display: inline !important"><b style="font-size:1.05em!important;margin-right:2px!important">Tags:</b></span><br style="clear: both"></div>'; },
 			actions: function(data) { return '<div class="exblock exactions uid-'+data.uid+'"><table class="exactions-table" style="display: inline-block; vertical-align: top; width:100%"><tr><td style="vertical-align: top">'+data.category+' | '+data.filecount+' files | View on: <a href="'+data.url.ge+'" class="exaction" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px; margin-right: 0px">e-hentai</a> <a href="'+data.url.ex+'" class="exaction" target="_blank" style="text-decoration: none !important; vertical-align: top; margin: 0 4px">exhentai</a> | Download via: <a href="'+data.url.bt+'" class="exlink exaction extorrent" target="_blank" style="margin-right: 0px">torrent['+data.torrentcount+']</a> <a href="'+data.url.hh+'" class="exaction" target="_blank" style="margin-right: 0px">hentai@home</a> <a href="'+data.url.arc+'" class="exlink exaction exarchiver" target="_blank">archiver</a> | Uploader: <a href="'+data.url.user+'" target="_blank" class="exlink exaction exuploader uid-'+data.gid+'">'+data.uploader+'</a> | <a href="'+data.url.fav+'" class="exlink exaction exfavorite" target="_blank">Favorite</a> | <a href="'+data.url.stats+'" class="exaction" target="_blank">Stats</a></td></tr></table><span class="extags uid-'+data.gid+'" style="display: inline-block !important"><b style="margin-right:2px!important">Tags:</b></span></div>'; },
-			options: function()     { return '<div id="exlinks-overlay"><div id="exlinks-options" class="post reply post_wrapper"><div id="exlinks-options-nav" style="text-align:left"><div style="float: right"><div class="exlinks-options-button"><a id="exlinks-options-changelog" href="https://raw.github.com/hupotronic/ExLinks/master/changelog">Changelog</a></div><div class="exlinks-options-button"><a id="exlinks-options-issues" href="https://github.com/Hupotronic/ExLinks/issues">Issues</a></div><div class="exlinks-options-button"><a id="exlinks-options-save" href="">Save Settings</a></div><div class="exlinks-options-button"><a id="exlinks-options-cancel" href="">Cancel</a></div></div><a class="exlinks-options-title" href="http://hupotronic.github.com/ExLinks/">ExLinks</a><span class="exlinks-options-version">'+Main.version+'</span></div><div id="exlinks-options-content"><span class="exlinks-options-subtitle">General Settings</span><span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: You must reload the page after saving for any changes to take effect.</span><br><table id="exlinks-options-general" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Gallery Actions</span><br><table id="exlinks-options-actions" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">ExSauce Settings</span><span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: ExSauce is currently not available in the Foolz archive.</span><br><table id="exlinks-options-sauce" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Domain Settings</span><table id="exlinks-options-domains" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Debugger Settings</span><table id="exlinks-options-debug" class="exlinks-options-table"></table></div></div></div>'; },
+			options: function()     { return '<div id="exlinks-overlay"><div id="exlinks-options" class="post reply post_wrapper"><div id="exlinks-options-nav" style="text-align:left"><div style="float: right"><div class="exlinks-options-button"><a id="exlinks-options-changelog" href="https://raw.github.com/hupotronic/ExLinks/master/changelog">Changelog</a></div><div class="exlinks-options-button"><a id="exlinks-options-issues" href="https://github.com/Hupotronic/ExLinks/issues">Issues</a></div><div class="exlinks-options-button"><a id="exlinks-options-save" href="">Save Settings</a></div><div class="exlinks-options-button"><a id="exlinks-options-cancel" href="">Cancel</a></div></div><a class="exlinks-options-title" href="http://hupotronic.github.com/ExLinks/">ExLinks</a> <span class="exlinks-options-version">'+Main.version+'</span></div><div id="exlinks-options-content"><span class="exlinks-options-subtitle">General Settings</span> <span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: You must reload the page after saving for any changes to take effect.</span><br><table id="exlinks-options-general" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Gallery Actions</span><br><table id="exlinks-options-actions" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">ExSauce Settings</span> <span style="float:right;padding-top:7px;margin-right:4px;opacity:0.6">Note: ExSauce is currently not available in the Foolz archive.</span><br><table id="exlinks-options-sauce" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Domain Settings</span><table id="exlinks-options-domains" class="exlinks-options-table"></table><span class="exlinks-options-subtitle">Debugger Settings</span><table id="exlinks-options-debug" class="exlinks-options-table"></table></div></div></div>'; },
 			stars:   function(data) {
 				var str = '', star = '',
 					tmp, rating = Math.round(parseFloat(data,10)*2);
@@ -1934,7 +1933,15 @@
 				}
 
 			}
-			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
+
+			var loc = window.location.href;
+			var linked = Debug.value.get('linkified');
+
+			if (linked > 0 && loc.match(/^https/)) {
+				window.location.href = loc.replace(/^https/,'http'); 
+			}
+
+			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+linked+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
 			Main.update();
 		},
 		dom: function(e) {
