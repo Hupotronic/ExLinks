@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.2.4
+// @version        2.2.5
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -1500,7 +1500,7 @@
 				(!curDocType.publicId && curDocType.systemId ? ' SYSTEM' : ''),
 				(curDocType.systemId ? ' "' + curDocType.systemId + '"' : ''),
 			'>'].join('');
-			if(curSite.match(/(archive|beta).foolz.us/))
+			if(curSite.match(/archive\.moe/))
 			{
 				if(curType.match('<!DOCTYPE html>'))
 				{
