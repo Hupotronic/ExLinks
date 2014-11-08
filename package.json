@@ -1,0 +1,29 @@
+{
+  "name": "ExLinks",
+  "version": "2.2.3",
+  "author": "Hupo <hupotronic@gmail.com>",
+  "description": "Userscript for pretty linkification of E-Hentai & ExHentai links on 4chan & friends",
+  "dependencies": {
+    "html-minifier": "~0.6.9",
+    "uglify-js": "~2.4.15"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.8.0"
+  },
+  "scripts": {
+    "start": "cake dev",
+    "build": "cake build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Hupotronic/ExLinks.git"
+  },
+  "keywords": [
+    "userscript"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Hupotronic/ExLinks/issues"
+  },
+  "homepage": "http://hupotronic.github.io/ExLinks"
+}
