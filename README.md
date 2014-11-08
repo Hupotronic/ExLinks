@@ -1,5 +1,9 @@
 # ExLinks
 
+## Installing
+
+Go to the [proper homepage](http://hupotronic.github.io/ExLinks/) and follow the instructions there.
+
 ## Building
 
 1. Install [Node.js](http://nodejs.org/) if you don't have it.
