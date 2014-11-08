@@ -1697,6 +1697,12 @@
 				actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
 
+			var loc = window.location.href;
+
+			if (posts.length && loc.match(/^https/)) {
+				window.location.href = loc.replace(/^https/,'http'); 
+			}
+
 			Debug.timer.start('process');
 			Debug.value.set('post_total',posts.length);
 
