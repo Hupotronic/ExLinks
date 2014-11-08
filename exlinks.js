@@ -1483,7 +1483,7 @@
 				(!curDocType.publicId && curDocType.systemId ? ' SYSTEM' : ''),
 				(curDocType.systemId ? ' "' + curDocType.systemId + '"' : ''),
 			'>'].join('');
-			if(curSite.match(/(archive|beta).foolz.us/))
+			if(curSite.match(/archive\.moe/))
 			{
 				if(curType.match('<!DOCTYPE html>'))
 				{
