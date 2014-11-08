@@ -18,6 +18,8 @@ HEADER    = """
 // @include        https://boards.4chan.org/*
 // @include        http://archive.moe/*
 // @include        https://archive.moe/*
+// @include        http://nsfw.archive.moe/*
+// @include        https://nsfw.archive.moe/*
 // @include        http://boards.38chan.net/*
 // @updateURL      https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @downloadURL    https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
