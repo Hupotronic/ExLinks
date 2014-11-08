@@ -1697,12 +1697,6 @@
 				actions, style, prelinks, prelink, links, link, site,
 				type, gid, sid, uid, button, usage;
 
-			var loc = window.location.href;
-
-			if (posts.length && loc.match(/^https/)) {
-				window.location.href = loc.replace(/^https/,'http'); 
-			}
-
 			Debug.timer.start('process');
 			Debug.value.set('post_total',posts.length);
 
@@ -1922,7 +1916,15 @@
 				}
 
 			}
-			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
+
+			var loc = window.location.href;
+			var linked = Debug.value.get('linkified');
+
+			if (linked > 0 && loc.match(/^https/)) {
+				window.location.href = loc.replace(/^https/,'http'); 
+			}
+
+			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+linked+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
 			Main.update();
 		},
 		dom: function(e) {
