@@ -1916,7 +1916,15 @@
 				}
 
 			}
-			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
+
+			var loc = window.location.href;
+			var linked = Debug.value.get('linkified');
+
+			if (linked > 0 && loc.match(/^https/)) {
+				window.location.href = loc.replace(/^https/,'http'); 
+			}
+
+			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+linked+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
 			Main.update();
 		},
 		dom: function(e) {
