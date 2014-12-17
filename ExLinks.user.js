@@ -3,12 +3,10 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.2.5
+// @version        2.2.6
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
-// @include        http://archive.moe/*
-// @include        https://archive.moe/*
 // @include        http://boards.38chan.net/*
 // @updateURL      https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @downloadURL    https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
@@ -1550,7 +1548,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.2.3',
+		version: '2.2.6',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);
@@ -1712,7 +1710,7 @@
 		process: function(posts) {
 			var post, file, info, sauce, exsauce, md5, sha1, results, hover, saucestyle,
 				actions, style, prelinks, prelink, links, link, site,
-				type, gid, sid, uid, button, usage;
+				type, gid, sid, uid, button, usage, linkified;
 
 			Debug.timer.start('process');
 			Debug.value.set('post_total',posts.length);
@@ -1812,6 +1810,7 @@
 					if(!post.classList.contains('exlinkified'))
 					{
 						Debug.value.add('linkified');
+						linkified = true;
 
 						prelinks = $$(Parser.prelinks,post);
 						if(prelinks) {
@@ -1935,13 +1934,12 @@
 			}
 
 			var loc = window.location.href;
-			var linked = Debug.value.get('linkified');
 
-			if (linked > 0 && loc.match(/^https/)) {
+			if (linkified > 0 && loc.match(/^https/)) {
 				window.location.href = loc.replace(/^https/,'http'); 
 			}
 
-			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+linked+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
+			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
 			Main.update();
 		},
 		dom: function(e) {

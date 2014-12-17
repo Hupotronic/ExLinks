@@ -1,5 +1,18 @@
 ﻿master
 
+2.2.6
+- Daiz
+  + Fix: Make HTTPS->HTTP redirection work with debug mode off
+  + Change: Don't run on archive.moe afterall to forced HTTPS
+
+2.2.5
+- Daiz
+  + Add: ExLinks now runs on archive.moe
+
+2.2.4
+- Daiz
+  + Feature: Redirect HTTPS to HTTP
+
 2.2.3
 - Hupo
   + Fix: ExLinks now works in board index pages again
