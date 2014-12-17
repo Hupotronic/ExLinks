@@ -63,6 +63,7 @@ task 'build', (options) ->
 	input = input.replace "\#DETAILS\#", html.details
 	input = input.replace "\#ACTIONS\#", html.actions
 	input = input.replace "\#OPTIONS\#", html.options
+	input = input.replace "\#VERSION\#", VERSION
 	input = input.replace "img = {}", "img = #{images}"
 	input = input.replace "css = '';", "css = 'data:text/css;base64,#{styleb64}';"
 	input = input.replace /\/\*jshint.*\*\//, ''
