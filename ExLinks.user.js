@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.2.6
+// @version        2.2.7
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -1429,7 +1429,7 @@
 					arrtop = [$.tnode('['),conflink,$.tnode('] ')];
 					arrbot = [$.tnode('['),conflink2,$.tnode('] ')];
 					$.prepend($.id('navtopright'),$.elem(arrtop));
-					$.prepend($.id('navbotright'),$.elem(arrbot));
+					$.id('navbotright') && $.prepend($.id('navbotright'),$.elem(arrbot));
 				}
 			} else
 			if(Config.mode === 'fuuka')
@@ -1548,7 +1548,7 @@
 	};
 	Main = {
 		namespace: 'exlinks-',
-		version: '2.2.6',
+		version: '2.2.7',
 		check: function(uid) {
 			var check, links, link, type, token, page;
 			check = Database.check(uid);

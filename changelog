@@ -1,5 +1,10 @@
 ﻿master
 
+2.2.7
+- Daiz
+  + Fix: Quick patch to make ExLinks work again
+  + Other: Change tabs to spaces in this changelog
+
 2.2.6
 - Daiz
   + Fix: Make HTTPS->HTTP redirection work with debug mode off
@@ -52,7 +57,7 @@
 
 2.1.9
 - Hupo
-	+ Fix: 4chan X v3 menu event should not fire with 4chan X v2 now
+  + Fix: 4chan X v3 menu event should not fire with 4chan X v2 now
 
 2.1.8
 - Hupo
@@ -61,145 +66,145 @@
 
 2.1.7
 - Hupo
-	+ Change: Minor performance improvement in <wbr> removal
-	+ Fix: ExLinks works in <s>-spoilers now
+  + Change: Minor performance improvement in <wbr> removal
+  + Fix: ExLinks works in <s>-spoilers now
 
 2.1.6
 - Hupo
-	+ Fix: Make sure no <wbr> elements are removed outside links
-	+ Fix: Squashed a bug in <wbr> removal that could stop the whole script
-	+ Fix: Linkifier now handles https links properly
+  + Fix: Make sure no <wbr> elements are removed outside links
+  + Fix: Squashed a bug in <wbr> removal that could stop the whole script
+  + Fix: Linkifier now handles https links properly
 
 2.1.5
 - Hupo
-	+ Fix: Remove link-breaking <wbr> elements in the middle of links (if present)
+  + Fix: Remove link-breaking <wbr> elements in the middle of links (if present)
 
 2.1.4
 - Hupo
-	+ Fix: Archiver URL is correct again
-	+ Change: Archiver URL will always point to exhentai for fjorded galleries
+  + Fix: Archiver URL is correct again
+  + Change: Archiver URL will always point to exhentai for fjorded galleries
 
 2.1.3
 - Hupo
-	+ Fix: ExSauce doesn't break on deleted files anymore
+  + Fix: ExSauce doesn't break on deleted files anymore
 
 2.1.2
 - Hupo
-	+ Add: High-res image elements (category icons & stars)
-	+ Fix: Star rating actually matches properly now
+  + Add: High-res image elements (category icons & stars)
+  + Fix: Star rating actually matches properly now
 
 2.1.1
 - Hupo
-	+ Add: "No Underline in Sauce" option for ExSauce (default: false)
-	+ Fix: Details has a background in archive again
+  + Add: "No Underline in Sauce" option for ExSauce (default: false)
+  + Fix: Details has a background in archive again
 
 2.1.0
 - Hupo
-	+ Feature: ExSauce for 4chan (not available for Opera)
-	+ Add: ExSauce now comes with ExLinks-powered inline results
-	+ Add: Lots of new options for ExSauce
+  + Feature: ExSauce for 4chan (not available for Opera)
+  + Add: ExSauce now comes with ExLinks-powered inline results
+  + Add: Lots of new options for ExSauce
 
 2.0.6
 - Hupo
-	+ Fix: Made it work again
+  + Fix: Made it work again
 
 2.0.5
 - Hupo
-	+ Fix: Malformed links are now properly ignored
+  + Fix: Malformed links are now properly ignored
 
 2.0.4
 - Hupo
-	+ Add: Failure detection during link formatting (should hopefully fix any issues with links sometimes not getting formatted)
-	+ Add: Smart Links updated to recognize galleries tagged with "abortion"
-	+ Add: New debugging option to load all cached metadata to current database on site load
-	+ Change: Debugging settings moved to the bottom of options
-	+ Change: "Disable Local Storage Cache" moved to debugging options
-	+ Fix: Link parsing updated again to not break on management URLs
-	+ Fix: Now works with the latest 4chan code update
+  + Add: Failure detection during link formatting (should hopefully fix any issues with links sometimes not getting formatted)
+  + Add: Smart Links updated to recognize galleries tagged with "abortion"
+  + Add: New debugging option to load all cached metadata to current database on site load
+  + Change: Debugging settings moved to the bottom of options
+  + Change: "Disable Local Storage Cache" moved to debugging options
+  + Fix: Link parsing updated again to not break on management URLs
+  + Fix: Now works with the latest 4chan code update
 
 2.0.3
 - Hupo
-	+ Feature: Debug Mode, which logs some statistics to your browser console if enabled
-	+ Feature: Opera support... but usage is not recommended due to lack of mutation observers
-	+ Feature: New option "Show by Default" for gallery actions (default: false)
-	+ Fix: Options dialog now has a proper height in Firefox
-	+ Fix: E-Hentai forum links are now parsed properly
+  + Feature: Debug Mode, which logs some statistics to your browser console if enabled
+  + Feature: Opera support... but usage is not recommended due to lack of mutation observers
+  + Feature: New option "Show by Default" for gallery actions (default: false)
+  + Fix: Options dialog now has a proper height in Firefox
+  + Fix: E-Hentai forum links are now parsed properly
 
 2.0.0
 - Hupo
-	+ Feature: Harder, Better, Faster, Stronger
-	+ Feature: Now on GitHub!
-	+ Feature: Thumbnail View has evolved into Details View
-	+ Feature: Info View has evolved into Actions View
-	+ Feature: Gallery metadata fetching is now done on page links (/s/...) too
-	+ Feature: Gallery metadata caching with HTML5 Local / Session Storage
-	+ Feature: URL parsing has been improved in both speed and accuracy
-	+ Feature: No more cooldown for gallery thumbnail fetching
-	+ Feature: Archiver link is instantly usable after fetching
-	+ Feature: Options dialog, stylistically compatible with vanilla 4chan, OneeChan and 4chan SS
-	+ Feature: Gallery metadata lookup via E-Hentai Public JSON API
-	+ Change: Automatic link formatting has been re-enabled
-	+ Change: "Intelligent Fetching" has been renamed to "Smart Links"
-	+ Change: Smart Links doesn't do color highlighting anymore (but The Button reflects the link destination)
-	+ Change: Some pointless user options were removed
-	+ Change: Favorite autosave has been removed temporarily
-	+ Fix: Pretty much anything that didn't work right in earlier versions
+  + Feature: Harder, Better, Faster, Stronger
+  + Feature: Now on GitHub!
+  + Feature: Thumbnail View has evolved into Details View
+  + Feature: Info View has evolved into Actions View
+  + Feature: Gallery metadata fetching is now done on page links (/s/...) too
+  + Feature: Gallery metadata caching with HTML5 Local / Session Storage
+  + Feature: URL parsing has been improved in both speed and accuracy
+  + Feature: No more cooldown for gallery thumbnail fetching
+  + Feature: Archiver link is instantly usable after fetching
+  + Feature: Options dialog, stylistically compatible with vanilla 4chan, OneeChan and 4chan SS
+  + Feature: Gallery metadata lookup via E-Hentai Public JSON API
+  + Change: Automatic link formatting has been re-enabled
+  + Change: "Intelligent Fetching" has been renamed to "Smart Links"
+  + Change: Smart Links doesn't do color highlighting anymore (but The Button reflects the link destination)
+  + Change: Some pointless user options were removed
+  + Change: Favorite autosave has been removed temporarily
+  + Fix: Pretty much anything that didn't work right in earlier versions
 
 1.7.4
 - Hupo
-	+ Change: Disabled link preloading because of load limits imposed on .hathdl fetching
+  + Change: Disabled link preloading because of load limits imposed on .hathdl fetching
 
 1.7.3
 - Hupo
-	+ Feature: Now works in the Foolz archive
+  + Feature: Now works in the Foolz archive
 
 1.7.2
 - Anonymous
-	+ Feature: Intelligent fetching (disabled by default)
-	+ Feature: Add to favorites (defaults to a pop-up, can be made automatic)
-	+ Fix: 4chan X inline quotes work properly again
+  + Feature: Intelligent fetching (disabled by default)
+  + Feature: Add to favorites (defaults to a pop-up, can be made automatic)
+  + Fix: 4chan X inline quotes work properly again
 
 1.5.7
 - Hupo
-	+ Change: Torrent view now opens as a pop-up by default (customizable)
-	+ Change: Archiver link now has strikethrough initially (since it requires fetching the thumbnail)
-	+ Fix: Cursor icon changes to pointer on pop-up links
-	+ Fix: Pop-up links can now be opened to new tabs
+  + Change: Torrent view now opens as a pop-up by default (customizable)
+  + Change: Archiver link now has strikethrough initially (since it requires fetching the thumbnail)
+  + Fix: Cursor icon changes to pointer on pop-up links
+  + Fix: Pop-up links can now be opened to new tabs
 
 1.5.5
 - Hupo
-	+ Feature: Plenty of new configuration options
-	+ Feature: File count and links bar in detail view
-	+ Fix: Working thumbnail (and archiver link) fetching in inline quotes
-	+ Change: Separate button for detail view removed, replaced by fetch button after fetching
+  + Feature: Plenty of new configuration options
+  + Feature: File count and links bar in detail view
+  + Fix: Working thumbnail (and archiver link) fetching in inline quotes
+  + Change: Separate button for detail view removed, replaced by fetch button after fetching
 
 1.3.7
 - Hupo
-	+ Fix: Thumbnail hover no longer goes offscreen
-	+ Feature: Thumbnail hover reports on load failure
-	+ Change: Thumbnail loading improved to avoid loading the same image multiple times
+  + Fix: Thumbnail hover no longer goes offscreen
+  + Feature: Thumbnail hover reports on load failure
+  + Change: Thumbnail loading improved to avoid loading the same image multiple times
 
 1.3.5
 - Hupo
-	+ Change: Thumbnail fetching no longer on name expansion, now activates on gallery name hover
-	+ Change: Gallery name fetching defaults to g.e-hentai.org
-	+ Feature: Thumbnail fetching cooldown to prevent autoban
+  + Change: Thumbnail fetching no longer on name expansion, now activates on gallery name hover
+  + Change: Gallery name fetching defaults to g.e-hentai.org
+  + Feature: Thumbnail fetching cooldown to prevent autoban
 
 1.2.5
 - Hupo
-	+ Feature: Gallery thumbnail fetching along with the name
-	+ Feature: Customizable fetching options
-	+ Fix: Doesn't break 4chan X anymore
-	+ Change: File count removed from detailed view
+  + Feature: Gallery thumbnail fetching along with the name
+  + Feature: Customizable fetching options
+  + Fix: Doesn't break 4chan X anymore
+  + Change: File count removed from detailed view
 
 1.1.0
 - Anonymous
-	+ Change: Gallery name is now fetched from H@H download info
-	+ Feature: Expandable details view with tags and file count
-	+ Feature: Automatic link processing
-	+ Fix: Accidental quote removal
+  + Change: Gallery name is now fetched from H@H download info
+  + Feature: Expandable details view with tags and file count
+  + Feature: Automatic link processing
+  + Fix: Accidental quote removal
 
 1.0.0
 - Hupo
-	+ Feature: Manual gallery name fetching from gallery torrent page
-	+ Feature: Turn all exhentai/e-hentai gallery URLs to actual links
+  + Feature: Manual gallery name fetching from gallery torrent page
+  + Feature: Turn all exhentai/e-hentai gallery URLs to actual links
