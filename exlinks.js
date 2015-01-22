@@ -1414,7 +1414,7 @@
 					arrtop = [$.tnode('['),conflink,$.tnode('] ')];
 					arrbot = [$.tnode('['),conflink2,$.tnode('] ')];
 					$.prepend($.id('navtopright'),$.elem(arrtop));
-					$.prepend($.id('navbotright'),$.elem(arrbot));
+					$.id('navbotright') && $.prepend($.id('navbotright'),$.elem(arrbot));
 				}
 			} else
 			if(Config.mode === 'fuuka')
