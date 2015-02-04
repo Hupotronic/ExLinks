@@ -618,28 +618,32 @@
 					API.cooldown = Date.now();
 					Debug.timer.start('apirequest');
 					Debug.log(['API Request',request]);
-					xhr = new XMLHttpRequest();
-					xhr.open('POST', 'http://g.e-hentai.org/api.php');
-					xhr.setRequestHeader('Content-Type', 'application/json');
-					xhr.onreadystatechange = function() {
-						if(xhr.readyState === 4 && xhr.status === 200)
-						{
-							json = JSON.parse(xhr.responseText);
-							if(!json) {
-								json = {};
-							}
-							if(Object.keys(json).length > 0) {
-								Debug.log(['API Response, Time: '+Debug.timer.stop('apirequest'),json]);
-								API.response(type,json);
-							} else {
-								Debug.log('API Request error. Waiting five seconds before trying again. (Time: '+Debug.timer.stop('apirequest')+')');
-								Debug.log(xhr.responseText);
-								/*API.cooldown = Date.now() + (5 * t.SECOND);*/
-								API.timer(Main.update, 5000);
+					GM_xmlhttpRequest({
+						method: 'POST',
+						url: 'http://g.e-hentai.org/api.php',
+						data: JSON.stringify(request),
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						onload: function(xhr) {
+							if(xhr.readyState === 4 && xhr.status === 200)
+							{
+								json = JSON.parse(xhr.responseText);
+								if(!json) {
+									json = {};
+								}
+								if(Object.keys(json).length > 0) {
+									Debug.log(['API Response, Time: '+Debug.timer.stop('apirequest'),json]);
+									API.response(type,json);
+								} else {
+									Debug.log('API Request error. Waiting five seconds before trying again. (Time: '+Debug.timer.stop('apirequest')+')');
+									Debug.log(xhr.responseText);
+									/*API.cooldown = Date.now() + (5 * t.SECOND);*/
+									API.timer(Main.update, 5000);
+								}
 							}
 						}
-					};
-					xhr.send(JSON.stringify(request));
+					});
 				}
 			}
 		},
@@ -1916,12 +1920,6 @@
 					}
 				}
 
-			}
-
-			var loc = window.location.href;
-
-			if (linkified > 0 && loc.match(/^https/)) {
-				window.location.href = loc.replace(/^https/,'http'); 
 			}
 
 			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
