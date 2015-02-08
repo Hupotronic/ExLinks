@@ -17,6 +17,7 @@ HEADER    = """
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
 // @include        http://boards.38chan.net/*
+// @include        https://archive.moe/*
 // @updateURL      https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @downloadURL    https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @grant          GM_xmlhttpRequest
