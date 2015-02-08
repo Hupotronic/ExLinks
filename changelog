@@ -1,5 +1,12 @@
 ﻿master
 
+2.3.0
+- nixx
+  + Feature: HTTPS support
+- Daiz
+  - Change: HTTPS->HTTP redirection removed
+  + Add: ExLinks now runs on archive.moe (for real this time)
+
 2.2.7
 - Daiz
   + Fix: Quick patch to make ExLinks work again
