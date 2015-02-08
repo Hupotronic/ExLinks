@@ -1921,13 +1921,7 @@
 				}
 
 			}
-
-			var loc = window.location.href;
-
-			if (linkified > 0 && loc.match(/^https/)) {
-				window.location.href = loc.replace(/^https/,'http'); 
-			}
-
+			
 			Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
 			Main.update();
 		},
