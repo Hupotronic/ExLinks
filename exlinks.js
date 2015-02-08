@@ -576,7 +576,7 @@
 			return 0;
 		},
 		request: function(type,hash) {
-			var xhr, request, limit = 0, json;
+			var request, limit = 0, json;
 			if(type === 's') {
 				request = {
 					"method": "gtoken",
@@ -618,28 +618,32 @@
 					API.cooldown = Date.now();
 					Debug.timer.start('apirequest');
 					Debug.log(['API Request',request]);
-					xhr = new XMLHttpRequest();
-					xhr.open('POST', 'http://g.e-hentai.org/api.php');
-					xhr.setRequestHeader('Content-Type', 'application/json');
-					xhr.onreadystatechange = function() {
-						if(xhr.readyState === 4 && xhr.status === 200)
-						{
-							json = JSON.parse(xhr.responseText);
-							if(!json) {
-								json = {};
-							}
-							if(Object.keys(json).length > 0) {
-								Debug.log(['API Response, Time: '+Debug.timer.stop('apirequest'),json]);
-								API.response(type,json);
-							} else {
-								Debug.log('API Request error. Waiting five seconds before trying again. (Time: '+Debug.timer.stop('apirequest')+')');
-								Debug.log(xhr.responseText);
-								/*API.cooldown = Date.now() + (5 * t.SECOND);*/
-								API.timer(Main.update, 5000);
+					GM_xmlhttpRequest({
+						method: 'POST',
+						url: 'http://g.e-hentai.org/api.php',
+						data: JSON.stringify(request),
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						onload: function(xhr) {
+							if(xhr.readyState === 4 && xhr.status === 200)
+							{
+								json = JSON.parse(xhr.responseText);
+								if(!json) {
+									json = {};
+								}
+								if(Object.keys(json).length > 0) {
+									Debug.log(['API Response, Time: '+Debug.timer.stop('apirequest'),json]);
+									API.response(type,json);
+								} else {
+									Debug.log('API Request error. Waiting five seconds before trying again. (Time: '+Debug.timer.stop('apirequest')+')');
+									Debug.log(xhr.responseText);
+									/*API.cooldown = Date.now() + (5 * t.SECOND);*/
+									API.timer(Main.update, 5000);
+								}
 							}
 						}
-					};
-					xhr.send(JSON.stringify(request));
+					});
 				}
 			}
 		},
