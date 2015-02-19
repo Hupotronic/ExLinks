@@ -1699,7 +1699,7 @@
     process: function(posts) {
       var post, file, info, sauce, exsauce, md5, sha1, results, hover, saucestyle,
         actions, style, prelinks, prelink, links, link, site,
-        type, gid, sid, uid, button, usage, linkified;
+        type, gid, sid, uid, button, usage, linkified, isJPG;
 
       Debug.timer.start('process');
       Debug.value.set('post_total',posts.length);
@@ -1716,6 +1716,7 @@
                 if(file.childNodes.length > 1) {
                   info = file.childNodes[0];
                   md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
+                  isJPG = file.childNodes[1].href.match(/\.jpg$/);
                   if(md5) {
                     md5 = md5.replace('==','');
                     sauce = $('.exsauce',info);
@@ -1730,10 +1731,19 @@
                         exsauce.classList.add('exsauce-no-underline');
                       }
                       exsauce.setAttribute('data-md5',md5);
-                      $.on(exsauce,'click',Sauce.click);
+                      if(isJPG) {
+                        exsauce.classList.add('exsauce-disabled');
+                        $.on(exsauce,'click',function(e) {
+                          e.preventDefault();
+                          return false;
+                        });
+                        exsauce.title = "Reverse Image Search doesn't work for JPG images because 4chan manipulates them on upload. There is nothing ExLinks can do about this. All complaints can be directed at 4chan staff."
+                      } else {
+                        $.on(exsauce,'click',Sauce.click);
+                      }
                       $.add(info,$.tnode(" "));
                       $.add(info,exsauce);
-                    } else {
+                    } else if (!isJPG) {
                       if(!sauce.classList.contains('sauced')) {
                         $.on(sauce,'click',Sauce.click);
                       } else {
