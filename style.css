@@ -198,6 +198,11 @@
 	text-decoration: none !important;
 }
 
+a.exsauce-disabled {
+	text-decoration: line-through !important;
+	cursor: default !important;
+}
+
 .exaction {
 	text-decoration: none !important;
 	vertical-align: top;
