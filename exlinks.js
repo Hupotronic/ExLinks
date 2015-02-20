@@ -49,6 +49,7 @@
       'Show Results by Default':     ['checkbox', true,  'Open the inline results by default.'],
       'Hide Results in Quotes':      ['checkbox', true,  'Hide open inline results in inline quotes.'],
       'Show Short Results':          ['checkbox', true,  'Show gallery names when hovering over the link after lookup (similar to old ExSauce).'],
+      'Similarity Scan':             ['checkbox', false, 'Search images using similarity scan instead of hashes. Always enabled for JPG images on 4chan.'],
       'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
       'Lowercase on 4chan':          ['checkbox', true,  'Lowercase ExSauce label on 4chan.'],
       'No Underline on Sauce':       ['checkbox', false,  'Force the ExSauce label to have no underline.'],
@@ -785,6 +786,17 @@
           }
         }
       }
+    },
+    startsWith: function(type,string) {
+      var search, keys = [];
+      search = Main.namespace+type+'-'+string;
+      for (var i = 0; i < Cache.type.length; i++) {
+        var key = Cache.type.key(i);
+        if (key.indexOf(search) === 0) {
+          keys.push(key);
+        }
+      }
+      return keys;
     }
   };
   Database = {}; $.extend(Database, {
@@ -846,6 +858,7 @@
   Hash = {
     md5: {},
     sha1: {},
+    similar: {},
     get: function(hash,type) {
       var result;
       if(Hash[type][hash]) {
@@ -868,6 +881,13 @@
         ttl = 12 * t.HOUR;
       }
       Cache.set(data,type,hash,ttl);
+    },
+    closest: function(sha1) {
+      var similars = Cache.startsWith('similar',sha1);
+      similars.sort(function(a, b) {
+        return parseInt(JSON.parse(Cache.type.getItem(b)).added, 10) - parseInt(JSON.parse(Cache.type.getItem(a)).added, 10);
+      });
+      return similars.length > 0 && similars[0].replace(Main.namespace+"-similar-", "");
     }
   };
   SHA1 = {
@@ -972,9 +992,8 @@
     UI: {
       toggle: function(e) {
         e.preventDefault();
-        var a = e.target, results, style, sha1, hover;
+        var a = e.target, results, style, hover;
         results = $.id(a.id.replace('exsauce','exresults'));
-        sha1 = a.getAttribute('data-sha1');
         style = results.getAttribute('style');
         if(style.match('table')) {
           style = style.replace('table','none');
@@ -994,54 +1013,51 @@
               ['mousemove',Sauce.UI.move],
               ['mouseout',Sauce.UI.hide]
             ]);
-            hover = $.id('exhover-'+sha1);
+            hover = $.id(a.id.replace('exsauce','exhover'));
             hover.setAttribute('style','display: none !important;');
           }
         }
         results.setAttribute('style',style);
       },
       show: function(e) {
-        var a, sha1, hover;
+        var a, hover;
         a = e.target;
-        sha1 = a.getAttribute('data-sha1');
-        hover = $.id('exhover-'+sha1);
+        hover = $.id(a.id.replace('exsauce','exhover'));
         if(hover) {
           hover.setAttribute('style','display: table !important;');
         } else {
-          Sauce.UI.hover(sha1);
+          Sauce.UI.hover(a);
         }
       },
       hide: function(e) {
-        var a, sha1, hover;
+        var a, hover;
         a = e.target;
-        sha1 = a.getAttribute('data-sha1');
-        hover = $.id('exhover-'+sha1);
+        hover = $.id(a.id.replace('exsauce','exhover'));
         if(hover) {
           hover.setAttribute('style','display: none !important;');
         } else {
-          Sauce.UI.hover(sha1);
+          Sauce.UI.hover(a);
         }
       },
       move: function(e) {
-        var a, sha1, hover;
+        var a, hover;
         a = e.target;
-        sha1 = a.getAttribute('data-sha1');
-        hover = $.id('exhover-'+sha1);
+        hover = $.id(a.id.replace('exsauce','exhover'));
         if(hover) {
           hover.setAttribute('style','display: table !important;');
           hover.style.left = (e.clientX+12) + 'px';
           hover.style.top = (e.clientY+22) + 'px';
         } else {
-          Sauce.UI.hover(sha1);
+          Sauce.UI.hover(a);
         }
       },
-      hover: function(sha1) {
+      hover: function(a) {
         var hover, result;
         hover = $.create('div',{
           className: 'exblock exhover post reply',
-          id: 'exhover-'+sha1
+          id: 'exhover-'+a.id.replace('exsauce','exhover')
         });
-        result = Hash.get(sha1,'sha1');
+        result = Sauce.result(a);
         for ( var i = 0, ii = result.length; i < ii; i++ ) {
           hover.innerHTML += '<a class="exsauce-hover" href="'+result[i][0]+'">'+result[i][1]+'</a>';
           if(i < ii-1) {
@@ -1051,6 +1067,12 @@
         hover.setAttribute('style','display: table !important;');
         $.add(d.body,hover);
       }
+    },
+    result: function(a) {
+      var sha1, similar;
+      sha1 = a.getAttribute('data-sha1');
+      similar = a.getAttribute('data-similar');
+      return sha1 ? Hash.get(sha1,'sha1') : Hash.get(similar,'similar');
     },
     format: function(a, result) {
       var count = result.length,
@@ -1095,7 +1117,7 @@
       }
       Debug.log('Formatting complete.');
     },
-    lookup: function(a, sha1) {
+    lookup: function(a, type, hash) {
       var response, links, link, result = [], count;
       a.textContent = Sauce.text('Checking');
 
@@ -1110,16 +1132,16 @@
               link = links[i];
               result.push([link.href,link.innerHTML]);
           }
-          Hash.set(result,'sha1',sha1);
+          Hash.set(result,type,hash);
           Debug.log('Lookup successful. Formatting.');
           if(conf['Show Short Results']) {
-            Sauce.UI.hover(sha1);
+            Sauce.UI.hover(a);
           }
           Sauce.format(a, result);
         }
       });
     },
-    hash: function(a, md5) {
+    fetch: function(a, type) {
       var image, sha1;
       image = a.href;
       Debug.log('Fetching image ' + image);
@@ -1131,42 +1153,84 @@
         overrideMimeType: "text/plain; charset=x-user-defined",
         headers: { "Content-Type": "image/jpeg" },
         onload: function(x) {
-          a.textContent = Sauce.text('Hashing');
-          sha1 = SHA1.hash(x.responseText);
-          a.setAttribute('data-sha1',sha1);
-          Hash.set(sha1,'md5',md5);
-          Debug.log('SHA-1 hash for image: ' + sha1);
-          Sauce.check(a);
+          if(type === 'sha1') {
+            a.textContent = Sauce.text('Hashing');
+            sha1 = SHA1.hash(x.responseText);
+            a.setAttribute('data-sha1',sha1);
+            Hash.set(sha1,'md5',a.getAttribute('data-md5'));
+            Debug.log('SHA-1 hash for image: ' + sha1);
+            Sauce.check(a);
+          } else if(type === 'similar') {
+            a.textContent = Sauce.text('Scanning');
+            var data = new Uint8Array(x.responseText.length);
+            for ( var i = 0; i < x.responseText.length; i++ ) {
+              data[i] = x.responseText.charCodeAt(i);
+            }
+            var formData = new FormData();
+            formData.append('sfile', new Blob([data], { type: 'image/'+ a.href.match(/\.(jpg|png|gif)$/)[1].replace('jpg', 'jpeg') }), a.getAttribute('data-filename'));
+            formData.append('fs_similar', 'on');
+            if(conf['Search Expunged'] === true) {
+              formData.append('fs_exp', 'on');
+            }
+            GM_xmlhttpRequest(
+            {
+              method: "POST",
+              url: "http://"+conf['Site to Use'].value.replace(/(e.hentai)/, 'ul.$1')+"/image_lookup.php",
+              data: formData,
+              onload: function(x) {
+                var match = x.finalUrl.match(/f_shash=(([0-9a-f]{40}|corrupt)(?:;(?:[0-9a-f]{40}|monotone))*)/);
+                if(match && (sha1 = match[2]) !== 'corrupt') {
+                  a.setAttribute('target','_blank');
+                  a.setAttribute('data-similar',match[1]);
+                  Hash.set(sha1,'md5',a.getAttribute('data-md5'));
+                  Debug.log('Similarity hash for image: ' + match[1]);
+                  Sauce.check(a);
+                } else if(x.responseText === '\nPlease wait a bit longer between each file search.') {
+                  setTimeout(GM_xmlhttpRequest, 2500, this);
+                } else {
+                  Sauce.format(a, []);
+                }
+              }
+            });
+          }
         }
       });
     },
     check: function(a) {
-      var md5, sha1, result;
+      var md5, sha1, similar, hash, type, result, scan, filename;
+      md5 = a.getAttribute('data-md5');
+      filename = a.getAttribute('data-filename');
       if(a.hasAttribute('data-sha1')) {
         sha1 = a.getAttribute('data-sha1');
       } else {
-        md5 = a.getAttribute('data-md5');
         sha1 = Hash.get(md5,'md5');
       }
-      if(sha1) {
-        Debug.log('SHA-1 hash found.');
-        a.setAttribute('data-sha1',sha1);
-        a.href = 'http://'+conf['Site to Use'].value+'/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash='+sha1+'&fs_similar=0';
+      if(a.hasAttribute('data-similar')) {
+        similar = a.getAttribute('data-similar');
+      } else if(sha1) {
+        similar = Hash.closest(sha1);
+      }
+      scan = conf['Similarity Scan'] === true || (Config.mode === '4chan' && a.href.match(/\.jpg$/));
+      hash = scan ? similar : sha1;
+      type = scan ? 'similar' : 'sha1';
+      if(hash) {
+        Debug.log((scan ? 'Similarity': 'SHA-1') + ' hash found.');
+        a.href = 'http://'+conf['Site to Use'].value+'/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash='+hash+'&fs_from='+filename+'&fs_similar='+(scan ? '1' : '0');
         if(conf['Search Expunged'] === true) {
           a.href += '&fs_exp=1';
         }
         a.setAttribute('target','_blank');
-        result = Hash.get(sha1,'sha1');
+        result = Hash.get(hash,type);
         if(result) {
           Debug.log('Cached result found. Formatting.');
           Sauce.format(a, result);
         } else {
           Debug.log('No cached result found. Performing a lookup.');
-          Sauce.lookup(a, sha1);
+          Sauce.lookup(a,type,hash);
         }
       } else {
-        Debug.log('No SHA-1 hash found. Fetching image.');
-        Sauce.hash(a, md5);
+        Debug.log('No ' + (scan ? 'similarity' : 'SHA-1') + ' hash found. Fetching image.');
+        Sauce.fetch(a,type);
       }
     },
     click: function(e) {
@@ -1699,7 +1763,7 @@
     process: function(posts) {
       var post, file, info, sauce, exsauce, md5, sha1, results, hover, saucestyle,
         actions, style, prelinks, prelink, links, link, site,
-        type, gid, sid, uid, button, usage, linkified, isJPG;
+        type, gid, sid, uid, button, usage, linkified, filename;
 
       Debug.timer.start('process');
       Debug.value.set('post_total',posts.length);
@@ -1713,10 +1777,10 @@
             if($(Parser.image, post.parentNode)) {
               if(Config.mode === '4chan') {
                 file = $(Parser.image, post.parentNode);
-                if(file.childNodes.length > 1) {
+                if(file.childNodes.length > 1 && file.childNodes[1].href.match(/\.(?:jpg|png|gif)$/)) {
                   info = file.childNodes[0];
                   md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
-                  isJPG = file.childNodes[1].href.match(/\.jpg$/);
+                  filename = info.title || $('a',info).title || $('a',info).childNodes[0].nodeValue || '';
                   if(md5) {
                     md5 = md5.replace('==','');
                     sauce = $('.exsauce',info);
@@ -1731,19 +1795,11 @@
                         exsauce.classList.add('exsauce-no-underline');
                       }
                       exsauce.setAttribute('data-md5',md5);
-                      if(isJPG) {
-                        exsauce.classList.add('exsauce-disabled');
-                        $.on(exsauce,'click',function(e) {
-                          e.preventDefault();
-                          return false;
-                        });
-                        exsauce.title = "Reverse Image Search doesn't work for JPG images because 4chan manipulates them on upload. There is nothing ExLinks can do about this. All complaints can be directed at 4chan staff."
-                      } else {
-                        $.on(exsauce,'click',Sauce.click);
-                      }
+                      exsauce.setAttribute('data-filename',filename);
+                      $.on(exsauce,'click',Sauce.click);
                       $.add(info,$.tnode(" "));
                       $.add(info,exsauce);
-                    } else if (!isJPG) {
+                    } else {
                       if(!sauce.classList.contains('sauced')) {
                         $.on(sauce,'click',Sauce.click);
                       } else {
