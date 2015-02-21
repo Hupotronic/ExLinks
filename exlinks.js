@@ -1166,17 +1166,28 @@
             for ( var i = 0; i < x.responseText.length; i++ ) {
               data[i] = x.responseText.charCodeAt(i);
             }
-            var formData = new FormData();
-            formData.append('sfile', new Blob([data], { type: 'image/'+ a.href.match(/\.(jpg|png|gif)$/)[1].replace('jpg', 'jpeg') }), a.getAttribute('data-filename'));
-            formData.append('fs_similar', 'on');
-            if(conf['Search Expunged'] === true) {
-              formData.append('fs_exp', 'on');
+            var file = '';
+            for ( var j = 0; j < data.length; j++ ) {
+              file += String.fromCharCode(data[j]);
             }
+            var boundary = '---------------------------' + Date.now().toString(16);
+            var formData = '\r\n--' + boundary + '\r\n';
+            formData += 'Content-Disposition: form-data; name="sfile"; filename="' + a.getAttribute('data-filename') + '"\r\n';
+            formData += 'Content-Type: ' + 'image/'+ a.href.match(/\.(jpg|png|gif)$/)[1].replace('jpg', 'jpeg') + '\r\n\r\n';
+            formData += file + '\r\n';
+            formData += '--' + boundary + '\r\n';
+            formData += 'Content-Disposition: form-data; name="fs_similar"\r\n\r\n';
+            formData += 'on\r\n';
+            formData += '--' + boundary + '--';
             GM_xmlhttpRequest(
             {
               method: "POST",
+              binary: true,
               url: "http://"+conf['Site to Use'].value.replace(/(e.hentai)/, 'ul.$1')+"/image_lookup.php",
               data: formData,
+              headers: {
+                "Content-Type": "multipart/form-data; boundary=" + boundary
+              },
               onload: function(x) {
                 var match = x.finalUrl.match(/f_shash=(([0-9a-f]{40}|corrupt)(?:;(?:[0-9a-f]{40}|monotone))*)/);
                 if(match && (sha1 = match[2]) !== 'corrupt') {
