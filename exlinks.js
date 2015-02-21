@@ -49,7 +49,7 @@
       'Show Results by Default':     ['checkbox', true,  'Open the inline results by default.'],
       'Hide Results in Quotes':      ['checkbox', true,  'Hide open inline results in inline quotes.'],
       'Show Short Results':          ['checkbox', true,  'Show gallery names when hovering over the link after lookup (similar to old ExSauce).'],
-      'Similarity Scan':             ['checkbox', false, 'Search images using similarity scan instead of hashes. Always enabled for JPG images on 4chan.'],
+      'Similarity Scan':             ['checkbox', false, 'Search images using similarity scan instead of hashes. Monotone images (low color diversity) will default to the classic behavior. Always enabled for JPG images on 4chan.'],
       'Search Expunged':             ['checkbox', false, 'Search expunged galleries as well.'],
       'Lowercase on 4chan':          ['checkbox', true,  'Lowercase ExSauce label on 4chan.'],
       'No Underline on Sauce':       ['checkbox', false,  'Force the ExSauce label to have no underline.'],
@@ -887,7 +887,7 @@
       similars.sort(function(a, b) {
         return parseInt(JSON.parse(Cache.type.getItem(b)).added, 10) - parseInt(JSON.parse(Cache.type.getItem(a)).added, 10);
       });
-      return similars.length > 0 && similars[0].replace(Main.namespace+"-similar-", "");
+      return similars.length > 0 && similars[0].replace(Main.namespace+"similar-", "");
     }
   };
   SHA1 = {
@@ -1197,7 +1197,7 @@
       });
     },
     check: function(a) {
-      var md5, sha1, similar, hash, type, result, scan, filename;
+      var md5, sha1, similar, hash, type, result, scan, filename, is4chanJPG;
       md5 = a.getAttribute('data-md5');
       filename = a.getAttribute('data-filename');
       if(a.hasAttribute('data-sha1')) {
@@ -1210,23 +1210,38 @@
       } else if(sha1) {
         similar = Hash.closest(sha1);
       }
-      scan = conf['Similarity Scan'] === true || (Config.mode === '4chan' && a.href.match(/\.jpg$/));
+      is4chanJPG = Config.mode === '4chan' && filename.match(/\.jpg$/);
+      scan = conf['Similarity Scan'] === true || is4chanJPG;
       hash = scan ? similar : sha1;
       type = scan ? 'similar' : 'sha1';
       if(hash) {
-        Debug.log((scan ? 'Similarity': 'SHA-1') + ' hash found.');
-        a.href = 'http://'+conf['Site to Use'].value+'/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash='+hash+'&fs_from='+filename+'&fs_similar='+(scan ? '1' : '0');
-        if(conf['Search Expunged'] === true) {
-          a.href += '&fs_exp=1';
-        }
-        a.setAttribute('target','_blank');
-        result = Hash.get(hash,type);
-        if(result) {
-          Debug.log('Cached result found. Formatting.');
-          Sauce.format(a, result);
+        if(is4chanJPG && hash.split(';')[1] === 'monotone') {
+          Hash.set([],type,hash);
+          a.textContent = Sauce.text('Error');
+          a.classList.add('exsauce-disabled');
+          $.on(a,'click',function(e) {
+            e.preventDefault();
+            return false;
+          });
+          a.title = "Reverse Image Search doesn't work for monotone JPG images because 4chan manipulates JPGs on upload and monotone images cannot be used with the similarity scan. There is nothing ExLinks can do about this. All complaints can be directed at 4chan staff.";
         } else {
-          Debug.log('No cached result found. Performing a lookup.');
-          Sauce.lookup(a,type,hash);
+          Debug.log((scan ? 'Similarity': 'SHA-1') + ' hash found.');
+          a.href = 'http://'+conf['Site to Use'].value+'/?f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=Search+Keywords&f_apply=Apply+Filter&f_shash='+hash+'&fs_from='+filename+'&fs_similar='+(scan ? '1' : '0');
+          if(conf['Search Expunged'] === true) {
+            a.href += '&fs_exp=1';
+          }
+          a.setAttribute('target','_blank');
+          if(scan && hash.split(';')[1] === 'monotone') {
+            a.title = "This file was detected as monotone. Only exact file matches are displayed.";
+          }
+          result = Hash.get(hash,type);
+          if(result) {
+            Debug.log('Cached result found. Formatting.');
+            Sauce.format(a, result);
+          } else {
+            Debug.log('No cached result found. Performing a lookup.');
+            Sauce.lookup(a,type,hash);
+          }
         }
       } else {
         Debug.log('No ' + (scan ? 'similarity' : 'SHA-1') + ' hash found. Fetching image.');
@@ -1780,7 +1795,7 @@
                 if(file.childNodes.length > 1 && file.childNodes[1].href.match(/\.(?:jpg|png|gif)$/)) {
                   info = file.childNodes[0];
                   md5 = file.childNodes[1].firstChild.getAttribute('data-md5');
-                  filename = info.title || $('a',info).title || $('a',info).childNodes[0].nodeValue || '';
+                  filename = info.title || $('a',info).title || $('a',info).childNodes[0].nodeValue || file.childNodes[1].href.match(/\/(\d+\.(?:jpg|png|gif))$/)[1];
                   if(md5) {
                     md5 = md5.replace('==','');
                     sauce = $('.exsauce',info);
