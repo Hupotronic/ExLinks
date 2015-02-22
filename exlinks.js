@@ -1228,13 +1228,15 @@
         for ( var i = 0, ii = nodes.length; i < ii; i++ )
         {
           node = nodes[i];
-          wbr = node.nextSibling;
-          wbr = wbr ? wbr.tagName : null;
-          if (wbr === "WBR" && regex.url.test(node.textContent)) {
-            node.parentNode.removeChild(node.nextSibling);
-            if(nodes[i+1]) {
-              node.textContent += nodes[i+1].textContent;
-              nodes[i+1].textContent = "";
+          if(regex.url.test(node.textContent)) {
+            wbr = i;
+            while(nodes[wbr].nextSibling && nodes[wbr].nextSibling.tagName === "WBR") {
+              nodes[wbr].parentNode.removeChild(nodes[wbr].nextSibling);
+              if (nodes[wbr+1]) {
+                node.textContent += nodes[wbr+1].textContent;
+                nodes[wbr+1].textContent = "";
+              }
+              ++wbr;
             }
           }
           text = node.textContent;
