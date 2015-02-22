@@ -1,5 +1,9 @@
 ﻿master
 
+2.3.2
+- Daiz
+  + Fix: Edge case linkification failure now works properly
+
 2.3.1
 - Daiz
   - Change: Reverse Image Search is now disabled for JPG images because 4chan manipulates them on upload, effectively making search by file hash useless.

@@ -1,6 +1,6 @@
 {
   "name": "ExLinks",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "author": "Hupo <hupotronic@gmail.com>",
   "description": "Userscript for pretty linkification of E-Hentai & ExHentai links on 4chan & friends",
   "dependencies": {
