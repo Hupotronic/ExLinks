@@ -1055,7 +1055,7 @@
         var hover, result;
         hover = $.create('div',{
           className: 'exblock exhover post reply',
-          id: 'exhover-'+a.id.replace('exsauce','exhover')
+          id: a.id.replace('exsauce','exhover')
         });
         result = Sauce.result(a);
         for ( var i = 0, ii = result.length; i < ii; i++ ) {
@@ -1226,6 +1226,7 @@
       hash = scan ? similar : sha1;
       type = scan ? 'similar' : 'sha1';
       if(hash) {
+        a.setAttribute('data-'+type,hash);
         if(is4chanJPG && hash.split(';')[1] === 'monotone') {
           Hash.set([],type,hash);
           a.textContent = Sauce.text('Error');
