@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.3.2
+// @version        2.3.3
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -1555,7 +1555,7 @@
   };
   Main = {
     namespace: 'exlinks-',
-    version: '2.3.2',
+    version: '2.3.3',
     check: function(uid) {
       var check, links, link, type, token, page;
       check = Database.check(uid);
@@ -1597,43 +1597,57 @@
         data = Database.get(uid);
         links = Parser.unformatted(uid);
         if(data) {
+          if (!data.hasOwnProperty('error')) {
           Debug.value.add('formatlinks');
-          for ( var k = 0, kk = links.length; k < kk; k++ )
-          {
-            link = links[k];
-            button = $.id(link.id.replace('gallery','button'));
-            link.innerHTML = data.title;
-            $.off(button,'click',Main.singlelink);
-            if(conf['Gallery Details'] === true) {
-              $.on(link,[
-                ['mouseover',UI.show],
-                ['mouseout',UI.hide],
-                ['mousemove',UI.move]
-              ]);
+            for ( var k = 0, kk = links.length; k < kk; k++ )
+            {
+              link = links[k];
+              button = $.id(link.id.replace('gallery','button'));
+              link.innerHTML = data.title;
+              $.off(button,'click',Main.singlelink);
+              if(conf['Gallery Details'] === true) {
+                $.on(link,[
+                  ['mouseover',UI.show],
+                  ['mouseout',UI.hide],
+                  ['mousemove',UI.move]
+                ]);
+              }
+              if(conf['Gallery Actions'] === true) {
+                $.on(button,'click',UI.toggle);
+              }
+              actions = UI.actions(data,link);
+              $.after(link,actions);
+              actions = $.id(link.id.replace('exlink-gallery','exblock-actions'));
+              if(conf['Torrent Popup'] === true) {
+                $.on($('a.extorrent',actions),'click',UI.popup);
+              }
+              if(conf['Archiver Popup'] === true) {
+                $.on($('a.exarchiver',actions),'click',UI.popup);
+              }
+              if(conf['Favorite Popup'] === true) {
+                $.on($('a.exfavorite',actions),'click',UI.popup);
+              }
+              /*
+              if(conf.Filter) {
+                // Filter.process(actions);
+              }*/
+              link.classList.remove('exprocessed');
+              link.classList.add('exformatted');
+              button.classList.remove('exfetch');
+              button.classList.add('extoggle');
             }
-            if(conf['Gallery Actions'] === true) {
-              $.on(button,'click',UI.toggle);
+          } else {
+            for ( var l = 0, ll = links.length; l < ll; l++ )
+            {
+              link = links[l];
+              button = $.id(link.id.replace('gallery','button'));
+              link.innerHTML = 'Incorrect Gallery Key';
+              $.off(button,'click',Main.singlelink);
+              link.classList.remove('exprocessed');
+              link.classList.add('exformatted');
+              button.classList.remove('exfetch');
+              button.classList.add('extoggle');
             }
-            actions = UI.actions(data,link);
-            $.after(link,actions);
-            actions = $.id(link.id.replace('exlink-gallery','exblock-actions'));
-            if(conf['Torrent Popup'] === true) {
-              $.on($('a.extorrent',actions),'click',UI.popup);
-            }
-            if(conf['Archiver Popup'] === true) {
-              $.on($('a.exarchiver',actions),'click',UI.popup);
-            }
-            if(conf['Favorite Popup'] === true) {
-              $.on($('a.exfavorite',actions),'click',UI.popup);
-            }
-            /*
-            if(conf.Filter) {
-              // Filter.process(actions);
-            }*/
-            link.classList.remove('exprocessed');
-            link.classList.add('exformatted');
-            button.classList.remove('exfetch');
-            button.classList.add('extoggle');
           }
         } else {
           Debug.value.add('failed');
