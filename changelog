@@ -1,5 +1,9 @@
 ﻿master
 
+2.3.4
+- Daiz
+  + Fix: Another edge case linkification failure now works properly
+
 2.3.3
 - Daiz
   + Fix: Broken gallery links don't break linkification on future auto-updates
