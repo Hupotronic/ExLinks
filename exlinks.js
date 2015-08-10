@@ -1230,7 +1230,7 @@
           node = nodes[i];
           if(regex.url.test(node.textContent)) {
             wbr = i;
-            while(nodes[wbr].nextSibling && nodes[wbr].nextSibling.tagName === "WBR") {
+            while(nodes[wbr] && nodes[wbr].nextSibling && nodes[wbr].nextSibling.tagName === "WBR") {
               nodes[wbr].parentNode.removeChild(nodes[wbr].nextSibling);
               if (nodes[wbr+1]) {
                 node.textContent += nodes[wbr+1].textContent;
