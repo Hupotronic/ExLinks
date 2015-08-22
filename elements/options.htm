@@ -35,6 +35,41 @@
 			<span class="exlinks-options-subtitle">Domain Settings</span>
 			<table id="exlinks-options-domains" class="exlinks-options-table">
 			</table>
+			<span class="exlinks-options-subtitle">Filter Settings</span>
+			<div>
+				Use <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank" rel="noreferrer nofollow">regular expressions</a>, one per line. <span style="opacity: 0.75;">(This is very similar to 4chan-x style filtering)</span><br />
+				Lines starting with a <code>#</code> will be ignored, along with improperly formatted regular expressions.<br />
+				For example, <code>/touhou/i</code> will highlight entries containing the string `<code>touhou</code>`, case-insensitive.<br /><br />
+				You can use these settings with each regular expression, separate them with semicolons:<br />
+				<ul>
+					<li>
+						Force a gallery to not be highlighted. If omitted, the gallery will be highlighted as normal.<br />
+						For example: <code>bad:yes;</code> or <code>bad:no;</code>.
+					</li>
+					<li>
+						Only apply the selector if the category of the gallery matches one from a list.<br />
+						For example: <code>only:doujinshi,manga;</code>.
+					</li>
+					<li>
+						Only apply the selector if the category of the gallery doesn&quot;t match <strong>any</strong> from a list.<br />
+						For example: <code>not:western,non-h;</code>.
+					</li>
+					<li>
+						Apply a colored decoration to the matched text.<br />
+						For example: <code>color:red;</code>, <code>underline:#0080f0;</code>, or <code>background:rgba(0,255,0,0.5);</code>.
+					</li>
+					<li>
+						Apply a colored decoration to the [Ex] or [EH] tag.<br />
+						For example: <code>link-color:blue;</code>, <code>link-underline:#bf48b5;</code>, or <code>link-background:rgba(220,200,20,0.5);</code>.
+					</li>
+				</ul>
+				For easy <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#Color_keywords" target="_blank" rel="noreferrer nofollow">HTML color</a> selection, you can use the following helper to select a color:<br />
+				<div>
+					<input type="color" value="#808080" class="exlinks-options-color-input" /><input type="text" value="#808080" class="exlinks-options-color-input" readonly="readonly" /><input type="text" value="rgba(128,128,128,1)" class="exlinks-options-color-input" readonly="readonly" />
+				</div><br />
+			</div>
+			<table id="exlinks-options-filter" class="exlinks-options-table">
+			</table>
 			<span class="exlinks-options-subtitle">Debugger Settings</span>
 			<table id="exlinks-options-debug" class="exlinks-options-table">
 			</table>
