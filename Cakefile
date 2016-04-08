@@ -21,6 +21,7 @@ HEADER    = """
 // @updateURL      https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @downloadURL    https://github.com/Hupotronic/ExLinks/raw/stable/ExLinks.user.js
 // @grant          GM_xmlhttpRequest
+// @connect        g.e-hentai.org
 // @run-at         document-start
 // ==/UserScript==
 """
