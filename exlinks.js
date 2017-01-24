@@ -620,7 +620,7 @@
           Debug.log(['API Request',request]);
           GM_xmlhttpRequest({
             method: 'POST',
-            url: 'http://g.e-hentai.org/api.php',
+            url: 'https://e-hentai.org/api.php',
             data: JSON.stringify(request),
             headers: {
               'Content-Type': 'application/json'
