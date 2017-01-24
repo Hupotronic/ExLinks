@@ -3,7 +3,7 @@
 // @name           ExLinks
 // @namespace      hupotronic
 // @author         Hupo
-// @version        2.3.4
+// @version        2.3.5
 // @description    Makes e-hentai/exhentai links more useful.
 // @include        http://boards.4chan.org/*
 // @include        https://boards.4chan.org/*
@@ -636,7 +636,7 @@
           Debug.log(['API Request',request]);
           GM_xmlhttpRequest({
             method: 'POST',
-            url: 'http://g.e-hentai.org/api.php',
+            url: 'https://e-hentai.org/api.php',
             data: JSON.stringify(request),
             headers: {
               'Content-Type': 'application/json'
@@ -1555,7 +1555,7 @@
   };
   Main = {
     namespace: 'exlinks-',
-    version: '2.3.4',
+    version: '2.3.5',
     check: function(uid) {
       var check, links, link, type, token, page;
       check = Database.check(uid);

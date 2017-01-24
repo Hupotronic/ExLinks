@@ -1,5 +1,9 @@
 ﻿master
 
+2.3.5
+- Daiz
+  + Fix: Update E-Hentai API URL
+
 2.3.4
 - Daiz
   + Fix: Another edge case linkification failure now works properly
