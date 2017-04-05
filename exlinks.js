@@ -70,25 +70,30 @@
       'Debug Mode':                  ['checkbox', false, 'Enable debugger and logging to browser console.'],
       'Disable Local Storage Cache': ['checkbox', false, 'If set, Session Storage is used for caching instead.'],
       'Populate Database on Load':   ['checkbox', false, 'Load all cached galleries to database on page load.']
-    }/*
+    },
     filter: {
+      'Full Highlighting':           ['checkbox', false, 'Highlight all the text instead of just the matching portion.'],
+      'Good Tag Marker':             ['textbox', '!', 'The string to mark a good [Ex]/[EH] tag with.'],
+      'Bad Tag Marker':              ['textbox', '', 'The string to mark a bad [Ex]/[EH] tag with.'],
       'Name Filter': ['textarea', [
         '# Highlight all doujinshi and manga galleries with (C82) in the name:',
-        '# /\\(C82\\)/;only:doujinshi,manga;link:yes;color:#FF0000'
-      ].join('\n')],
+        '# /\\(C82\\)/i;only:doujinshi,manga;link-color:red;color:#FF0000'
+      ].join('\n'), ''],
       'Tag Filter': ['textarea', [
         '# Highlight "english" and "translated" tags in non-western non-non-h galleries:',
-        '# /english|translated/;not:western,non-h;color:#0069B6',
+        '# /english|translated/;not:western,non-h;color:#4080f0;link-color:#4080f0;',
+        '# Highlight galleries tagged with "touhou project":',
+        '# /touhou project/;background:rgba(255,128,64,0.5);link-background:rgba(255,128,64,0.5);',
         '# Highlight all non-english language tags in doujinshi/manga/artistcg/gamecg galleries:',
-        '# /korean|chinese|italian|vietnamese|thai|spanish|french|german|portuguese|russian|dutch|hungarian|indonesian|finnish|rewrite/;only:doujinshi,manga,artistcg,gamecg;color:#FF000',
-        '# Highlight the link for galleries tagged with "touhou project":',
-        '# /touhou project/;link:yes,color:#FF3300'
-      ].join('\n')],
+        '# /korean|chinese|italian|vietnamese|thai|spanish|french|german|portuguese|russian|dutch|hungarian|indonesian|finnish|rewrite/;only:doujinshi,manga,artistcg,gamecg;underline:#FF0000;link-underline:#FF0000;'
+      ].join('\n'), ''],
       'Uploader Filter': ['textarea', [
         '# Highlight links for galleries uploaded by "ExUploader"',
-        '# /ExUploader/;link:yes;color:#FFFFFF'
-      ].join('\n')]
-    },*/
+        '# /ExUploader/i;color:#FFFFFF;link-color:#FFFFFF;',
+        '# Don\'t highlight anything uploaded by "CGrascal"',
+        '# /CGrascal/i;bad:yes'
+      ].join('\n'), '']
+    }
   };
   regex = {
     url: /(https?:\/\/)?(forums|gu|g|u)?\.?e[\-x]hentai\.org\/[^\ \n<>\'\"]*/,
@@ -324,8 +329,28 @@
         return str;
       }
     },
+    createtags: function(site,tags,data) {
+      var tagfrag, tag, link;
+      tagfrag = d.createDocumentFragment();
+      for ( var i = 0, ii = tags.length; i < ii; i++ )
+      {
+        tag = $.create('span', { className: "extag-block" });
+        link = $.create('a', {
+          textContent: tags[i],
+          className: "exlink extag",
+          href: 'http://'+site+'/tag/'+tags[i].replace(/\ /g,'+')
+        });
+
+        Filter.highlight("tags", link, data, null);
+
+        tag.appendChild(link);
+        if( i < ii-1 ) { tag.appendChild($.tnode(",")); }
+        tagfrag.appendChild(tag);
+      }
+      return tagfrag;
+    },
     details: function(uid) {
-      var data, date, div, frag, taglist, tagspace, tag, content;
+      var data, date, div, frag, tagspace, link, content, n;
       data = Database.get(uid);
       if(data.title_jpn) {
         data.jtitle = '<br /><span class="exjptitle">'+data.title_jpn+'</span>';
@@ -335,28 +360,26 @@
       date = new Date(parseInt(data.posted,10)*1000);
       data.datetext = UI.date(date);
       data.visible = data.expunged ? 'No' : 'Yes';
-      taglist = [];
-      for ( var i = 0, ii = data.tags.length; i < ii; i++ )
-      {
-        tag = $.create('a', {
-          innerHTML: data.tags[i],
-          className: "exlink extag",
-          href: 'http://exhentai.org/tag/'+data.tags[i].replace(/\ /g,'+')
-        });
-        if( i < ii-1 ) { tag.innerHTML += ","; }
-        taglist.push(tag);
-      }
+
       div = $.frag(UI.html.details(data));
+
+      if ((n = $('.extitle', div))) {
+        Filter.highlight("title", n, data, null);
+      }
+      if ((n = $('.exuploader', div))) {
+        Filter.highlight("uploader", n, data, null);
+      }
+
       content = div.firstChild;
       tagspace = $('.extags',div);
       content.setAttribute('style','display: table !important;');
-      $.add(tagspace,$.elem(taglist));
+      $.add(tagspace,UI.createtags("exhentai.org",data.tags,data));
       frag = d.createDocumentFragment();
       frag.appendChild(div);
       d.body.appendChild(frag);
     },
     actions: function(data,link) {
-      var uid, token, key, date, taglist, user, sites, tag, tagstring, button, div, tagspace, frag, content;
+      var uid, token, key, date, user, sites, tagstring, button, div, tagspace, frag, content, n;
 
       tagstring = data.tags.join(',');
 
@@ -381,7 +404,6 @@
       token = data.token;
       key = data.archiver_key;
       date = new Date(data.date);
-      taglist = [];
       data.size = Math.round((data.filesize/1024/1024)*100)/100;
       data.datetext = UI.date(date);
       sites = [
@@ -393,16 +415,6 @@
         Config.link(link.href,conf['Stats Link']),
         Config.link(link.href,conf['Tag Links'])
       ];
-      for ( var i = 0, ii = data.tags.length; i < ii; i++ )
-      {
-        tag = $.create('a', {
-          innerHTML: data.tags[i],
-          className: "exlink extag",
-          href: 'http://'+sites[6]+'/tag/'+data.tags[i].replace(/\ /g,'+')
-        });
-        if( i < ii-1 ) { tag.innerHTML += ","; }
-        taglist.push(tag);
-      }
       if(data.uploader) {
         user = data.uploader;
       } else {
@@ -425,6 +437,11 @@
       }
       frag = d.createDocumentFragment();
       div = $.frag(UI.html.actions(data));
+
+      if ((n = $('.exuploader', div))) {
+        Filter.highlight("uploader", n, data, null);
+      }
+
       content = div.firstChild;
       content.id = link.id.replace('exlink-gallery','exblock-actions');
       if(conf['Show by Default'] === false) {
@@ -433,7 +450,7 @@
         content.setAttribute('style','display: table !important;');
       }
       tagspace = $('.extags',div);
-      $.add(tagspace,$.elem(taglist));
+      $.add(tagspace,UI.createtags(sites[6],data.tags,data));
       frag.appendChild(div);
       return frag;
     },
@@ -453,7 +470,7 @@
     toggle: function(e) {
       var actions, style;
       e.preventDefault();
-      actions = $.id(e.target.id.replace('exlink-button','exblock-actions'));
+      actions = $.id(this.id.replace('exlink-button','exblock-actions'));
       style = actions.getAttribute('style');
       if(style.match('table')) {
         style = style.replace('table','none');
@@ -465,7 +482,7 @@
     },
     show: function(e) {
       var uid, details, style;
-      uid = e.target.className.match(regex.uid)[1];
+      uid = this.className.match(regex.uid)[1];
       details = $.id('exblock-details-uid-'+uid);
       if(details) {
         style = details.getAttribute('style');
@@ -477,7 +494,7 @@
     },
     hide: function(e) {
       var uid, details, style;
-      uid = e.target.className.match(regex.uid)[1];
+      uid = this.className.match(regex.uid)[1];
       details = $.id('exblock-details-uid-'+uid);
       if(details) {
         style = details.getAttribute('style');
@@ -489,7 +506,7 @@
     },
     move: function(e) {
       var uid, details;
-      uid = e.target.className.match(regex.uid)[1];
+      uid = this.className.match(regex.uid)[1];
       details = $.id('exblock-details-uid-'+uid);
       if(details) {
         if(details.offsetWidth + e.clientX+20 < window.innerWidth - 8)
@@ -1310,7 +1327,7 @@
       if(type==='domain' || type==='saucedomain') {
         tempconf[option.name] = domain[option.value];
       } else
-      if(type==='text') {
+      if(type==='text' || option.tagName==="TEXTAREA") {
         tempconf[option.name] = option.value;
       }
     },
@@ -1373,10 +1390,21 @@
           if(type === 'textbox') {
             tr.innerHTML = [
             '<td style="padding:3px;">',
-            '<input style="float:right;padding-left:5px;width:18%;font-size:0.92em!important;" type="text" id="'+i+'" name="'+i+'" value="'+value+'" />',
+            '<input style="float:right;padding-left:5px;width:18%;font-size:0.92em!important;" type="text" id="'+i+'" name="'+i+'" />',
             '<b>'+i+':</b> '+desc+'</td>'
             ].join('');
+            $('input',tr).value = value;
             $.on($('input',tr),'input',Options.toggle);
+          } else
+          if(type === 'textarea') {
+            tr.innerHTML = [
+            '<td style="padding:3px;">',
+            '<b>'+i+':</b> '+desc+'<br />',
+            '<textarea style="display:block;width:100%;height:7em;line-height:1.2em;padding:0.5em;box-sizing:border-box;resize:vertical;font-size:0.92em!important;" wrap="off" autocomplete="off" spellcheck="false" id="'+i+'" name="'+i+'"></textarea>',
+            '</td>'
+            ].join('');
+            $('textarea',tr).value = value;
+            $.on($('textarea',tr),'input',Options.toggle);
           }
           $.add(target,tr);
         }
@@ -1386,6 +1414,8 @@
       gen($.id('exlinks-options-sauce'),options.sauce);
       gen($.id('exlinks-options-domains'),options.domains);
       gen($.id('exlinks-options-debug'),options.debug);
+      gen($.id('exlinks-options-filter'),options.filter);
+      $.on($("input.exlinks-options-color-input[type=color]"), 'change', Filter.settings_color_change);
     },
     init: function() {
     var oneechan = $.id('OneeChanLink'),
@@ -1537,6 +1567,520 @@
       tempconf = JSON.parse(JSON.stringify(conf));
     }
   };
+  Filter = {
+    title: null,
+    tags: null,
+    uploader: null,
+    None: 0,
+    Bad: -1,
+    Good: 1,
+    cache: {
+      tags: {}
+    },
+    div: d.createElement("div"),
+    Segment: function (start, end, data) {
+      this.start = start;
+      this.end = end;
+      this.data = data;
+    },
+    MatchInfo: function () {
+      this.matches = [];
+      this.any = false;
+      this.bad = false;
+    },
+    init: function () {
+      Filter.title = Filter.parse(conf['Name Filter']);
+      Filter.tags = Filter.parse(conf['Tag Filter']);
+      Filter.uploader = Filter.parse(conf['Uploader Filter']);
+    },
+    genregex: function (pattern, flags) {
+      if (flags.indexOf("g") < 0) {
+        flags += "g";
+      }
+      try {
+        return new RegExp(pattern, flags);
+      }
+      catch (e) {
+        return null;
+      }
+    },
+    parse: function (input) {
+      var filters, lines, i, pos, pos2, flags, line, regex;
+      filters = [];
+      lines = (input || "").split("\n");
+      for (i = 0; i < lines.length; ++i) {
+        line = lines[i].trim();
+        if (line[0] === "/" && (pos = line.lastIndexOf("/")) > 0) {
+          pos2 = line.indexOf(";", pos + 1);
+
+          regex = line.substr(1, pos - 1);
+          flags = (pos2 > 0) ? line.substr(pos + 1, pos2 - pos - 1) : "";
+          regex = Filter.genregex(regex, flags);
+
+          if (regex) {
+            pos = Math.max(pos, pos2) + 1;
+            flags = (pos < line.length) ? Filter.parse_flags(line.substr(pos)) : null;
+            filters.push({
+              regex: regex,
+              flags: flags
+            });
+          }
+        }
+      }
+      return filters;
+    },
+    parse_flags: function (text) {
+      var flaglist, flags, key, m, i;
+      flags = {};
+      flaglist = text.split(";");
+
+      for (i = 0; i < flaglist.length; ++i) {
+        if (flaglist[i].length > 0) {
+          m = flaglist[i].split(":");
+          key = m[0].trim().toLowerCase();
+          m.splice(0, 1);
+          flags[key] = m.join("").trim();
+        }
+      }
+
+      return Filter.normalize_flags(flags);
+    },
+    normalize_flags: function (flags) {
+      var norm = {}, any = false;
+
+      if (flags.only) {
+        norm.only = Filter.normalize_split(flags.only);
+        any = true;
+      }
+      if (flags.not) {
+        norm.not = Filter.normalize_split(flags.not);
+        any = true;
+      }
+      if ("bad" in flags && ([ "", "true", "yes" ].indexOf(flags.bad.trim().toLowerCase()) >= 0)) {
+        norm.bad = true;
+        any = true;
+      }
+      if ("color" in flags) {
+        norm.color = flags.color.trim();
+        any = true;
+      }
+      if ("background" in flags) {
+        norm.background = flags.background.trim();
+        any = true;
+      }
+      if ("underline" in flags) {
+        norm.underline = flags.underline.trim();
+        any = true;
+      }
+      if ("link-color" in flags) {
+        norm.link = {};
+        norm.link.color = flags["link-color"].trim();
+        any = true;
+      }
+      if ("link-background" in flags) {
+        if (!norm.link) {
+          norm.link = {};
+        }
+        norm.link.background = flags["link-background"].trim();
+        any = true;
+      }
+      if ("link-underline" in flags) {
+        if (!norm.link) {
+          norm.link = {};
+        }
+        norm.link.underline = flags["link-underline"].trim();
+        any = true;
+      }
+
+      return any ? norm : null;
+    },
+    normalize_split: function (text) {
+      var array, i;
+      array = text.split(",");
+      for (i = 0; i < array.length; ++i) {
+        array[i] = array[i].trim().toLowerCase();
+      }
+      return array;
+    },
+    normalize_api_string: function (text) {
+      Filter.div.innerHTML = text;
+      var t = Filter.div.textContent;
+      Filter.div.textContent = "";
+      return t;
+    },
+    matches_to_segments: function (text, matches) {
+      var Segment, segments, fast, hit, m, s, i, j;
+
+      Segment = Filter.Segment;
+      segments = [ new Segment(0, text.length, []) ];
+      fast = conf['Full Highlighting'];
+
+      if (fast) {
+        for (i = 0; i < matches.length; ++i) {
+          segments[0].data.push(matches[i].data);
+        }
+      }
+      else {
+        for (i = 0; i < matches.length; ++i) {
+          m = matches[i];
+          hit = false;
+          for (j = 0; j < segments.length; ++j) {
+            s = segments[j];
+            if (m.start < s.end && m.end > s.start) {
+              hit = true;
+              j = Filter.update_segments(segments, j, m, s);
+            }
+            else if (hit) {
+              break;
+            }
+          }
+        }
+      }
+
+      return segments;
+    },
+    update_segments: function (segments, pos, seg1, seg2) {
+      var s1, s2, data;
+
+      data = seg2.data.slice(0);
+      seg2.data.push(seg1.data);
+
+      if (seg1.start > seg2.start) {
+        if (seg1.end < seg2.end) {
+          // cut at both
+          s1 = new Filter.Segment(seg2.start, seg1.start, data);
+          s2 = new Filter.Segment(seg1.end, seg2.end, data.slice(0));
+          seg2.start = seg1.start;
+          seg2.end = seg1.end;
+          segments.splice(pos, 0, s1);
+          pos += 2;
+          segments.splice(pos, 0, s2);
+        }
+        else {
+          // cut at start
+          s1 = new Filter.Segment(seg2.start, seg1.start, data);
+          seg2.start = seg1.start;
+          segments.splice(pos, 0, s1);
+          pos += 1;
+        }
+      }
+      else {
+        if (seg1.end < seg2.end) {
+          // cut at end
+          s2 = new Filter.Segment(seg1.end, seg2.end, data);
+          seg2.end = seg1.end;
+          pos += 1;
+          segments.splice(pos, 0, s2);
+        }
+        // else, cut at neither
+      }
+
+      return pos;
+    },
+    apply_styles: function (node, styles) {
+      var color = null, background = null, underline = null, style, i, s;
+
+      for (i = 0; i < styles.length; ++i) {
+        style = styles[i];
+        if ((s = style.color)) {
+          color = s;
+        }
+        if ((s = style.background)) {
+          background = s;
+        }
+        if ((s = style.underline)) {
+          underline = s;
+        }
+      }
+
+      Filter.apply_styling(node, color, background, underline);
+    },
+    apply_styling: function (node, color, background, underline) {
+      if (color !== null) {
+        node.style.setProperty("color", color, "important");
+      }
+      if (background !== null) {
+        node.style.setProperty("background-color", background, "important");
+      }
+      if (underline !== null) {
+        node.style.setProperty("border-bottom", "0.125em solid " + underline, "important");
+      }
+    },
+    append_match_datas: function (matchinfo, target) {
+      for (var i = 0, ii = matchinfo.matches.length; i < ii; ++i) {
+        target.push(matchinfo.matches[i].data);
+      }
+    },
+    remove_non_bad: function (list) {
+      for (var i = 0; i < list.length; ) {
+        if (!list[i].bad) {
+          list.splice(i, 1);
+          continue;
+        }
+        ++i;
+      }
+    },
+    check_multiple: function (text, filters, data) {
+      var info, match, i;
+      info = new Filter.MatchInfo();
+      for (i = 0; i < filters.length; ++i) {
+        match = Filter.check_single(text, filters[i], data);
+        if (match !== false) {
+          info.any = true;
+          if (match !== true) {
+            info.matches.push(match);
+            if (match.data.bad) {
+              info.bad = true;
+            }
+          }
+        }
+      }
+      return info;
+    },
+    check_single: function (text, filter, data) {
+      var list, cat, i, m;
+
+      filter.regex.lastIndex = 0;
+      m = filter.regex.exec(text);
+      if (filter.flags === null) {
+        return (m !== null);
+      }
+
+      // Category filtering
+      cat = data.category.toLowerCase();
+      if ((list = filter.flags.only)) {
+        for (i = 0; i < list.length; ++i) {
+          if (list[i] === cat) {
+            break;
+          }
+        }
+        if (i >= list.length) {
+          return false;
+        }
+      }
+      if ((list = filter.flags.not)) {
+        for (i = 0; i < list.length; ++i) {
+          if (list[i] === cat) {
+            return false;
+          }
+        }
+      }
+
+      // Text filter
+      return (m === null) ? false : new Filter.Segment(m.index, m.index + m[0].length, filter.flags);
+    },
+    check: function (titlenode, data) {
+      var status, str, tags, result, i, info;
+
+      result = {
+        tags: [],
+        uploader: [],
+        title: [],
+      };
+
+      // Title
+      status = Filter.highlight("title", titlenode, data, result.title);
+
+      // Uploader
+      if (Filter.uploader.length > 0) {
+        if ((str = data.uploader)) {
+          str = Filter.normalize_api_string(str);
+          info = Filter.check_multiple(str, Filter.uploader, data);
+          if (info.any) {
+            Filter.append_match_datas(info, result.uploader);
+            if (info.bad) {
+              status = Filter.Bad;
+            }
+            else if (status === Filter.None) {
+              status = Filter.Good;
+            }
+          }
+        }
+      }
+
+      // Tags
+      if (Filter.tags.length > 0) {
+        if ((tags = data.tags) && tags.length > 0) {
+          for (i = 0; i < tags.length; ++i) {
+            info = Filter.check_multiple(tags[i], Filter.tags, data);
+            if (info.any) {
+              Filter.append_match_datas(info, result.tags);
+              if (info.bad) {
+                status = Filter.Bad;
+              }
+              else if (status === Filter.None) {
+                status = Filter.Good;
+              }
+            }
+          }
+          // Remove dups
+          result.tags = result.tags.filter(function (item, pos, self) {
+            return (self.indexOf(item) === pos);
+          });
+        }
+      }
+
+      // Remove non-bad filters on result.tags and result.uploader
+      if (status === Filter.Bad) {
+        Filter.remove_non_bad(result.uploader);
+        Filter.remove_non_bad(result.tags);
+      }
+
+      return [ status , (status === Filter.None ? null : result) ];
+    },
+    highlight: function (mode, node, data, results) {
+      if (Filter.title === null) {
+        Filter.init();
+      }
+
+      var filters, info, matches, match, text, frag, segment, cache, i, t, n1, n2;
+
+      filters = Filter[mode];
+      if (filters.length === 0) {
+        return Filter.None;
+      }
+
+      var hl_return = function (bad, node) {
+        if (bad) {
+          node.classList.add("exfilter-bad");
+          return Filter.Bad;
+        }
+        else {
+          node.classList.add("exfilter-good");
+          return Filter.Good;
+        }
+      };
+
+      // Cache for tags
+      text = node.textContent;
+      if ((cache = Filter.cache[mode]) !== undefined && (n1 = cache[text]) !== undefined) {
+        if (n1 === null) {
+          return Filter.None;
+        }
+
+        // Clone
+        n1 = n1.cloneNode(true);
+        node.innerHTML = "";
+        while ((n2 = n1.firstChild) !== null) {
+          node.appendChild(n2);
+        }
+        return hl_return(n1.classList.contains("exfilter-bad"), node);
+      }
+
+      // Check filters
+      info = Filter.check_multiple(text, filters, data);
+      if (!info.any) {
+        if (cache !== undefined) {
+          cache[text] = null;
+        }
+        return Filter.None;
+      }
+
+      // If bad, remove all non-bad filters
+      if (info.bad) {
+        for (i = 0; i < info.matches.length; ) {
+          if (!info.matches[i].data.bad) {
+            info.matches.splice(i, 1);
+            continue;
+          }
+          ++i;
+        }
+      }
+
+      // Results
+      if (results !== null) {
+        Filter.append_match_datas(info, results);
+      }
+
+      // Merge
+      matches = Filter.matches_to_segments(text, info.matches);
+
+      frag = d.createDocumentFragment();
+      for (i = 0; i < matches.length; ++i) {
+        segment = matches[i];
+        t = text.substring(segment.start, segment.end);
+        if (segment.data.length === 0) {
+          frag.appendChild($.tnode(t));
+        }
+        else {
+          n1 = $.create("span", { className: "exfilter-text" });
+          n2 = $.create("span", { className: "exfilter-text-inner" });
+          n2.textContent = t;
+          n1.appendChild(n2);
+          frag.appendChild(n1);
+          Filter.apply_styles(n1, segment.data);
+        }
+      }
+
+      // Replace
+      node.innerHTML = "";
+      node.appendChild(frag);
+      if (cache !== undefined) {
+        cache[text] = node;
+      }
+      return hl_return(info.bad, node);
+    },
+    highlight_tag: function (node, link, filter_data) {
+      if (filter_data[0] === Filter.Bad) {
+        node.classList.add("exfilter-bad");
+        link.classList.add("exfilter-bad");
+        link.classList.remove("exfilter-good");
+      }
+      else {
+        node.classList.add("exfilter-good");
+        link.classList.add("exfilter-good");
+      }
+
+      // Get styles
+      var color = null, background = null, underline = null, n, n1, n2;
+
+      var get_style = function (styles) {
+        var i, s, style;
+        for (i = 0; i < styles.length; ++i) {
+          if ((style = styles[i].link) !== undefined) {
+            if ((s = style.color)) {
+              color = s;
+            }
+            if ((s = style.background)) {
+              background = s;
+            }
+            if ((s = style.underline)) {
+              underline = s;
+            }
+          }
+        }
+      };
+
+      get_style(filter_data[1].uploader);
+      get_style(filter_data[1].title);
+      get_style(filter_data[1].tags);
+
+      // Apply styles
+      if (color !== null || background !== null || underline !== null) {
+        n1 = $.create("span", { className: "exfilter-text" });
+        n2 = $.create("span", { className: "exfilter-text-inner" });
+        while ((n = node.firstChild) !== null) {
+          n2.appendChild(n);
+        }
+        n1.appendChild(n2);
+        node.appendChild(n1);
+        Filter.apply_styling(n1, color, background, underline);
+      }
+    },
+    settings_color_change: function () {
+      var n = this.nextSibling, m;
+      if (n) {
+        n.value = this.value.toUpperCase();
+        n = n.nextSibling;
+        if (n) {
+          m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(this.value);
+          if (m !== null) {
+            n.value = "rgba(" + parseInt(m[1], 16) + "," + parseInt(m[2], 16) + "," + parseInt(m[3], 16) + ",1)";
+          }
+        }
+      }
+    }
+  };
   Main = {
     namespace: 'exlinks-',
     version: '#VERSION#',
@@ -1574,7 +2118,7 @@
       Debug.timer.start('format');
       Debug.value.set('failed',0);
 
-      var uid, links, link, button, data, actions, failed = {}, failure, failtype=[];
+      var uid, links, link, button, data, actions, failed = {}, failure, failtype=[], hl;
       for ( var i = 0, ii = queue.length; i < ii; i++ )
       {
         uid = queue[i];
@@ -1588,6 +2132,13 @@
               link = links[k];
               button = $.id(link.id.replace('gallery','button'));
               link.innerHTML = data.title;
+
+              if ((hl = Filter.check(link, data))[0] !== Filter.None) {
+                var c = (hl[0] === Filter.Good) ? conf['Good Tag Marker'] : conf['Bad Tag Marker'];
+                button.textContent = button.textContent.replace(/\]\s*$/, c + "]");
+                Filter.highlight_tag(button, link, hl);
+              }
+
               $.off(button,'click',Main.singlelink);
               if(conf['Gallery Details'] === true) {
                 $.on(link,[
@@ -1679,7 +2230,6 @@
       link = $.id(e.target.id.replace('button','gallery'));
       Main.single(link);
       Main.update();
-
     },
     single: function(link) {
       var type, uid, token, page, check;
@@ -1947,7 +2497,7 @@
         }
 
       }
-      
+
       Debug.log('Total posts: '+Debug.value.get('post_total')+' Linkified: '+Debug.value.get('linkified')+' Processed: '+Debug.value.get('posts')+' Links: '+Debug.value.get('processed')+' Time: '+Debug.timer.stop('process'));
       Main.update();
     },
